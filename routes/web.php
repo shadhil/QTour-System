@@ -1,9 +1,10 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\PageController;
 use App\Http\Controllers\UserController;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,11 +17,29 @@ use App\Http\Controllers\UserController;
 |
 */
 
-Route::resource('/app/user', UserController::class);
+
+Route::get('/sign-in', [UserController::class, 'signingView'])->name('sign-view');
+Route::post('/sign-in', [UserController::class, 'signIn'])->name('sign-in');
+Route::get('/sign-out', [UserController::class, 'signOut'])->name('sign-out');
 
 Route::get('/', function () {
-    return view('reservations.new');
+
+    //echo auth()->user()->email;
+    //$user = Auth::user()->hasRole('developer'); //User::where('email', Auth::user()->id);
+    //dd(auth()->user()->hasRole('developer')); //will return true, if user has role
+    //dd(auth()->user()->givePermissionsTo('create-tasks')); // will return permission, if not null
+    //dd(auth()->user()->can('create-tasks')); // will return true, if user has permission
+    //return view('reservations.new');
 })->name('null');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::resource('/users', UserController::class);
+    Route::get('/test', function () {
+        return view('reservations.new');
+    })->name('null');
+});
+
 
 Route::get('/login', function () {
     return view('login.main');

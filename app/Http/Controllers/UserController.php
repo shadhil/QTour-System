@@ -3,12 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Http\Request\LoginRequest;
+use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+
+    public function signIn(LoginRequest $request)
+    {
+        if (!Auth::attempt([
+            'email' => $request->email,
+            'password' => $request->password
+        ])) {
+            throw new Exception('Wrong email or password.');
+        }
+    }
+
+    public function signingView()
+    {
+        return view('login.main');
+    }
+
+    public function signOut()
+    {
+        Auth::logout();
+        return redirect('/sign-in');
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -19,6 +42,15 @@ class UserController extends Controller
         $data['title'] = 'Blog';
         $data['keywords'] = 'Blog, AfyaTrack';
         $data['description'] = 'App Admins';
+
+
+        $users = User::with('permissions')->with('roles')->paginate(4);
+        $data['users'] = $users; //json_encode($users);
+
+        //echo "<pre>";
+        //print_r(json_decode(json_encode($data), true));
+        //die;
+        //dd($data);
 
         return view('pages.users', $data);
     }
@@ -87,19 +119,5 @@ class UserController extends Controller
     public function destroy($id)
     {
         //
-    }
-
-    public function signIn(LoginRequest $request)
-    {
-        if (!Auth::attempt([
-            'email' => $request->email,
-            'password' => $request->password
-        ])) {
-            throw new Exception('Wrong email or password.');
-        }
-    }
-
-    public function signOut()
-    {
     }
 }

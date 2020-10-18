@@ -12,7 +12,8 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     protected $connection = 'app_db';
-    use HasFactory, Notifiable, SoftDeletes, HasPermissionsTrait;
+    use  HasPermissionsTrait;
+    use HasFactory, Notifiable, SoftDeletes;
 
 
     /**
@@ -21,7 +22,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'first_name', 'last_name', 'email', 'password',
     ];
 
     /**
@@ -42,24 +43,18 @@ class User extends Authenticatable
         //'email_verified_at' => 'datetime',
     ];
 
-    /**
-     * The attributes that appends to returned entities.
-     *
-     * @var array
-     */
-    protected $appends = ['photo'];
-
-    /**
-     * The getter that return accessible URL for user photo.
-     *
-     * @var array
-     */
-    public function getPhotoUrlAttribute()
+    public function permissions()
     {
-        if ($this->foto !== null) {
-            return url('media/user/' . $this->id . '/' . $this->foto);
-        } else {
-            return url('media-example/no-image.png');
-        }
+        return $this->belongsToMany(Permission::class, 'users_permissions',);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'users_roles');
+    }
+
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class, 'admin_id');
     }
 }

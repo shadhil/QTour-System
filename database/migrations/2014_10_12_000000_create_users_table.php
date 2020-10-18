@@ -16,9 +16,10 @@ class CreateUsersTable extends Migration
         Schema::connection('app_db')->create('users', function (Blueprint $table) {
             $table->id('id');
             $table->string('first_name', 50);
-            $table->string('last_name', 50);
+            $table->string('last_name', 50);;
+            $table->string('gender', 6);
             $table->string('email')->unique();
-            $table->string('phone_number', 20)->nullable();
+            $table->string('phone_number', 25)->nullable();
             $table->string('password');
             $table->string('photo')->nullable();
             $table->unsignedBigInteger('company_id');

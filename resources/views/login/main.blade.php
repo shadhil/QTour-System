@@ -86,12 +86,12 @@
                 cash('#btn-login').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
                 await helper.delay(1500)
 
-                axios.post(`login`, {
+                axios.post(`sign-in`, {
                     email: email,
                     password: password,
                     remember_me: rememberMe
                 }).then(res => {
-                    location.href = '/'
+                    location.href = '/dashboard'
                 }).catch(err => {
                     cash('#btn-login').html('Login')
                     if (err.response.data.message != 'Wrong email or password.') {
