@@ -15,59 +15,20 @@
         <div class="hidden md:block mx-auto text-gray-600"></div>
         <div class="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto md:ml-0">
             <div class="w-56 relative text-gray-700 dark:text-gray-300">
-                <input type="text" class="input w-56 box pr-10 placeholder-theme-13" placeholder="Search...">
+                <input id="input-search" type="text" class="input w-56 box pr-10 placeholder-theme-13"
+                    placeholder="Search..." value="">
                 <i class="w-4 h-4 absolute my-auto inset-y-0 mr-3 right-0" data-feather="search"></i>
             </div>
         </div>
     </div>
-    <!-- BEGIN: Users Layout -->
-    @php
-    $allUsers = json_decode($users, true);
-    @endphp
-    @foreach ($users as $user)
-    <div class="intro-y col-span-12 md:col-span-6">
-        <div class="box">
-            <div class="flex flex-col lg:flex-row items-center p-5 border-b border-gray-200 dark:border-dark-5">
-                <div class="w-24 h-24 lg:w-12 lg:h-12 image-fit lg:mr-1">
-                    <img alt="Midone Tailwind HTML Admin Template" class="rounded-full"
-                        src="{{asset('dist/images/profile-13.jpg')}}">
-                </div>
-                <div class="lg:ml-2 lg:mr-auto text-center lg:text-left mt-3 lg:mt-0">
-                    <a href="" class="font-medium">{{ $user['first_name'].' '.$user['last_name'] }}</a>
-                    <div class="text-gray-600 text-xs">Frontend Engineer</div>
-                </div>
-                <div class="flex -ml-2 lg:ml-0 lg:justify-end mt-3 lg:mt-0">
-                    <a href=""
-                        class="w-8 h-8 rounded-full flex items-center justify-center border dark:border-dark-5 ml-2 text-gray-500 zoom-in tooltip"
-                        title="Facebook"> <i class="w-3 h-3 fill-current" data-feather="facebook"></i> </a>
-                    <a href=""
-                        class="w-8 h-8 rounded-full flex items-center justify-center border dark:border-dark-5 ml-2 text-gray-500 zoom-in tooltip"
-                        title="Twitter"> <i class="w-3 h-3 fill-current" data-feather="twitter"></i> </a>
-                    <a href=""
-                        class="w-8 h-8 rounded-full flex items-center justify-center border dark:border-dark-5 ml-2 text-gray-500 zoom-in tooltip"
-                        title="Linked In"> <i class="w-3 h-3 fill-current" data-feather="linkedin"></i> </a>
-                </div>
-            </div>
-            <div class="flex flex-wrap lg:flex-no-wrap items-center justify-center p-5">
-                <div class="w-full lg:w-1/2 mb-4 lg:mb-0 mr-auto">
-                    <div class="flex">
-                        <div class="text-gray-600 text-xs mr-auto">Progress</div>
-                        <div class="text-xs font-medium">20</div>
-                    </div>
-                    <div class="w-full h-1 mt-2 bg-gray-400 dark:bg-dark-1 rounded-full">
-                        <div class="w-1/4 h-full bg-theme-1 dark:bg-theme-10 rounded-full"></div>
-                    </div>
-                </div>
-                <button class="button button--sm text-white bg-theme-1 mr-2">Message</button>
-                <button
-                    class="button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300">Profile</button>
-            </div>
-        </div>
-    </div>
-    @endforeach
-    {{ $users->links('vendor.pagination.tailwind') }}
-    <!-- END: Users Layout -->
+
 </div>
+<div id="table-data" class="grid grid-cols-12 gap-6 mt-5">
+    @include('users.users-table')
+
+
+</div>
+
 
 <!-- BEGIN: Header & Footer Modal -->
 <div class="modal" id="add-user">
@@ -133,9 +94,118 @@
 <!-- END: Header & Footer Modal -->
 @endsection
 
-@push('script')
+@section('script')
+
 <script>
+    cash('#input-count').val('20');
+    async function renderUsers(isNav = false, page = '1') {
+        // Filter Details
+        let count = cash('#input-count').val();
+        let search = cash('#input-search').val();
+
+        let url = '/users/filter';
+        if (isNav) {
+            url = '/users/navigate';
+        }
+
+        await helper.delay(500)
+
+        axios.post(url, {
+        count: count,
+        search: search,
+        page: page
+        }).then(res => {
+            cash('#table-data').html(res.data);
+            cash('#input-search').val(search);
+            cash('#input-count').val(count);
+            feather.replace();
+        //console.log(res);
+        }).catch(err => {
+            console.log('Error!!!');
+        })
+    }
+
+    function delay(callback, ms) {
+        var timer = 0;
+        return function() {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                callback.apply(context, args);
+            }, ms || 0);
+        };
+    }
+
+    // function filterName() {
+    //     var search = document.getElementById("input-search");
+    //     //console.log(search.value);
+    //     //renderUsers();
+    // }
+
+    cash('#input-search').on('keyup', delay(function (e) {
+        let search = cash('#input-search').val()
+        if (e.keyCode === 13) {
+            renderUsers()
+        }else {
+            renderUsers()
+        }
+        console.log(search)
+    }, 500))
+
+    function filterCount() {
+        var count = document.getElementById("input-count");
+        console.log(count.value);
+        renderUsers();
+    }
+
+    function filterPages(page) {
+        //var page = document.getElementsByClassName("pagination__link");
+        console.log(page);
+        renderUsers(true, page)
+    }
+
+
+    cash('#input-count0').on('change', function(e) {
+        let count = cash('#input-count').val()
+        console.log(count)
+        renderUsers()
+    })
+
+    //document.querySelectorAll('.my #awesome selector');
+    // cash('a').on ( 'click', '.pagination__link', event => {
+    //     //event.preventDefault();
+    //     let page = event.target.dataset.pageNum;
+    //     console.log(page);
+    //     renderUsers(true, page);
+    // })
+
     cash(function () {
+        feather.replace();
+        //const axios = require('axios').default;
+
+
+
+
+            cash('#input-search0').on('keyup', function(e) {
+                let search = cash('#input-search').val()
+                if (e.keyCode === 13) {
+                    renderUsers()
+                }else if (search.length > 2 || search.length == 0) {
+                    renderUsers()
+                }
+                console.log(search);
+            })
+
+            cash('#login-form').on('keyup', function(e) {
+                if (e.keyCode === 13) {
+                    login()
+                }
+            })
+
+            cash('#btn-login').on('click', function() {
+                login()
+            })
+
             async function login() {
                 // Reset state
                 //cash('#login-form').find('.input').removeClass('border-theme-6')
@@ -170,15 +240,7 @@
                 })
             }
 
-            cash('#login-form').on('keyup', function(e) {
-                if (e.keyCode === 13) {
-                    login()
-                }
-            })
 
-            cash('#btn-login').on('click', function() {
-                login()
-            })
         })
 </script>
-@endpush
+@endsection

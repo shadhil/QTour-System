@@ -34,7 +34,11 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::resource('/users', UserController::class);
+    Route::get('/users', [UserController::class, 'load_users'])->name('users');
+    Route::post('/users/filter', [UserController::class, 'filter_users']);
+    Route::post('/users/navigate', [UserController::class, 'navigate_users']);
+    Route::post('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    //Route::resource('/users', UserController::class);
     Route::get('/test', function () {
         return view('reservations.new');
     })->name('null');

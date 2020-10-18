@@ -7,12 +7,15 @@
         {{-- Previous Page Link --}}
         @if (!$paginator->onFirstPage())
         <li>
-            <a class="pagination__link" href="{{ $paginator->url(1) }}"> <i class="w-4 h-4"
+            <a class="pagination__link" href="javascript:void(0);" data-page-num={{ 1 }}
+                onclick="filterPages(this.getAttribute('data-page-num'))"> <i class="w-4 h-4"
                     data-feather="chevrons-left"></i> </a>
         </li>
         <li>
-            <a class="pagination__link" href="{{ $paginator->url(($paginator->currentPage() - 1)) }}"> <i
-                    class="w-4 h-4" data-feather="chevron-left"></i> </a>
+            <a class="pagination__link" href="javascript:void(0);" data-page-num={{ ($paginator->currentPage() - 1) }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">
+                <i class="w-4 h-4" data-feather="chevron-left"></i>
+            </a>
         </li>
         @endif
 
@@ -37,18 +40,24 @@
 
         @if ($paginator->onFirstPage() && $page == $paginator->currentPage())
         <li> <span class="pagination__link pagination__link--active">1</span> </li>
-        <li> <a class="pagination__link" href="{{ $paginator->url(2) }}">2</a> </li>
-        <li> <a class="pagination__link" href="{{ $paginator->url(3) }}">3</a> </li>
+        <li> <a class="pagination__link" href="javascript:void(0);" data-page-num={{ 2 }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">2</a>
+        </li>
+        <li> <a class="pagination__link" href="javascript:void(0);" data-page-num={{ 3 }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">3</a>
+        </li>
         @elseif($paginator->currentPage() == $paginator->lastPage() && $page == $paginator->currentPage())
-        <li> <a class="pagination__link"
-                href="{{ $paginator->url($paginator->currentPage() - 2) }}">{{ ($paginator->lastPage() - 2)}}</a> </li>
-        <li> <a class="pagination__link"
-                href="{{ $paginator->url($paginator->currentPage() -1) }}">{{ ($paginator->lastPage() - 1)}}</a> </li>
+        <li> <a class="pagination__link" href="javascript:void(0);" data-page-num={{ ($paginator->lastPage() - 2) }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">{{ ($paginator->lastPage() - 2)}}</a> </li>
+        <li> <a class="pagination__link" href="javascript:void(0);" data-page-num={{ ($paginator->lastPage() - 1) }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">{{ ($paginator->lastPage() - 1)}}</a> </li>
         <li> <span class="pagination__link pagination__link--active">{{ $paginator->lastPage()}}</span> </li>
         @elseif ($page == $paginator->currentPage())
-        <li> <a class="pagination__link" href="{{ $paginator->url(($page - 1)) }}">{{ ($page - 1) }}</a> </li>
+        <li> <a class="pagination__link" href="javascript:void(0);" data-page-num={{ ($page - 1) }}
+                onclick="filterPages(this.getAttribute('data-page-num'))"> {{ ($page - 1) }} </a> </li>
         <li> <span class="pagination__link pagination__link--active">{{ $page }}</span> </li>
-        <li> <a class="pagination__link" href="{{ $paginator->url(($page + 1)) }}">{{ ($page + 1) }}</a> </li>
+        <li> <a class="pagination__link" href="javascript:void(0);" data-page-num={{ ($page + 1) }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">{{ ($page + 1) }}</a> </li>
         @endif
 
         @else
@@ -56,7 +65,8 @@
         @if ($page == $paginator->currentPage())
         <li> <span class="pagination__link pagination__link--active">{{ $page }}</span> </li>
         @else
-        <li> <a class="pagination__link" href="{{ $url }}">{{ $page }}</a> </li>
+        <li> <a class="pagination__link" href="javascript:void(0);" data-page-num={{ $page }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">{{ $page }}</a> </li>
         @endif
 
         @endif
@@ -75,23 +85,26 @@
         {{-- Next Page Link --}}
         @if ($paginator->currentPage() != $paginator->lastPage())
         <li>
-            <a class="pagination__link" href="{{ $paginator->url(($paginator->currentPage() + 1)) }}"> <i
-                    class="w-4 h-4" data-feather="chevron-right"></i>
+            <a class="pagination__link" href="javascript:void(0);" data-page-num={{ ($paginator->currentPage() + 1) }}
+                onclick="filterPages(this.getAttribute('data-page-num'))">
+                <i class="w-4 h-4" data-feather="chevron-right"></i>
             </a>
         </li>
         <li>
-            <a class="pagination__link" href="{{ $paginator->url($paginator->lastPage()) }}"> <i class="w-4 h-4"
+            <a class="pagination__link" href="javascript:void(0);" data-page-num={{ $paginator->lastPage() }}
+                onclick="filterPages(this.getAttribute('data-page-num'))"> <i class="w-4 h-4"
                     data-feather="chevrons-right"></i> </a>
         </li>
         @endif
 
         @endif
     </ul>
-    <select class="w-20 input box mt-3 sm:mt-0">
-        <option>10</option>
-        <option>25</option>
-        <option>35</option>
-        <option>50</option>
+    <select id="input-count" class="w-20 input box mt-3 sm:mt-0" onchange="filterCount()">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="30">30</option>
+        <option value="40">40</option>
+        <option value="50">50</option>
     </select>
 </div>
 <!-- END: Pagination -->

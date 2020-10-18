@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
+    private $items;
+
+    public function __construct()
+    {
+        $this->items = 20;
+    }
 
     public function signIn(LoginRequest $request)
     {
@@ -37,14 +43,16 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function load_users()
     {
+        $items = 6;
+
         $data['title'] = 'Blog';
         $data['keywords'] = 'Blog, AfyaTrack';
         $data['description'] = 'App Admins';
 
 
-        $users = User::with('permissions')->with('roles')->paginate(4);
+        $users = User::with('permissions')->with('roles')->paginate($this->items);
         $data['users'] = $users; //json_encode($users);
 
         //echo "<pre>";
@@ -52,7 +60,47 @@ class UserController extends Controller
         //die;
         //dd($data);
 
-        return view('pages.users', $data);
+        return view('users.users', compact('users'));
+    }
+
+    function filter_users(Request $request)
+    {
+        if ($request->post()) {
+            $this->items = $request->count;
+            $search = $request->search;
+
+            $users = User::where('users.first_name', 'like', '%' . $search . '%')
+                ->orWhere('users.first_name', 'like', '%' . $search . '%')
+                ->with('permissions')->with('roles')
+                ->paginate($this->items);
+
+            // echo "<pre>";
+            // print_r(json_decode(json_encode($users), true));
+            // die;
+            //dd($data);
+
+            //return compact('users');
+            return view('users.users-table', compact('users'))->render();
+        }
+    }
+
+
+    function navigate_users(Request $request)
+    {
+        if ($request->post()) {
+            $this->items = $request->count;
+            $skip = (int)$this->items * $request->page;
+            $search = $request->search;
+
+            $users = User::where('first_name', 'like', '%' . $search . '%')
+                ->orWhere('last_name', 'like', '%' . $search . '%')
+                ->with('permissions')->with('roles')
+                ->skip($skip)
+                ->take($this->items)
+                ->paginate($this->items);
+
+            return view('users.users-table', compact('users'))->render();
+        }
     }
 
     /**

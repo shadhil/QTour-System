@@ -1,6 +1,7 @@
 @extends('../layout/main')
 
 @section('content')
+@livewire('users')
 <div class="grid grid-cols-12 gap-6">
     <div class="col-span-12 xxl:col-span-9 grid grid-cols-12 gap-6">
         <!-- BEGIN: General Report -->
