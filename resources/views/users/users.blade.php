@@ -8,8 +8,8 @@
 <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="intro-y col-span-12 flex flex-wrap sm:flex-no-wrap items-center mt-2">
         <div class="text-center">
-            <a href="javascript:;" data-toggle="modal" data-target="#add-user"
-                class="button inline-block bg-theme-1 text-white">Add New User</a>
+            <a href="javascript:void(0);" class="button inline-block bg-theme-1 text-white" id="add-user">Add
+                New User</a>
         </div>
 
         <div class="hidden md:block mx-auto text-gray-600"></div>
@@ -31,52 +31,76 @@
 
 
 <!-- BEGIN: Header & Footer Modal -->
-<div class="modal" id="add-user">
-    <div class="modal__content">
+<div class="modal" id="user-modal">
+    <div class="modal__content modal__content--lg">
         <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
-            <h2 class="font-medium text-base mr-auto">
-                Broadcast Message
+            <h2 class="font-medium text-base mr-auto modal-title">
+                User Profile
             </h2>
-            <button
-                class="button border items-center text-gray-700 dark:border-dark-5 dark:text-gray-300 hidden sm:flex">
-                <i data-feather="file" class="w-4 h-4 mr-2"></i> Download Docs </button>
+            <button id="user-quotation1"
+                class="button user-quotation border items-center text-gray-700 dark:border-dark-5 dark:text-gray-300 hidden sm:flex">
+                <i data-feather="file" class="w-4 h-4 mr-2"></i> Quotation(s) </button>
             <div class="dropdown sm:hidden">
                 <a class="dropdown-toggle w-5 h-5 block" href="javascript:;"> <i data-feather="more-horizontal"
                         class="w-5 h-5 text-gray-700 dark:text-gray-600"></i>
                 </a>
                 <div class="dropdown-box w-40">
                     <div class="dropdown-box__content box dark:bg-dark-1 p-2">
-                        <a href="javascript:;"
-                            class="flex items-center p-2 transition duration-300 ease-in-out bg-white dark:bg-dark-1 hover:bg-gray-200 dark:hover:bg-dark-2 rounded-md">
-                            <i data-feather="file" class="w-4 h-4 mr-2"></i> Download Docs </a>
+                        <a href="javascript:;" id="user-quotation2"
+                            class="user-quotation flex items-center p-2 transition duration-300 ease-in-out bg-white dark:bg-dark-1 hover:bg-gray-200 dark:hover:bg-dark-2 rounded-md">
+                            <i data-feather="file" class="w-4 h-4 mr-2"></i> Quotation(s) </a>
                     </div>
                 </div>
             </div>
         </div>
         <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
             <div class="col-span-12 sm:col-span-6">
-                <label>From</label>
-                <input type="text" class="input w-full border mt-2 flex-1" placeholder="example@gmail.com">
+                <label>First Name</label>
+                <input id="first_name" type="text" class="input w-full border mt-2 flex-1" placeholder="John">
             </div>
             <div class="col-span-12 sm:col-span-6">
-                <label>To</label>
-                <input type="text" class="input w-full border mt-2 flex-1" placeholder="example@gmail.com">
+                <label>Last Name</label>
+                <input id="last_name" type="text" class="input w-full border mt-2 flex-1" placeholder="Doe">
             </div>
             <div class="col-span-12 sm:col-span-6">
-                <label>Subject</label>
-                <input type="text" class="input w-full border mt-2 flex-1" placeholder="Important Meeting">
+                <label>Location</label>
+                <input id="location" type="text" class="input w-full border mt-2 flex-1" placeholder="Office/ Resident">
             </div>
             <div class="col-span-12 sm:col-span-6">
-                <label>Has the Words</label>
-                <input type="text" class="input w-full border mt-2 flex-1" placeholder="Job, Work, Documentation">
+                <label>Gender</label>
+                <select id="gender" class="input w-full border mt-2 flex-1">
+                    <option value="" placeholder="Pick Gender"></option>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                </select>
             </div>
             <div class="col-span-12 sm:col-span-6">
-                <label>Doesn't Have</label>
-                <input type="text" class="input w-full border mt-2 flex-1" placeholder="Job, Work, Documentation">
+                <label>Phone Number</label>
+                <input id="phone" type="text" class="input w-full border mt-2 flex-1" placeholder="0712 234 567">
             </div>
             <div class="col-span-12 sm:col-span-6">
-                <label>Size</label>
-                <select class="input w-full border mt-2 flex-1">
+                <label>Email</label>
+                <input id="email" type="text" class="input w-full border mt-2 flex-1" placeholder="example@email.com"
+                    autocomplete="nope">
+            </div>
+            <div class="col-span-12 sm:col-span-6">
+                <label>Password</label>
+                <input id="password" type="password" class="input w-full border mt-2 flex-1" placeholder="Password"
+                    autocomplete="new-password">
+            </div>
+            <div class="col-span-12 sm:col-span-6">
+                <label>Role(s)</label>
+                <select id="roles" data-placeholder="Select user role" data-search="true" class="tail-select w-full"
+                    multiple>
+                    <option>Admin</option>
+                    <option>Accountat</option>
+                    <option>Booker</option>
+                </select>
+            </div>
+            <div class="col-span-12">
+                <label>Permissions</label>
+                <select id="permissions" data-placeholder="Select task permitted to user" data-search="true"
+                    class="tail-select w-full" multiple>
                     <option>10</option>
                     <option>25</option>
                     <option>35</option>
@@ -85,9 +109,9 @@
             </div>
         </div>
         <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-            <button type="button" data-dismiss="modal"
+            <button id="btn-cancel" type="button" data-dismiss="modal"
                 class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
-            <button type="button" class="button w-20 bg-theme-1 text-white">Send</button>
+            <button id="btn-send" type="button" class="button w-20 bg-theme-1 text-white">Send</button>
         </div>
     </div>
 </div>
@@ -97,7 +121,8 @@
 @section('script')
 
 <script>
-    cash('#input-count').val('20');
+    //** Page Navgation & Filter JS **//
+    cash('#input-count').val('10');
     async function renderUsers(isNav = false, page = '1') {
         // Filter Details
         let count = cash('#input-count').val();
@@ -159,9 +184,48 @@
     }
 
     function filterPages(page) {
-        //var page = document.getElementsByClassName("pagination__link");
         console.log(page);
         renderUsers(true, page)
+    }
+//** (END) Page Navgation & Filter JS **//
+
+//** Modal manipulation JS **//
+    const btnNewUser = document.getElementById("add-user")
+    const btnQuotation1 = document.getElementById("user-quotation1")
+    const btnQuotation2 = document.getElementById("user-quotation2")
+    const btnCancel = document.getElementById("btn-cancel")
+    const btnSend = document.getElementById("btn-send")
+
+    btnNewUser.onclick = event => {
+        console.log('Clicked!');
+        //e.preventDefault();
+        cash('#user-modal').modal('show');
+        cash('.modal-title').text("Add User");
+        cash('#send').val("Send");
+        cash('#operation').val("addUser");
+        cash('#contact_uploaded_logo').html('');
+        cash('#img_name0').val('');
+        cash('#roles').val('');
+        cash('#permissions').val('');
+    }
+
+    btnQuotation1.onclick = event => {
+        console.log('Quotation - 1');
+        //alert('Clicked');
+    }
+    btnQuotation2.onclick = event => {
+        console.log('Quotation - 2!');
+    //alert('Clicked');
+    }
+
+    btnCancel.onclick = event => {
+        console.log('Cancel!');
+        //alert('Clicked');
+    }
+
+    btnSend.onclick = event => {
+        console.log('Send!');
+        alert('Clicked');
     }
 
 

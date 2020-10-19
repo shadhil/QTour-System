@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\CrewController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HotelController;
+use App\Http\Controllers\ParkController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReservationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Models\User;
@@ -37,7 +42,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/users', [UserController::class, 'load_users'])->name('users');
     Route::post('/users/filter', [UserController::class, 'filter_users']);
     Route::post('/users/navigate', [UserController::class, 'navigate_users']);
-    Route::post('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
+    Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
+    Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
+    Route::get('/drivers-crews', [CrewController::class, 'index'])->name('drivers-crews');
+    Route::get('/parks', [ParkController::class, 'index'])->name('parks');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
     //Route::resource('/users', UserController::class);
     Route::get('/test', function () {
         return view('reservations.new');

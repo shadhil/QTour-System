@@ -19,44 +19,50 @@
             <div class="side-nav__devider my-6"></div>
             <ul>
                 <li>
-                    <a href="index.html" class="side-menu side-menu--active">
+                    <a href="{{ route('dashboard') }}"
+                        class="side-menu {{ request()->routeIs('dashboard*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="home"></i> </div>
                         <div class="side-menu__title"> Dashboard </div>
                     </a>
                 </li>
                 <li>
-                    <a href="side-menu-light-inbox.html" class="side-menu">
+                    <a href="{{ route('reservations.new') }}"
+                        class="side-menu {{ request()->routeIs('reservations*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
                         <div class="side-menu__title"> Reservations </div>
                     </a>
                 </li>
                 <li>
-                    <a href="side-menu-light-inbox.html" class="side-menu">
+                    <a href="{{ route('reservations') }}"
+                        class="side-menu {{ request()->routeIs('hotels*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
-                        <div class="side-menu__title"> Accomodations </div>
+                        <div class="side-menu__title"> Hotels </div>
                     </a>
                 </li>
                 <li>
-                    <a href="side-menu-light-inbox.html" class="side-menu">
+                    <a href="{{ route('users') }}"
+                        class="side-menu {{ request()->routeIs('drivers-crews*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
                         <div class="side-menu__title"> Drivers &amp; Crews </div>
                     </a>
                 </li>
                 <li>
-                    <a href="side-menu-light-inbox.html" class="side-menu">
+                    <a href="{{ route('users') }}"
+                        class="side-menu {{ request()->routeIs('parks*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
                         <div class="side-menu__title"> Parks </div>
                     </a>
                 </li>
                 <li class="side-nav__devider my-6"></li>
                 <li>
-                    <a href="side-menu-light-inbox.html" class="side-menu">
+                    <a href="{{ route('users') }}"
+                        class="side-menu {{ request()->routeIs('users*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
                         <div class="side-menu__title"> Users </div>
                     </a>
                 </li>
                 <li>
-                    <a href="side-menu-light-inbox.html" class="side-menu">
+                    <a href="#" class="side-menu {{ request()->routeIs('reports*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
                         <div class="side-menu__title"> Reports </div>
                     </a>

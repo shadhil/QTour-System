@@ -45,7 +45,7 @@ class UserController extends Controller
      */
     public function load_users()
     {
-        $items = 6;
+        $items = 10;
 
         $data['title'] = 'Blog';
         $data['keywords'] = 'Blog, AfyaTrack';

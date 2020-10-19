@@ -25,6 +25,8 @@ class CreateCompaniesTable extends Migration
             $table->unsignedBigInteger('owner_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('owner_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
         });
     }
 
