@@ -28,11 +28,11 @@
         {{-- Pagination Elements --}}
         @foreach ($elements as $element)
         {{-- "Three Dots" Separator --}}
-        @if (is_string($element))
+        {{-- @if (is_string($element))
         <span aria-disabled="true">
-            <li> <span class="pagination__link">... {{ $element }}</span> </li>
+            <li> <span class="pagination__link">*** {{ $element }}</span> </li>
         </span>
-        @endif
+        @endif --}}
         {{-- Array Of Links --}}
         @if (is_array($element))
         @foreach ($element as $page => $url)

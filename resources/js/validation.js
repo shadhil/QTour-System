@@ -1,7 +1,7 @@
 import Pristine from 'pristinejs'
 import Toastify from "toastify-js";
 
-(function(cash) { 
+(function(cash) {
     "use strict";
 
     function onSubmit(pristine) {
@@ -31,13 +31,13 @@ import Toastify from "toastify-js";
             }).showToast()
         }
     }
-        
+
     cash('.validate-form').each(function() {
         let pristine = new Pristine(this, {
             classTo: 'input-form',
             errorClass: 'has-error',
             errorTextParent: 'input-form',
-            errorTextClass: 'text-theme-6 mt-2' 
+            errorTextClass: 'text-theme-6 mt-2'
         })
 
         pristine.addValidator(cash(this).find('input[type="url"]')[0], function(value) {

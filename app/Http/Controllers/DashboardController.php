@@ -8,6 +8,11 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return view('pages.dashboard');
+        $data['title'] = 'Dashboard';
+        $data['breadcrumbs'] = [
+            ['url' => '/user', 'title' => 'Mid Page']
+        ];
+
+        return view('pages.dashboard', $data);
     }
 }

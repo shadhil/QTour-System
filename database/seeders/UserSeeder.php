@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Permission;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 use App\Models\User;
@@ -30,6 +32,12 @@ class UserSeeder extends Seeder
         // ]);
 
         // Fake users
-        User::factory()->times(80)->create();
+        User::factory()->times(100)->create();
+        foreach (User::all() as $user) {
+            $roles = Role::inRandomOrder()->take(rand(1, 1))->pluck('id');
+            $permissions = Permission::inRandomOrder()->take(rand(1, 2))->pluck('id');
+            $user->roles()->attach($roles);
+            $user->permissions()->attach($permissions);
+        }
     }
 }

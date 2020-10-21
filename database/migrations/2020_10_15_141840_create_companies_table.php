@@ -26,7 +26,7 @@ class CreateCompaniesTable extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            $table->foreign('owner_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
+            // $table->foreign('owner_id')->references('id')->on('users')->onUpdate('cascade')->onDelete('set null');
         });
     }
 

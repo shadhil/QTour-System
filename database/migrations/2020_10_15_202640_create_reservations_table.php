@@ -31,7 +31,7 @@ class CreateReservationsTable extends Migration
             $table->timestamps();
 
             //FOREIGN KEY CONSTRAINTS
-            $table->foreign('driver_id')->references('id')->on('drivers')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('driver_id')->references('id')->on('crew_members')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('admin_id')->references('id')->on(new Expression($database . '.users'))->onUpdate('cascade')->onDelete('set null');
         });
     }

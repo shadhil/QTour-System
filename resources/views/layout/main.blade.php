@@ -1,7 +1,7 @@
 @extends('../layout/base')
 
 @section('head')
-<title>Dynamic - Midone - Laravel Admin Dashboard Starter Kit</title>
+<title>{{ $title ?? '' }} - QTour - Tourism Quotation Management System</title>
 @endsection
 
 @section('body')
@@ -28,28 +28,21 @@
                 <li>
                     <a href="{{ route('reservations.new') }}"
                         class="side-menu {{ request()->routeIs('reservations*') ? 'side-menu--active' : '' }}">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
+                        <div class="side-menu__icon"> <i data-feather="clipboard"></i> </div>
                         <div class="side-menu__title"> Reservations </div>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('reservations') }}"
                         class="side-menu {{ request()->routeIs('hotels*') ? 'side-menu--active' : '' }}">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
+                        <div class="side-menu__icon"> <i data-feather="map"></i> </div>
                         <div class="side-menu__title"> Hotels </div>
                     </a>
                 </li>
                 <li>
                     <a href="{{ route('users') }}"
-                        class="side-menu {{ request()->routeIs('drivers-crews*') ? 'side-menu--active' : '' }}">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
-                        <div class="side-menu__title"> Drivers &amp; Crews </div>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('users') }}"
                         class="side-menu {{ request()->routeIs('parks*') ? 'side-menu--active' : '' }}">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
+                        <div class="side-menu__icon"> <i data-feather="sun"></i> </div>
                         <div class="side-menu__title"> Parks </div>
                     </a>
                 </li>
@@ -57,26 +50,39 @@
                 <li>
                     <a href="{{ route('users') }}"
                         class="side-menu {{ request()->routeIs('users*') ? 'side-menu--active' : '' }}">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
+                        <div class="side-menu__icon"> <i data-feather="users"></i> </div>
                         <div class="side-menu__title"> Users </div>
                     </a>
                 </li>
                 <li>
-                    <a href="#" class="side-menu {{ request()->routeIs('reports*') ? 'side-menu--active' : '' }}">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
-                        <div class="side-menu__title"> Reports </div>
+                    <a href="{{ route('users') }}"
+                        class="side-menu {{ request()->routeIs('drivers-crews*') ? 'side-menu--active' : '' }}">
+                        <div class="side-menu__icon"> <i data-feather="truck"></i> </div>
+                        <div class="side-menu__title"> Drivers &amp; Crew </div>
                     </a>
                 </li>
+                {{-- <li>
+                    <a href="#" class="side-menu {{ request()->routeIs('reports*') ? 'side-menu--active' : '' }}">
+                <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
+                <div class="side-menu__title"> Reports </div>
+                </a>
+                </li> --}}
                 <li class="side-nav__devider my-6"></li>
                 <li>
                     <a href="side-menu-light-inbox.html" class="side-menu">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
+                        <div class="side-menu__icon"> <i data-feather="settings"></i> </div>
+                        <div class="side-menu__title"> Settings </div>
+                    </a>
+                </li>
+                <li>
+                    <a href="side-menu-light-inbox.html" class="side-menu">
+                        <div class="side-menu__icon"> <i data-feather="help-circle"></i> </div>
                         <div class="side-menu__title"> FAQs </div>
                     </a>
                 </li>
                 <li>
                     <a href="side-menu-light-inbox.html" class="side-menu">
-                        <div class="side-menu__icon"> <i data-feather="inbox"></i> </div>
+                        <div class="side-menu__icon"> <i data-feather="at-sign"></i> </div>
                         <div class="side-menu__title"> Contact Us </div>
                     </a>
                 </li>

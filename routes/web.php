@@ -42,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/users', [UserController::class, 'load_users'])->name('users');
     Route::post('/users/filter', [UserController::class, 'filter_users']);
     Route::post('/users/navigate', [UserController::class, 'navigate_users']);
+    Route::post('/users/new', [UserController::class, 'newUser'])->name('users.new');
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');

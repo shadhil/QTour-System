@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
 {
+    protected $connection = 'company_db';
     use HasFactory;
 
     public function booker()
