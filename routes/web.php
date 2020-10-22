@@ -43,6 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/users/filter', [UserController::class, 'filter_users']);
     Route::post('/users/navigate', [UserController::class, 'navigate_users']);
     Route::post('/users/new', [UserController::class, 'newUser'])->name('users.new');
+    Route::get('/users/edit/{userId}', [UserController::class, 'editUser'])->name('users.edit');
+    Route::get('/users/profile/{user}', [UserController::class, 'userProfile'])->name('users.profile');
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');

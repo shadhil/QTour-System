@@ -46,8 +46,9 @@ $roles = (empty($roles) ? '' : $roles.', ').$role['name'];
                 </div>
             </div>
             <button id="send-msg" class="button button--sm text-white bg-theme-1 mr-2">Message</button>
-            <button id="view-profile"
-                class="button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300">Profile</button>
+            <button
+                class="view__profile button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300"
+                data-user-id={{ $user['id'] }}>Profile</button>
         </div>
     </div>
 </div>

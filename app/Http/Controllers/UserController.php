@@ -156,7 +156,7 @@ class UserController extends Controller
                     $photoName = 'USR_' . time() . '.' . $files->getClientOriginalExtension();
                     // for save original image
                     $ImageUpload = Image::make($files);
-                    $originalPath = 'dist/images/abc';
+                    $originalPath = 'dist/images/abc/';
                     $ImageUpload->save($originalPath . $photoName);
                     $photoName = '/' . $originalPath . $photoName;
                 }
@@ -211,6 +211,48 @@ class UserController extends Controller
             'message' => $validator->errors()->all(),
         ];
         return response()->json($response, 200);
+    }
+
+
+
+    public function editUser($userId)
+    {
+        $data['user'] = User::find($userId);
+
+        $permissions['selected'] = User::find($userId)->permissions()->pluck('id')->toArray();
+        $permissions['all'] = Permission::all();
+        $data['ogPermissions'] = $permissions['selected'];
+
+        $roles['selected'] = User::find($userId)->roles()->pluck('id')->toArray();
+        $roles['all'] = Role::all();
+        $data['ogRoles'] = $roles['selected'];
+
+        // $data['user'] = User::with('permissions')->with('roles')
+        //     ->where('users.id', $userId)
+        //     ->get();
+        // $tags = DB::table('blog_post_tags')
+        //     ->join('blog_tags', function ($join) {
+        //         $join->on('blog_post_tags.tag_id', '=', 'blog_tags.id')
+        //             ->whereNull('deleted_at');
+        //     })
+        //     ->where('blog_post_tags.post_id', $postId)
+        //     ->pluck('blog_tags.id')
+        //     ->toArray();
+
+        $data['userPermissions'] = view('layout.components.multi-selector', compact('permissions'))->render();
+        $data['userRoles'] = view('layout.components.multi-roles-selector', compact('roles'))->render();
+        return response()->json($data);
+
+        //dd($data);
+        //echo $data;
+        //print_r(json_decode(json_encode($permissions), true));
+        //die;
+    }
+
+    public function userProfile(User $user)
+    {
+
+        return view('users.user-profile');
     }
 
     /**

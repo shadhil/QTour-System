@@ -1,6 +1,13 @@
 @php
 $title = $data['title'];
 $users = $data['users'];
+
+$permissions['all'] = $data['permissions'];
+$permissions['selected'] = [1,5,9];
+
+$roles['all'] = $data['roles'];
+$roles['selected'] = [];
+
 @endphp
 
 @extends('../layout/main')
@@ -31,8 +38,6 @@ $users = $data['users'];
 </div>
 <div id="table-data" class="grid grid-cols-12 gap-6 mt-5">
     @include('users.users-table')
-
-
 </div>
 
 
@@ -64,18 +69,18 @@ $users = $data['users'];
             <input type="hidden" id="og_roles" name="og_roles[]" value="" />
             <input type="hidden" id="og_permissions" name="og_permissions[]" value="" />
             <input type="hidden" id="og_photo_name" name="og_photo_name" value="" />
-            <input type="hidden" id="ogp_data" name="ogp_data" value="" class="xl:hidden opacity-0" />
+            <input type="hidden" id="og_pwd" name="og_pwd" value="" class="xl:hidden opacity-0" />
             <input type="password" value="" class="xl:hidden opacity-0" />
+            <input type="hidden" id="operation" name="operation" value="" />
 
             <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
                 <div class="col-span-12 xl:col-span-4">
                     <div class="border border-gray-200 dark:border-dark-5 rounded-md p-1">
-                        <div class="w-40 h-40 relative image-fit cursor-pointer zoom-in mx-auto">
+                        <div id="img-div" class="w-40 h-40 relative image-fit cursor-pointer zoom-in mx-auto">
                             <img id="user_photo_view" class="rounded-md" alt="Midone Tailwind HTML Admin Template"
                                 src="{{ asset('dist/images/profile-6.jpg')}}">
-                            {{-- <div title="Remove this profile photo?"
-                                class="tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2">
-                                <i data-feather="x" class="w-4 h-4"></i> </div> --}}
+                            <div id="remove-photo" title="Remove this profile photo?" class="xl:hidden">
+                                <i data-feather="x" class="w-4 h-4"></i> </div>
                         </div>
                         <div class="w-35 mx-auto cursor-pointer relative mt-5">
                             <button type="button" class="button w-full bg-theme-1 text-white">Change Photo</button>
@@ -90,7 +95,7 @@ $users = $data['users'];
                     <div class="col-span-12 input-form">
                         <label>First Name</label>
                         <input id="first_name" name="first_name" type="text" class="input w-full border mt-2 flex-1"
-                            placeholder="John" required>
+                            placeholder="John" required disabled>
                     </div>
                     <div class="col-span-12 input-form mt-3">
                         <label>Last Name</label>
@@ -127,22 +132,23 @@ $users = $data['users'];
                     <input id="password" name="password" type="password" class="input w-full border mt-2 flex-1"
                         placeholder="Password" autocomplete="new-password" minlength="6" required>
                 </div>
-                <div class="col-span-12 xl:col-span-6 input-form">
-                    <label>Role(s)</label>
+                <div id="roleView" class="col-span-12 xl:col-span-6 input-form"><label>Role(s)</label>
                     <select id="roles" name="roles[]" data-placeholder="Select user role"
-                        class="tail-select w-full pt-2 flex-1" multiple required>
-                        @foreach ($data['roles'] as $role)
+                        class="tail-select w-full pt-2" multiple required>
+                        @include('layout.components.multi-roles-selector')
+                        {{-- @foreach ($data['roles'] as $role)
                         <option value="{{ $role['id']}}">{{$role['name']}}</option>
-                        @endforeach
+                        @endforeach --}}
                     </select>
                 </div>
-                <div class="col-span-12 input-form">
+                <div id="permissionView" class="col-span-12 input-form">
                     <label>Permissions <span class="text-xs text-gray-600">(Option)</span></label>
                     <select id="permissions" name="permissions[]" data-placeholder="Select task permitted to user"
-                        data-search="true" class="tail-select w-full mt-2 " multiple>
-                        @foreach ($data['permissions'] as $permission)
+                        data-search="true" class="tail-select w-full" multiple>
+                        @include('layout.components.multi-selector')
+                        {{-- @foreach ($data['permissions'] as $permission)
                         <option value="{{ $permission['id']}}">{{$permission['name']}}</option>
-                        @endforeach
+                        @endforeach --}}
                     </select>
                 </div>
             </div>
@@ -238,57 +244,58 @@ $users = $data['users'];
     const btnCancel = document.getElementById("btn-cancel");
     const btnSend = document.getElementById("btn-send");
 
-    // Non sticky version
-    cash("#add-user").on("click", function() {
-        Toastify({ text: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic, consequuntur doloremque eveniet eius eaque dict", duration: 3000, newWindow: true, close: true, gravity: "bottom", position: "left", backgroundColor: "#0e2c88" stopOnFocus: true }).showToast();
-    })
-
-
-    btnNewUser.onclick = event => {
-        //showSuccessToast("Imekubaaali!")
-        // console.log('Clicked!');
-        // //e.preventDefault();
-        // cash('#user-modal').modal('show');
-        // cash('.modal-title').text("Add User");
-        // cash('#send').val("Send");
-        // cash('#operation').val("addUser");
-        // cash('#contact_uploaded_logo').html('');
-        // cash('#img_name0').val('');
-        // cash('#roles').val('');
-        // cash('#permissions').val('');
-    }
-
-    btnEdit1.onclick = event => {
-        console.log('Quotation - 1');
-        //alert('Clicked');
-    }
-    btnEdit2.onclick = event => {
-        console.log('Quotation - 2!');
-    //alert('Clicked');
-    }
-
-
     const first_name = document.getElementById("first_name")
     const last_name = document.getElementById("last_name")
     const user_location = document.getElementById("location")
     const gender = document.getElementById("gender")
-    const phone = document.getElementById("phone")
+    const phone = document.getElementById("phone_number")
     const email = document.getElementById("email")
-    const passowrd = document.getElementById("passowrd")
+    const passowrd = document.getElementById("password")
     const roles = document.getElementById("roles")
     const permissions = document.getElementById("permissions")
+    const user_photo = document.getElementById("user_photo")
     const userForm = document.getElementById("user_form")
 
-    async function addNewUser() {
+    // // Non sticky version
+    // cash("#add-user").on("click", function() {
+    //     Toastify({ text: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic, consequuntur doloremque eveniet eius eaque dict", duration: 3000, newWindow: true, close: true, gravity: "bottom", position: "left", backgroundColor: "#0e2c88" stopOnFocus: true }).showToast();
+    // })
+
+
+    btnNewUser.onclick = event => {
+cash('select #permissions').html("")
+            cash('select #roles').html("")
+        //let mySelects = tail.select('#permissions');
+        //tail.select('#permissions').options.handle("select", 4, "#");
+        //cash('#permissions').val([3,5,7,8]).trigger('change')
+        //tail.select('roles', {}).trigger('change', [3,5,8,9])
+        //let instance = tail.select("permissions", { /* Your Options */ });
+        //instance.options.add("New Option", 'Value', false, false, false, 'Description', true);
+        //cash('#roles').on('change', [1])
+        //e.preventDefault();
+        cash('#user-modal').modal('show');
+        cash('.modal-title').text("Add New User");
+        cash('#btn-send').val("Send");
+        cash('#operation').val("addUser");
+        cash('#btn-edit1').hide();
+        cash('#btn-edit2').hide();
+        cash(toggleFormElements(false ));
+        cash('#user_form')[0].reset();
+        //cash('#permissions').trigger('change', selectedValues([]))
+        //cash('#roles').trigger('change', selectedValues([]))
+        //cash('#og_permissions').val(selectedValues([]));
+       // cash('#og_roles').val(selectedValues([]));
+    }
+
+    async function addUpdateUser() {
         let count = cash('#input-count').val();
 
         let userForm = cash('#user_form')[0];
         var formData = new FormData(userForm);
         formData.append('count', count);
-        formData.append('date', 'date');
 
         cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
-        await helper.delay(500)
+        await helper.delay(1500)
         let config = { headers: { 'Content-Type': 'multipart/form-data' } }
         axios.post("{{url('/users/new')}}", formData, config).then(res => {
             cash('#btn-send').html('Send')
@@ -322,15 +329,38 @@ $users = $data['users'];
 
     userForm.onsubmit = event =>{
         if(userForm.checkValidity()) {
-            console.log('SUBMITED!');
-            addNewUser()
-        //your form execution code
+            let pwd = cash('#operation').val()
+            let ogpwd = cash('#og_pwd').val()
+            if (cash('#operation').val() == 'editUser' && (pwd != 'PASSWORD' || pwd != ogpwd)) {
+                var r = confirm("You are about to change this user's password, Are you sure?");
+                if (r == true) {
+                    addUpdateUser()
+                } else {
+                    cash('#password').val('PASSWORD')
+                }
+            }else{
+                addUpdateUser()
+            }
+            //console.log('SUBMITED!');
         }else console.log("invalid form");
     }
 
     cash("#user_photo").on('change', function(e){
         readURL(this);
     });
+
+    cash('#remove-photo').on('click', function (e) {
+        if ((cash('#og_photo_name').val()).includes("/images/")) {
+            let img_url = cash('#og_photo_name').val();
+            cash('#user_photo_view').attr('src', img_url);
+        }else{
+            cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+        }
+        cash('#user_photo_name').val(cash('#og_photo_name').val());
+        cash('#user_photo').val('');
+        cash('#remove-photo').removeClass('tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2')
+        cash('#remove-photo').addClass('xl:hidden')
+    })
 
     function readURL(input) {
         if (input.files && input.files[0]){
@@ -340,13 +370,16 @@ $users = $data['users'];
                 //$('#img_area').prepend($(' <img>',{id:'cat_img',src: e.target.result}))
                     cash('#user_photo_view').attr('src', e.target.result);
                     cash('#user_photo_name').val(e.target.result);
+                    cash('#remove-photo').removeClass('xl:hidden')
+                    cash('#remove-photo').addClass('tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2')
                 }
             }
             reader.readAsDataURL(input.files[0]);
         }else{
             //showToast('error', 'File Too Large');
+            cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
             cash('#user_photo_name').val('');
-            cash('#user_photo_view').val('');
+            //cash('#user_photo_view').val('');
         }
     }
 
@@ -360,6 +393,119 @@ $users = $data['users'];
         //alert('Clicked');
     }
 
+    cash('button').on ( 'click', '.view__profile', event => {
+        //event.preventDefault();
+        //console.log(event.target);
+        //cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').
+        let userId = event.target.dataset.userId;
+        location.href = '/users/profile/'+userId
+        //editUser(userId);
+    })
+
+    async function editUser(userId) {
+        cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.get("{{url('/users/edit')}}"+ '/' + userId).then(res => {
+        //console.log(res.data);
+        //console.log(res.data.user);
+        console.log(res.data.userPermissions);
+        console.log(res.data.user.id);
+        if (res.data.user.id > 0) {
+            cash('#user-modal').modal('show');
+            cash('.modal-title').text("Edit User");
+            cash('#btn-send').html('Update')
+            cash('#operation').val("editUser");
+            cash('#btn-edit1').show();
+            //toggleFormElements(true)
+            cash('#user_id').val(res.data.user.id);
+            cash('#first_name').val(res.data.user.first_name);
+            cash('#last_name').val(res.data.user.last_name);
+            cash('#email').val(res.data.user.email);
+            cash('#phone_number').val(res.data.user.phone_number);
+            cash('#og_pwd').val(res.data.user.password);
+            cash('#password').val('PASSWORD');
+            cash('#gender').val(res.data.user.gender);
+            //cash('#gender').trigger('change');
+            cash('#location').val(res.data.user.location);
+            if(res.data.user.photo != null){
+                cash('#og_photo_name').val(res.data.user.photo);
+                if (res.data.user.photo.includes("/images/")) {
+                    cash('#user_photo_view').attr('src', res.data.user.photo);
+                }else{
+                    cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+                }
+            }else{
+                cash('#og_photo_name').val('');
+                cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+            }
+            cash('#permissions').html(res.data.userPermissions)
+            cash('#roles').html(res.data.userRoles)
+            cash('#og_permissions').val(res.data.ogPermissions);
+            cash('#og_roles').val(res.data.ogRoles);
+            cash('#btn-edit1').show();
+            cash('#btn-edit2').show();
+        }else {
+            console.log("Fail to LOAD!");
+        }
+        feather.replace();
+        }).catch(err => {
+            cash('#btn-send').html('Update')
+            console.log(err);
+        })
+    }
+
+    function selectedValues(jsonObj){
+        var selectValues = new Array();
+
+        for(var i in jsonObj){
+            //console.log(JSON.stringify(jsonObj[i]['id']));
+            selectValues.push(jsonObj[i]['id'])
+        }
+        console.log("Items: ", selectValues);
+        return selectValues;
+    }
+    /* code from qodo.co.uk */
+    function toggleFormElements(bDisabled) {
+        first_name.disabled = bDisabled
+        last_name.disabled = bDisabled
+        user_location.disabled = bDisabled
+        gender.disabled = bDisabled
+        phone.disabled = bDisabled
+        passowrd.disabled = bDisabled
+        email.disabled = bDisabled
+        roles.disabled = bDisabled
+        permissions.disabled = bDisabled
+        roles.disabled = bDisabled
+        roles.disabled = bDisabled
+        btnSend.disabled = bDisabled
+        user_photo.disabled = bDisabled
+    // var inputs = document.getElementsByTagName("input");
+    //     for (var i = 0; i < inputs.length; i++) {
+    //         inputs[i].disabled=bDisabled;
+    //     }
+    //     var selects=document.getElementsByTagName("select");
+    //     for (var i=0; i < selects.length; i++) {
+    //         selects[i].disabled=bDisabled;
+    //     }
+    //     var textareas=document.getElementsByTagName("textarea");
+    //     for (var i=0; i<textareas.length; i++) {
+    //         textareas[i].disabled=bDisabled;
+    //     }
+    //     var buttons=document.getElementsByTagName("button");
+    //     for(var i=0; i < buttons.length; i++) {
+    //         buttons[i].disabled=bDisabled;
+    //     }
+    }
+
+    cash('#btn-edit1').on('click', function (e) {
+        toggleFormElements(false)
+    })
+
+    cash('#btn-edit2').on('click', function (e) {
+        toggleFormElements(false)
+    })
+
+
     // btnSend.onclick = event => {
     //     //addNewUser();
     // }
@@ -371,6 +517,19 @@ $users = $data['users'];
     //     console.log(page);
     //     renderUsers(true, page);
     // })
-
+    function form_reset() {
+        cash('#user-form').trigger("reset");
+        $('#img_area').removeClass('m-3');
+        $('#img_area').hide();
+        $('#categories').val(null).trigger('change');
+        $('#tags').val(null).trigger('change');
+        $('#post').val('');
+        $('#title').val('');
+        $('#meta_description').val('');
+        $('#show_slug').text('');
+        $('#slug').val('');
+        $('#featured_image_name').val('');
+        $('#post_img').attr('src', "{{ asset('/images/web-img/placeholder.png')}}");
+    }
     </script>
     @endsection
