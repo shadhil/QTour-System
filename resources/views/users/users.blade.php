@@ -170,7 +170,7 @@ $roles['selected'] = [];
 
     <script>
         //** Page Navgation & Filter JS **//
-    cash('#input-count').val('10');
+    cash('#input-count').val('20');
     async function renderUsers(isNav = false, page = '1') {
         // Filter Details
         let count = cash('#input-count').val();

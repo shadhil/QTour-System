@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('phone_number', 25)->nullable();
             $table->string('password');
             $table->string('photo')->nullable();
-            $table->unsignedBigInteger('company_id');
+            $table->unsignedBigInteger('company_id')->nullable();
             $table->string('url_string', 50)->nullable();
             $table->softDeletes();
             $table->timestamps();
