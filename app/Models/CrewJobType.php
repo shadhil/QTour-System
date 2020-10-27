@@ -12,6 +12,6 @@ class CrewJobType extends Model
 
     public function crewMembers()
     {
-        return $this->hasMany(CrewMembers::class, 'job_type_id');
+        return $this->hasMany(CrewMembers::class, 'job_title_id');
     }
 }

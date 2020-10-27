@@ -17,6 +17,8 @@ class CreateCrewOnReservationsTable extends Migration
 
             $table->unsignedBigInteger('member_id');
             $table->unsignedBigInteger('reservation_id');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
 
             //FOREIGN KEY CONSTRAINTS
             $table->foreign('member_id')->references('id')->on('crew_members')->onDelete('cascade');
@@ -34,6 +36,6 @@ class CreateCrewOnReservationsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('crew_on_reservations');
+        Schema::connection('company_db')->dropIfExists('crew_on_reservations');
     }
 }

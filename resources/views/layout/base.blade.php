@@ -28,7 +28,7 @@ License: You must have a valid license purchased only from themeforest(the above
     <link rel="stylesheet" href="{{ mix('dist/css/app.css') }}" />
     <!-- END: CSS Assets-->
 
-    @livewireStyles
+    {{-- @livewireStyles --}}
 </head>
 <!-- END: Head -->
 

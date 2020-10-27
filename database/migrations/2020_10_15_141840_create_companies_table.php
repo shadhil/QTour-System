@@ -17,7 +17,7 @@ class CreateCompaniesTable extends Migration
             $table->id();
             $table->string('company_name', 120);
             $table->string('location', 80);
-            $table->unsignedBigInteger('region_id');
+            $table->unsignedTinyInteger('region_id');
             $table->string('email')->unique();
             $table->string('phone_number', 20)->nullable();
             $table->string('database_name')->nullable();

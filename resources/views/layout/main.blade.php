@@ -26,21 +26,21 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('reservations.new') }}"
+                    <a href="{{ route('reservations') }}"
                         class="side-menu {{ request()->routeIs('reservations*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="clipboard"></i> </div>
                         <div class="side-menu__title"> Reservations </div>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('reservations') }}"
+                    <a href="{{ route('hotels') }}"
                         class="side-menu {{ request()->routeIs('hotels*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="map"></i> </div>
                         <div class="side-menu__title"> Hotels </div>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('users') }}"
+                    <a href="{{ route('parks') }}"
                         class="side-menu {{ request()->routeIs('parks*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="sun"></i> </div>
                         <div class="side-menu__title"> Parks </div>
@@ -55,8 +55,8 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('users') }}"
-                        class="side-menu {{ request()->routeIs('drivers-crews*') ? 'side-menu--active' : '' }}">
+                    <a href="{{ route('drivers-crew') }}"
+                        class="side-menu {{ request()->routeIs('drivers-crew*') ? 'side-menu--active' : '' }}">
                         <div class="side-menu__icon"> <i data-feather="truck"></i> </div>
                         <div class="side-menu__title"> Drivers &amp; Crew </div>
                     </a>
@@ -106,6 +106,6 @@
     <!-- END: JS Assets-->
 
     @yield('script')
-    @livewireScripts
+    {{-- @livewireScripts --}}
 </body>
 @endsection

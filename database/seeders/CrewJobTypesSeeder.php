@@ -14,10 +14,10 @@ class CrewJobTypesSeeder extends Seeder
      */
     public function run()
     {
-        DB::connection('company_db')->table('crew_job_types')->insert(array(
-            array('id' => '1', 'job_type' => 'Driver'),
-            array('id' => '2', 'job_type' => 'Potter'),
-            array('id' => '3', 'job_type' => 'Cook')
+        DB::connection('company_db')->table('crew_job_titles')->insert(array(
+            array('id' => '1', 'job_title' => 'Driver'),
+            array('id' => '2', 'job_title' => 'Cook'),
+            array('id' => '3', 'job_title' => 'Potter')
         ));
     }
 }

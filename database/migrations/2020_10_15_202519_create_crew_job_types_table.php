@@ -13,9 +13,9 @@ class CreateCrewJobTypesTable extends Migration
      */
     public function up()
     {
-        Schema::connection('company_db')->create('crew_job_types', function (Blueprint $table) {
+        Schema::connection('company_db')->create('crew_job_titles', function (Blueprint $table) {
             $table->tinyIncrements('id');
-            $table->string('job_type', '50');
+            $table->string('job_title', '50');
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ class CreateCrewJobTypesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('crew_job_types');
+        Schema::dropIfExists('crew_job_titles');
     }
 }

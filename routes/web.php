@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CrewController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HotelController;
@@ -23,9 +24,9 @@ use Illuminate\Support\Facades\Auth;
 */
 
 
-Route::get('/sign-in', [UserController::class, 'signingView'])->name('sign-view');
-Route::post('/sign-in', [UserController::class, 'signIn'])->name('sign-in');
-Route::get('/sign-out', [UserController::class, 'signOut'])->name('sign-out');
+Route::get('/sign-in', [AuthController::class, 'signInView'])->name('sign-view');
+Route::post('/sign-in', [AuthController::class, 'signIn'])->name('sign-in');
+Route::get('/sign-out', [AuthController::class, 'signOut'])->name('sign-out');
 
 Route::get('/', function () {
 
@@ -47,8 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/profile/{user}', [UserController::class, 'userProfile'])->name('users.profile');
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
+    Route::get('/reservations/activities', [ReservationController::class, 'activities'])->name('reservations.activities');
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
-    Route::get('/drivers-crews', [CrewController::class, 'index'])->name('drivers-crews');
+    Route::get('/drivers-crew', [CrewController::class, 'index'])->name('drivers-crew');
     Route::get('/parks', [ParkController::class, 'index'])->name('parks');
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
     //Route::resource('/users', UserController::class);

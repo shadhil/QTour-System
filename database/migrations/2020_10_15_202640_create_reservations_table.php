@@ -20,7 +20,7 @@ class CreateReservationsTable extends Migration
 
             $table->id('id');
             $table->string('group_name', 80);
-            $table->unsignedBigInteger('driver_id')->nullable();
+            $table->unsignedBigInteger('permit_holder')->nullable();
             $table->string('code', 20)->unique();
             $table->date('start_date');
             $table->date('end_date');
@@ -31,7 +31,7 @@ class CreateReservationsTable extends Migration
             $table->timestamps();
 
             //FOREIGN KEY CONSTRAINTS
-            $table->foreign('driver_id')->references('id')->on('crew_members')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('permit_holder')->references('id')->on('crew_members')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('admin_id')->references('id')->on(new Expression($database . '.users'))->onUpdate('cascade')->onDelete('set null');
         });
     }

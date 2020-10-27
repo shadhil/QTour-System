@@ -1,9 +1,9 @@
 import dayjs from 'dayjs'
 import Litepicker from 'litepicker'
 
-(function(cash) { 
+(function(cash) {
     "use strict";
-        
+
     // Litepicker
     cash('.datepicker').each(function() {
         let options = {
@@ -14,7 +14,7 @@ import Litepicker from 'litepicker'
             showWeekNumbers: true,
             format: 'D MMM, YYYY',
             dropdowns: {
-                minYear: 1990,
+                minYear: 2010,
                 maxYear: null,
                 months: true,
                 years: true
@@ -26,7 +26,7 @@ import Litepicker from 'litepicker'
             options.numberOfColumns = 1
             options.numberOfMonths = 1
         }
-        
+
         if (cash(this).data('format')) {
             options.format = cash(this).data('format')
         }

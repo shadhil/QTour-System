@@ -13,14 +13,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        //$this->call(ContinentSeeder::class);
-        //$this->call(CountriesSeeder::class);
-        //$this->call(RegionSeeder::class);
-        //$this->call(PermissionsSeeder::class);
-        //$this->call(RolesSeeder::class);
-        //$this->call(RolesPermissionsSeeder::class);
-        $this->call(UserSeeder::class);
-        $this->call(CrewJobTypesSeeder::class);
+        // $this->call(ContinentSeeder::class);
+        // $this->call(CountriesSeeder::class);
+        // $this->call(RegionSeeder::class);
+        // $this->call(PermissionsSeeder::class);
+        // $this->call(RolesSeeder::class);
+        // $this->call(RolesPermissionsSeeder::class);
+        // $this->call(UserSeeder::class);
+        // $this->call(CrewJobTypesSeeder::class);
+        $this->call(CompanySeeder::class);
         $this->call(CrewMemberSeeder::class);
+        $this->call(VisitorTypeSeeder::class);
+        $this->call(ParkSeeder::class);
+        $this->call(HotelSeeder::class);
     }
 }

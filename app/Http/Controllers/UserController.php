@@ -22,27 +22,6 @@ class UserController extends Controller
         $this->items = 20;
     }
 
-    public function signIn(LoginRequest $request)
-    {
-        if (!Auth::attempt([
-            'email' => $request->email,
-            'password' => $request->password
-        ])) {
-            throw new Exception('Wrong email or password.');
-        }
-    }
-
-    public function signingView()
-    {
-        return view('login.main');
-    }
-
-    public function signOut()
-    {
-        Auth::logout();
-        return redirect('/sign-in');
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -50,8 +29,6 @@ class UserController extends Controller
      */
     public function load_users()
     {
-        $items = 10;
-
         $data['title'] = 'Users';
 
         $data['roles'] = Role::all();

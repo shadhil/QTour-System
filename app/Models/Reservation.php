@@ -14,4 +14,14 @@ class Reservation extends Model
     {
         return $this->belongsToMany(User::class, 'admin_id');
     }
+
+    public function permitHolder()
+    {
+        return $this->belongsToMany(CrewMember::class, 'permit_holder');
+    }
+
+    public function crewMembers()
+    {
+        return $this->belongsToMany(CrewMember::class, 'crew_on_reservations', 'reservation_id', 'member_id');
+    }
 }

@@ -25,10 +25,14 @@ class CrewMemberFactory extends Factory
     public function definition()
     {
         return [
-            'full_name' => $this->faker->name,
-            'job_type_id' => $this->faker->numberBetween(1, 3),
+            'first_name' => $this->faker->firstName,
+            'last_name' => $this->faker->lastName,
+            'job_title_id' => $this->faker->numberBetween(1, 3),
+            'company_id' => $this->faker->numberBetween(1, 3),
+            'gender' => $this->faker->randomElement(['male', 'female']),
             'email' => $this->faker->unique()->safeEmail,
-            'phone_number' => $this->faker->phoneNumber
+            'phone_number' => $this->faker->e164PhoneNumber,
+            'location' => $this->faker->streetName,
         ];
     }
 }

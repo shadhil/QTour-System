@@ -14,13 +14,9 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function loginView()
+    public function signInView()
     {
-        return view('login/main', [
-            'theme' => 'light',
-            'page_name' => 'auth-login',
-            'layout' => 'login'
-        ]);
+        return view('login.main');
     }
 
     /**
@@ -29,14 +25,18 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function login(LoginRequest $request)
+    public function signIn(LoginRequest $request)
     {
         if (!Auth::attempt([
             'email' => $request->email,
             'password' => $request->password
         ])) {
             throw new \Exception('Wrong email or password.');
+        } else {
+            config(['database.connections.company_db.database' => 'qtour_comp' . Auth::user()->company_id . '_db']);
         }
+
+        //putenv("CUSTOM_VARIABLE=hero");
     }
 
     /**
@@ -45,9 +45,10 @@ class AuthController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function logout()
+
+    public function signOut()
     {
-        \Auth::logout();
-        return redirect('login');
+        Auth::logout();
+        return redirect('/sign-in');
     }
 }

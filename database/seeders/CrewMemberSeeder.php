@@ -14,7 +14,7 @@ class CrewMemberSeeder extends Seeder
      */
     public function run()
     {
-        // Fake users
-        CrewMember::factory()->times(38)->create();
+        // Fake members
+        CrewMember::factory()->times(45)->create();
     }
 }
