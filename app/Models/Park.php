@@ -11,6 +11,6 @@ class Park extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
+        'park_name', 'region_id'
     ];
 }

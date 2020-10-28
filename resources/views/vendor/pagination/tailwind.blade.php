@@ -1,6 +1,6 @@
-@if ($paginator->hasPages())
 <!-- BEGIN: Pagination -->
 <div class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-no-wrap items-center">
+    @if ($paginator->hasPages())
     <ul class="pagination">
         {{-- More than 5 Pages --}}
         @if ($paginator->lastPage() > 5)
@@ -29,8 +29,8 @@
         @foreach ($elements as $element)
         {{-- "Three Dots" Separator --}}
         {{-- @if (is_string($element))
-        <span aria-disabled="true">
-            <li> <span class="pagination__link">*** {{ $element }}</span> </li>
+            <span aria-disabled="true">
+                <li> <span class="pagination__link">*** {{ $element }}</span> </li>
         </span>
         @endif --}}
         {{-- Array Of Links --}}
@@ -99,7 +99,9 @@
 
         @endif
     </ul>
-    <select id="input-count" class="w-20 input box mt-3 sm:mt-0" onchange="filterCount()">
+    @endif
+    <select id="input-count" class="w-20 input box mt-3 sm:mt-0 {{ $paginator->hasPages() ? '' : 'hidden' }}"
+        onclick="filterCount()">
         <option value="10" selected>10</option>
         <option value="20">20</option>
         <option value="30">30</option>
@@ -108,4 +110,3 @@
     </select>
 </div>
 <!-- END: Pagination -->
-@endif

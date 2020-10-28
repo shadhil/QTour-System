@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(RolesSeeder::class);
         // $this->call(RolesPermissionsSeeder::class);
         // $this->call(UserSeeder::class);
-        // $this->call(CrewJobTypesSeeder::class);
+        // $this->call(CrewJobTitlesSeeder::class);
         $this->call(CompanySeeder::class);
         $this->call(CrewMemberSeeder::class);
         $this->call(VisitorTypeSeeder::class);

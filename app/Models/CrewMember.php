@@ -11,12 +11,12 @@ class CrewMember extends Model
     use HasFactory;
 
     protected $fillable = [
-        'first_name', 'last_name', 'job_title_id', 'phone_number',
+        'first_name', 'last_name', 'job_title_id', 'phone_number', 'gender', 'location', 'email', 'photo', 'company_id'
     ];
 
     public function jobType()
     {
-        return $this->belongsTo(CrewJobType::class, 'job_title_id');
+        return $this->belongsTo(CrewJobTitle::class, 'job_title_id');
     }
 
     public function reservations()

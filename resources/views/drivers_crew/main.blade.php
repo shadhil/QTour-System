@@ -9,7 +9,7 @@ $members = $data['members'];
 <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="intro-y col-span-12 flex flex-wrap sm:flex-no-wrap items-center mt-2">
         <div class="text-center">
-            <a href="javascript:void(0);" class="button inline-block bg-theme-1 text-white" id="add-user">
+            <a href="javascript:void(0);" class="button inline-block bg-theme-1 text-white" id="add-member">
                 New Crew Member
             </a>
         </div>
@@ -29,14 +29,14 @@ $members = $data['members'];
 </div>
 
 <!-- BEGIN: Header & Footer Modal -->
-<div class="modal" id="user-modal">
+<div class="modal" id="member-modal">
     <div class="modal__content modal__content--lg">
         <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
             <h2 class="font-medium text-base mr-auto modal-title">
-                User Profile
+                Member Profile
             </h2>
             <button id="btn-edit1"
-                class="button user-quotation border items-center text-gray-700 dark:border-dark-5 dark:text-gray-300 hidden sm:flex">
+                class="button border items-center text-gray-700 dark:border-dark-5 dark:text-gray-300 hidden sm:flex">
                 <i data-feather="edit" class="w-4 h-4 mr-2"></i> Edit </button>
             <div class="dropdown sm:hidden">
                 <a class="dropdown-toggle w-5 h-5 block" href="javascript:;"> <i data-feather="more-horizontal"
@@ -45,28 +45,31 @@ $members = $data['members'];
                 <div class="dropdown-box w-40">
                     <div class="dropdown-box__content box dark:bg-dark-1 p-2">
                         <a href="javascript:;" id="btn-edit2"
-                            class="user-quotation flex items-center p-2 transition duration-300 ease-in-out bg-white dark:bg-dark-1 hover:bg-gray-200 dark:hover:bg-dark-2 rounded-md">
+                            class="flex items-center p-2 transition duration-300 ease-in-out bg-white dark:bg-dark-1 hover:bg-gray-200 dark:hover:bg-dark-2 rounded-md">
                             <i data-feather="edit" class="w-4 h-4 mr-2"></i> Edit </a>
                     </div>
                 </div>
             </div>
         </div>
-        <form id="user_form" class="validate-form" enctype="multipart/form-data">
+        <form id="member_form" class="validate-form" enctype="multipart/form-data">
+            <input type="hidden" id="member_id" name="member_id" value="" />
+            <input type="hidden" id="og_photo_name" name="og_photo_name" value="" />
+            <input type="hidden" id="og_email" name="og_email" value="" />
+            <input type="hidden" id="og_phone" name="og_phone" value="" />
             <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
                 <div class="col-span-12 xl:col-span-4">
                     <div class="border border-gray-200 dark:border-dark-5 rounded-md p-1">
                         <div id="img-div" class="w-40 h-40 relative image-fit cursor-pointer zoom-in mx-auto">
-                            <img id="user_photo_view" class="rounded-md" alt="Crew Member Photo"
+                            <img id="photo_view" class="rounded-md" alt="Crew Member Photo"
                                 src="{{ asset('dist/images/profile-6.jpg')}}">
                             <div id="remove-photo" title="Remove this profile photo?" class="xl:hidden">
                                 <i data-feather="x" class="w-4 h-4"></i> </div>
                         </div>
                         <div class="w-35 mx-auto cursor-pointer relative mt-5">
                             <button type="button" class="button w-full bg-theme-1 text-white">Change Photo</button>
-                            <input id="user_photo" name="user_photo" type="file" accept="image/*"
+                            <input id="member_photo" name="member_photo" type="file" accept="image/*"
                                 class="w-full h-full top-0 left-0 absolute opacity-0 cursor-pointer">
-                            <input class="xl:hidden opacity-0" type="text" id="user_photo_name" name="user_photo_name"
-                                value="" />
+                            <input class="xl:hidden opacity-0" type="text" id="photo_name" name="photo_name" value="" />
                         </div>
                     </div>
                 </div>
@@ -74,7 +77,7 @@ $members = $data['members'];
                     <div class="col-span-12 input-form">
                         <label>First Name</label>
                         <input id="first_name" name="first_name" type="text" class="input w-full border mt-2 flex-1"
-                            placeholder="John" required disabled>
+                            placeholder="John" required>
                     </div>
                     <div class="col-span-12 input-form mt-3">
                         <label>Last Name</label>
@@ -83,21 +86,22 @@ $members = $data['members'];
                     </div>
                     <div class="col-span-12  input-form mt-3">
                         <label>Gender</label>
-                        <select id="gender" name="gender" data-placeholder="Pick a user gender"
+                        <select id="gender" name="gender" data-placeholder="Pick a gender"
                             class="input w-full border mt-2 flex-1" required>
-                            <option value=""> -- User's Gender -- </option>
-                            <option value="Female">Female</option>
-                            <option value="Male">Male</option>
+                            <option value=""> -- Select a Member's Gender -- </option>
+                            <option value="female">Female</option>
+                            <option value="male">Male</option>
                         </select>
                     </div>
                 </div>
                 <div class="col-span-12  input-form mt-3">
                     <label>Job Title</label>
-                    <select id="gender" name="gender" data-placeholder="Pick a user gender"
+                    <select id="job_title" name="job_title" data-placeholder="Pick a job title"
                         class="input w-full border mt-2 flex-1" required>
-                        <option value=""> -- User's Gender -- </option>
-                        <option value="Female">Female</option>
-                        <option value="Male">Male</option>
+                        <option value=""> -- Select a Job Title -- </option>
+                        @foreach ($data['job_titles'] as $job)
+                        <option value="{{$job['id']}}">{{$job['job_title']}}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-span-12 input-form">
@@ -113,24 +117,273 @@ $members = $data['members'];
                 <div class="col-span-12 xl:col-span-6 input-form">
                     <label>Email</label>
                     <input id="email" name="email" type="text" class="input w-full border mt-2 flex-1"
-                        placeholder="example@email.com" autocomplete="nope" required>
+                        placeholder="example@email.com" autocomplete="nope">
                 </div>
-                <div class="col-span-12 xl:col-span-6 input-form">
-                    <label>Extra Info</label>
+                {{-- <div class="col-span-12 xl:col-span-6 input-form">
+                    <label>Extra Contact Info</label>
                     <input id="extra_info" name="extra_info" type="text" class="input w-full border mt-2 flex-1"
                         placeholder="Extra Info ...">
-                </div>
+                </div> --}}
             </div>
             <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
                 <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-
                 </div>
                 <button id="btn-cancel" type="button" data-dismiss="modal"
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
                 <button id="btn-send" name="btn-send" type="submit"
-                    class="button w-20 bg-theme-1 text-white">Send</button>
+                    class="button w-20 bg-theme-1 text-white">Save</button>
             </div>
         </form>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+    cash('#input-count').val('20');
+    cash("#add-member").on('click', function(e){
+        cash('#member-modal').modal('show');
+        cash('.modal-title').text("Add New Member");
+        cash('#btn-send').val("Save");
+        cash('#operation').val("addMember");
+        cash('#btn-edit1').hide();
+        cash('#btn-edit2').hide();
+        cash('#member_form')[0].reset();
+    });
+
+    async function addUpdateUser() {
+        let count = cash('#input-count').val();
+
+        let userForm = cash('#member_form')[0];
+        var formData = new FormData(memberForm);
+        formData.append('count', count);
+
+        cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        cash('#show-error').html('');
+        await helper.delay(1500)
+        let config = { headers: { 'Content-Type': 'multipart/form-data' } }
+        axios.post("{{url('/drivers-crew/new')}}", formData, config).then(res => {
+            cash('#btn-send').html('Save')
+            if (res.data.success == true) {
+                //showSuccessToast(res.data.message);
+                cash('#member-modal').modal('hide');
+                cash('#input-search').val('');
+                cash('#input-count').val(count);
+                cash('#table-data').html(res.data.updatedMembers);
+            }else {
+                console.log(res.data.message)
+                let msgs = res.data.message
+                msgs.forEach(element =>
+                cash('#show-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
+            }
+            feather.replace();
+        }).catch(err => {
+            cash('#btn-send').html('Save')
+            console.log(err);
+        })
+    }
+
+    const memberForm = cash('#member_form')[0];
+    memberForm.onsubmit = event =>{
+        console.log("IS IT!");
+        if(memberForm.checkValidity()) {
+            addUpdateUser()
+            //console.log('SUBMITED!');
+        }else console.log("invalid form");
+    }
+
+    async function renderUsers(isNav = false, page = '1') {
+        // Filter Details
+        let count = cash('#input-count').val();
+        let search = cash('#input-search').val();
+
+        let url = '/drivers-crew/filter';
+        if (isNav) {
+            url = '/drivers-crew/navigate';
+        }
+
+        await helper.delay(500)
+
+        axios.post(url, {
+        count: count,
+        search: search,
+        page: page
+        }).then(res => {
+            cash('#table-data').html(res.data);
+            cash('#input-search').val(search);
+            cash('#input-count').val(count);
+            feather.replace();
+            //console.log(res);
+        }).catch(err => {
+            console.log('Error!!!');
+        })
+    }
+
+    function delay(callback, ms) {
+        var timer = 0;
+        return function() {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                callback.apply(context, args);
+            }, ms || 0);
+        };
+    }
+
+    cash('#input-search').on('keyup', delay(function (e) {
+        let search = cash('#input-search').val()
+        if (e.keyCode === 13) {
+            renderUsers()
+        }else {
+            renderUsers()
+        }
+        console.log(search)
+    }, 500))
+
+    function filterCount() {
+    }
+
+    function filterPages(page) {
+        console.log(page);
+        renderUsers(true, page)
+    }
+
+    function filterCount() {
+        var count = document.getElementById("input-count");
+        console.log(count.value);
+        renderUsers();
+    }
+
+    cash("#input-count0").on(' change ', function(e){
+        var count = cash("#input-count").val();
+        console.log(count);
+        renderUsers();
+    });
+
+    cash("#member_photo").on('change', function(e){
+        readURL(this);
+    });
+
+    cash('#remove-photo').on('click', function (e) {
+        if ((cash('#og_photo_name').val()).includes("/images/")) {
+            let img_url = cash('#og_photo_name').val();
+            cash('#photo_view').attr('src', img_url);
+        }else{
+            cash('#photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+        }
+        cash('#photo_name').val(cash('#og_photo_name').val());
+        cash('#member_photo').val('');
+        cash('#remove-photo').removeClass('tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2')
+        cash('#remove-photo').addClass('xl:hidden')
+    })
+
+    function readURL(input) {
+        if (input.files && input.files[0]){
+            if (input.files[0].size < 2000000){
+                var reader=new FileReader(); reader.onload=function(e){
+                    //$('#img_area').prepend($(' <img>',{id:'cat_img',src: e.target.result}))
+                    cash('#photo_view').attr('src', e.target.result);
+                    cash('#photo_name').val(e.target.result);
+                    cash('#remove-photo').removeClass('xl:hidden')
+                    cash('#remove-photo').addClass('tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2')
+                }
+            }
+            reader.readAsDataURL(input.files[0]);
+        }else{
+            //showToast('error', 'File Too Large');
+            cash('#photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+            cash('#photo_name').val('');
+            //cash('#photo_view').val('');
+        }
+    }
+
+    cash('button').on ( 'click', '.view__profile', event => {
+        let memberId = event.target.dataset.memberId;
+        //location.href = '/users/profile/'+userId
+        editUser(memberId)
+    })
+
+    async function editUser(memberId) {
+        cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.get("{{url('/drivers-crew/edit')}}"+ '/' + memberId).then(res => {
+        //console.log(res.data);
+        //console.log(res.data.member);
+        console.log(res.data.member.id);
+        if (res.data.member.id > 0) {
+            cash('#member-modal').modal('show');
+            cash('.modal-title').text("Edit Member");
+            cash('#btn-send').html('Update')
+            cash('#operation').val("editUser");
+            cash('#btn-edit1').show();
+            //toggleFormElements(true)
+            cash('#member_id').val(res.data.member.id);
+            cash('#first_name').val(res.data.member.first_name);
+            cash('#last_name').val(res.data.member.last_name);
+            cash('#email').val(res.data.member.email);
+            cash('#phone_number').val(res.data.member.phone_number);
+            cash('#og_email').val(res.data.member.email);
+            cash('#og_phone').val(res.data.member.phone_number);
+            cash('#gender').val(res.data.member.gender);
+            cash('#job_title').val(res.data.member.job_title_id);
+            //cash('#gender').trigger('change');
+            cash('#location').val(res.data.member.location);
+            if(res.data.member.photo != null){
+                cash('#og_photo_name').val(res.data.member.photo);
+                if (res.data.member.photo.includes("/images/")) {
+                    cash('#photo_view').attr('src', res.data.member.photo);
+                }else{
+                    cash('#photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+                }
+            }else{
+                cash('#og_photo_name').val('');
+                cash('#photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+            }
+            cash('#btn-edit1').show();
+            cash('#btn-edit2').show();
+        }else {
+            console.log("Fail to LOAD!");
+        }
+        feather.replace();
+        }).catch(err => {
+            cash('#btn-send').html('Update')
+            console.log(err);
+        })
+    }
+
+    function toggleFormElements(bDisabled) {
+        cash('#first_name').disabled = bDisabled
+        cash('#last_name').disabled = bDisabled
+        cash('#location').disabled = bDisabled
+        cash('#gender').disabled = bDisabled
+        cash('#phone_number').disabled = bDisabled
+        cash('#email').disabled = bDisabled
+        cash('#btnSend').disabled = bDisabled
+        cash('#member_photo').disabled = bDisabled
+    }
+
+    cash('#btn-edit1').on('click', function (e) {
+        toggleFormElements(false)
+    })
+
+    cash('#btn-edit2').on('click', function (e) {
+        toggleFormElements(false)
+    })
+
+    function form_reset() {
+        cash('#member_form').trigger("reset");
+        // $('#img_area').removeClass('m-3');
+        // $('#img_area').hide();
+        // $('#categories').val(null).trigger('change');
+        // $('#tags').val(null).trigger('change');
+        // $('#post').val('');
+        // $('#title').val('');
+        // $('#meta_description').val('');
+        // $('#show_slug').text('');
+        // $('#slug').val('');
+        // $('#featured_image_name').val('');
+        // $('#post_img').attr('src', "{{ asset('/images/web-img/placeholder.png')}}");
+    }
+
+</script>
 @endsection

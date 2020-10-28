@@ -12,13 +12,19 @@
                 <div class="text-gray-600 text-xs">{{ $member->job_title }}</div>
             </div>
             <div class="flex mt-4 lg:mt-0">
-                {{empty($member->photo) ? '<button class="button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300 mr-2">Available</button>' : '<button class="button button--sm text-white bg-theme-1 mr-2">Booked</button>'}}
+                @if (empty($member->reservation_id))
                 <button
-                    class="button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300">Profile</button>
+                    class="button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300 mr-2">Available</button>
+                @else
+                <button class="button button--sm text-white bg-theme-1 mr-2">Booked</button>
+                @endif
+                <button
+                    class="button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300 view__profile"
+                    data-member-id={{ $member->id }}>Profile</button>
             </div>
         </div>
     </div>
 </div>
 @endforeach
-{{ $members->links('vendor.pagination.tailwind') }}
 <!-- END: members Layout -->
+{{ $members->links('vendor.pagination.tailwind') }}

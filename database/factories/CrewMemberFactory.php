@@ -2,7 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Models\CrewJobType;
+use App\Models\CrewJobTitle;
 use App\Models\CrewMember;
 use App\Models\Model;
 use Illuminate\Database\Eloquent\Factories\Factory;
