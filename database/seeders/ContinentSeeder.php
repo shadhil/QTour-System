@@ -15,7 +15,6 @@ class ContinentSeeder extends Seeder
     public function run()
     {
         //DB::connection('app_db')->table('world_continents')->truncate();
-
         DB::connection('app_db')->table('world_continents')->insert(array(
             0 =>
             array(

@@ -32,7 +32,7 @@ $parks = $data['parks'];
 
 <!-- BEGIN: Header & Footer Modal -->
 <div class="modal" id="park-modal">
-    <div class="modal__content modal__content--lg">
+    <div class="modal__content">
         <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
             <h2 class="font-medium text-base mr-auto modal-title">
                 Park Info
@@ -40,6 +40,7 @@ $parks = $data['parks'];
         </div>
         <form id="park_form" class="validate-form" enctype="multipart/form-data">
             <input type="hidden" id="park_id" name="park_id" value="" />
+            <input type="hidden" id="og_park" name="og_park" value="" />
             <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
                 <div class="col-span-12 input-form">
                     <label>Park Name</label>
@@ -57,7 +58,7 @@ $parks = $data['parks'];
                 </div>
             </div>
             <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-                <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
+                <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5 hidden">
                 </div>
                 <button id="btn-cancel" type="button" data-dismiss="modal"
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
@@ -84,6 +85,7 @@ $parks = $data['parks'];
         var formData = new FormData(parkForm);
 
         cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        cash('#show-error').addClass('hidden');
         cash('#show-error').html('');
         await helper.delay(1500)
         let config = { headers: { 'Content-Type': 'multipart/form-data' } }
@@ -99,6 +101,7 @@ $parks = $data['parks'];
                 let msgs = res.data.message
                 msgs.forEach(element =>
                 cash('#show-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
+                cash('#show-error').removeClass('hidden');
             }
             feather.replace();
         }).catch(err => {

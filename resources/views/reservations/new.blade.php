@@ -62,15 +62,20 @@
                 </select>
             </div>
             <div class="intro-y col-span-12 flex items-center justify-center sm:justify-end mt-5">
-                <button class="button w-24 justify-center block bg-theme-1 text-white ml-2">Update</button>
+                <button class="button w-24 justify-center block bg-theme-1 text-white ml-2">Save</button>
             </div>
         </div>
     </div>
 </div>
 <div class="intro-y box py-5 sm:py-10 mt-5">
-    <div class="px-5 sm:px-20 mt-5 pt-1 border-gray-200 dark:border-dark-5">
-        <div class="font-medium text-base">Group's Info</div>
-        <div class="grid grid-cols-12 gap-4 row-gap-5 mt-5">
+    <div class="px-5 mt-1">
+        <div class="font-medium text-center text-lg">Visitors Information</div>
+        <div id="step-info" class="text-gray-600 text-center mt-2">To start off, please enter group/family name, email
+            address and password.</div>
+    </div>
+    <div class="px-5 sm:px-20 mt-5 border-t border-gray-200 dark:border-dark-5">
+
+        <div id="group_inputs" class="grid grid-cols-12 gap-4 row-gap-5 mt-5 hidden">
             <div class="intro-y col-span-12 sm:col-span-4">
                 <div class="mb-2">Visitor's Group(s)</div>
                 <select class="input w-full border flex-1">
@@ -94,9 +99,21 @@
                     <input type="text" class="input w-full border flex-1" placeholder="eg. 2">
                 </div>
             </div>
-            <button type="button" class="button w-24 bg-theme-1 text-white mt-3">Submit</button>
-            <div class="font-medium text-base intro-y col-span-12 mt-5">Visitors
-                Group(s)</div>
+            <div class="intro-y col-span-12 flex items-center justify-center sm:justify-start mt-5">
+                <button class="button w-24 justify-center block bg-theme-1 text-white ">Submit</button>
+                <button
+                    class="button w-24 justify-center block bg-gray-200 text-gray-600 dark:bg-dark-1 dark:text-gray-300 ml-2">Close</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-12 gap-4 row-gap-5 mt-5">
+            <div class="intro-y col-span-12 flex flex-wrap sm:flex-no-wrap items-center mt-2">
+                <div class="font-medium text-base intro-y col-span-12 mt-5">Visitors
+                    Group(s)</div>
+                <div class="hidden md:block mx-auto text-gray-600"></div>
+                <button id="add_group"
+                    class="button w-24 justify-center block bg-gray-200 text-gray-600 dark:bg-dark-1 dark:text-gray-300">Add
+                    Group</button>
+            </div>
             <div class="intro-y col-span-12 overflow-x-auto lg:overflow-visible">
                 <table class="table w-full">
                     <thead>
@@ -130,20 +147,6 @@
                                             data-feather="trash-2" class="w-4 h-4 mr-1"></i></a>
                                 </div>
                             </td>
-                        </tr>
-                        <tr>
-                            <td class="border-b dark:border-dark-5">2</td>
-                            <td class="border-b dark:border-dark-5">Brad</td>
-                            <td class="border-b dark:border-dark-5">Pitt</td>
-                            <td class="border-b dark:border-dark-5">Pitt</td>
-                            <td class="border-b dark:border-dark-5">@bradpitt</td>
-                        </tr>
-                        <tr>
-                            <td class="border-b dark:border-dark-5">3</td>
-                            <td class="border-b dark:border-dark-5">Charlie</td>
-                            <td class="border-b dark:border-dark-5">Hunnam</td>
-                            <td class="border-b dark:border-dark-5">Pitt</td>
-                            <td class="border-b dark:border-dark-5">@charliehunnam</td>
                         </tr>
                     </tbody>
                 </table>
@@ -240,6 +243,16 @@
     //     }, function(start, end, label) {
     //         console.log('New date range selected: ' + start.format('YYYY-MM-DD') + ' to ' + end.format('YYYY-MM-DD') + ' (predefined range: ' + label + ')');
     // });
+
+    cash('#add_group').on('click', event => {
+        console.log('clicked');
+        if (cash('#group_inputs').hasClass('hidden')) {
+            cash('#group_inputs').removeClass('hidden')
+            cash('#add_group').addClass('hidden')
+        }else{
+            cash('#group_inputs').addClass('hidden')
+        }
+    })
 </script>
 
 @endsection

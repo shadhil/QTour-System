@@ -49,7 +49,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
     Route::get('/reservations/activities', [ReservationController::class, 'activities'])->name('reservations.activities');
+
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
+    Route::post('/hotels/filter', [HotelController::class, 'filterHotels']);
+    Route::post('/hotels/navigate', [HotelController::class, 'navigateHotels']);
+    Route::post('/hotels/new', [HotelController::class, 'newHotel'])->name('hotels.new');
+    Route::get('/hotels/edit/{hotelId}', [HotelController::class, 'editHotel'])->name('hotels.edit');
+    Route::get('/hotels/{hotel}/profile', [HotelController::class, 'hotelProfile'])->name('hotels.profile');
+
     Route::get('/drivers-crew', [CrewController::class, 'index'])->name('drivers-crew');
     Route::post('/drivers-crew/filter', [CrewController::class, 'filter_users']);
     Route::post('/drivers-crew/navigate', [CrewController::class, 'navigate_users']);

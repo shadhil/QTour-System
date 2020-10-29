@@ -127,7 +127,7 @@ class CrewController extends Controller
 
         if (!$validator->fails()) {
 
-            if (!empty($request->email) && $request->og_email != $request->og_email) {
+            if (!empty($request->email) && $request->og_email != $request->email) {
                 if (CrewMember::where('email', $request->email)->count() > 0) {
                     $response = [
                         'success' => false,
