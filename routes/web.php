@@ -48,7 +48,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/profile/{user}', [UserController::class, 'userProfile'])->name('users.profile');
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
-    Route::get('/reservations/activities', [ReservationController::class, 'activities'])->name('reservations.activities');
+    Route::get('/reservations/{code}/activities', [ReservationController::class, 'activities'])->name('reservations.activities');
+    Route::post('/reservations/add-visitor', [ReservationController::class, 'addVisitor']);
+    Route::get('/reservations/{code}/edit', [ReservationController::class, 'editReservation'])->name('reservations.edit');
+    Route::post('/reservations/filter-visitor', [ReservationController::class, 'filterVisitor']);
+    Route::post('/reservations/add-reservation', [ReservationController::class, 'addReservation'])->name('reservations.add');
+    Route::post('/reservations/add-group', [ReservationController::class, 'addGroup']);
 
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
     Route::post('/hotels/filter', [HotelController::class, 'filterHotels']);

@@ -153,9 +153,7 @@ $roles['selected'] = [];
                 </div>
             </div>
             <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-                <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-
-                </div>
+                <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5"></div>
                 <button id="btn-cancel" type="button" data-dismiss="modal"
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
                 <button id="btn-send" name="btn-send" type="submit"
@@ -263,7 +261,7 @@ $roles['selected'] = [];
 
 
     btnNewUser.onclick = event => {
-cash('select #permissions').html("")
+    cash('select #permissions').html("")
             cash('select #roles').html("")
         //let mySelects = tail.select('#permissions');
         //tail.select('#permissions').options.handle("select", 4, "#");

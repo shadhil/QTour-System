@@ -15,20 +15,20 @@ class CreateReservationGroupInfoTable extends Migration
      */
     public function up()
     {
-        Schema::connection('company_db')->create('reservation_group_info', function (Blueprint $table) {
+        Schema::connection('company_db')->create('reservation_groups', function (Blueprint $table) {
             $database = DB::connection("app_db")->getDatabaseName();
 
             $table->id();
             $table->unsignedBigInteger('reservation_id');
-            $table->unsignedInteger('country_id')->nullable();
-            $table->integer('adult')->default(0);
+            $table->unsignedTinyInteger('visitor_type_id')->nullable();
+            $table->integer('adults')->default(0);
             $table->integer('children')->default(0);
             $table->integer('babies')->default(0);
             $table->timestamps();
 
             //FOREIGN KEY CONSTRAINTS
             $table->foreign('reservation_id')->references('id')->on('reservations')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('country_id')->references('id')->on(new Expression($database . '.world_countries'))->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('visitor_type_id')->references('id')->on('visitor_types')->onUpdate('cascade')->onDelete('set null');
         });
     }
 
@@ -39,6 +39,6 @@ class CreateReservationGroupInfoTable extends Migration
      */
     public function down()
     {
-        Schema::connection('company_db')->dropIfExists('reservation_group_info');
+        Schema::connection('company_db')->dropIfExists('reservation_groups');
     }
 }

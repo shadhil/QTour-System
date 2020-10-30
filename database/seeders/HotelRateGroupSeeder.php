@@ -19,13 +19,13 @@ class HotelRateGroupSeeder extends Seeder
             array(
                 'code' => 'STO',
                 'id' => 1,
-                'season' => 'Sell to Operator',
+                'rate_group' => 'Sell to Operator',
             ),
             1 =>
             array(
                 'code' => 'RR',
                 'id' => 2,
-                'season' => 'Rack Rate',
+                'rate_group' => 'Rack Rate',
             ),
         ));
     }

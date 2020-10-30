@@ -25,14 +25,14 @@ class CreateReservationsTable extends Migration
             $table->date('start_date');
             $table->date('end_date');
             $table->integer('nights');
-            $table->unsignedBigInteger('admin_id')->nullable();
+            $table->unsignedBigInteger('booked_by')->nullable();
             $table->tinyInteger('accomodation');
             $table->softDeletes();
             $table->timestamps();
 
             //FOREIGN KEY CONSTRAINTS
             $table->foreign('permit_holder')->references('id')->on('crew_members')->onUpdate('cascade')->onDelete('set null');
-            $table->foreign('admin_id')->references('id')->on(new Expression($database . '.users'))->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('booked_by')->references('id')->on(new Expression($database . '.users'))->onUpdate('cascade')->onDelete('set null');
         });
     }
 

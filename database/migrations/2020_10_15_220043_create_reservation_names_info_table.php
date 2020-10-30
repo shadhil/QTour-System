@@ -15,7 +15,7 @@ class CreateReservationNamesInfoTable extends Migration
      */
     public function up()
     {
-        Schema::connection('company_db')->create('reservation_names_info', function (Blueprint $table) {
+        Schema::connection('company_db')->create('reservation_names', function (Blueprint $table) {
             $database = DB::connection("app_db")->getDatabaseName();
 
             $table->id();
@@ -40,6 +40,6 @@ class CreateReservationNamesInfoTable extends Migration
      */
     public function down()
     {
-        Schema::connection('company_db')->dropIfExists('reservation_names_info');
+        Schema::connection('company_db')->dropIfExists('reservation_names');
     }
 }

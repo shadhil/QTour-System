@@ -20,7 +20,7 @@ class CreateRoomTypesTable extends Migration
             $table->timestamps();
 
             //FOREIGN KEY CONSTRAINTS
-            $table->foreign('hotel')->references('id')->on('hotels')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('hotel_id')->references('id')->on('hotels')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 

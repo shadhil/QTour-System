@@ -19,12 +19,15 @@ class DatabaseSeeder extends Seeder
         // $this->call(PermissionsSeeder::class);
         // $this->call(RolesSeeder::class);
         // $this->call(RolesPermissionsSeeder::class);
+        // $this->call(CompanySeeder::class);
         // $this->call(UserSeeder::class);
         // $this->call(CrewJobTitlesSeeder::class);
-        $this->call(CompanySeeder::class);
-        $this->call(CrewMemberSeeder::class);
-        $this->call(VisitorTypeSeeder::class);
-        $this->call(ParkSeeder::class);
-        $this->call(HotelSeeder::class);
+        // $this->call(CrewMemberSeeder::class);
+        // $this->call(VisitorTypeSeeder::class);
+        // $this->call(ParkSeeder::class);
+        // $this->call(HotelSeeder::class);
+        // $this->call(SeasonSeeder::class);
+        $this->call(HotelRateGroupSeeder::class);
+        $this->call(HotelMealPlanSeeder::class);
     }
 }

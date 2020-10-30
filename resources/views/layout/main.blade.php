@@ -1,7 +1,7 @@
 @extends('../layout/base')
 
 @section('head')
-<title>{{ $title ?? '' }} - QTour - Tourism Quotation Management System</title>
+<title>{{ $data['title'] ?? '' }} - QTour - Tourism Quotation Management System</title>
 @endsection
 
 @section('body')

@@ -4,13 +4,13 @@
     <div class="-intro-x breadcrumb mr-auto hidden sm:flex">
         <a href="javascript:void(0);" class="">Application</a>
         <i data-feather="chevron-right" class="breadcrumb__icon"></i>
-        @if ($breadcrumbs ?? '')
-        @foreach ($breadcrumbs as $breadcrumb)
+        @if ($data['breadcrumbs'] ?? '')
+        @foreach ($data['breadcrumbs'] as $breadcrumb)
         <a href=" {{ url($breadcrumb['url']) }}" class="">{{ $breadcrumb['title'] }}</a>
         <i data-feather="chevron-right" class="breadcrumb__icon"></i>
         @endforeach
         @endif
-        <a href="javascript:void(0);" class="breadcrumb--active">{{ $title ?? 'This Page' }}</a>
+        <a href="javascript:void(0);" class="breadcrumb--active">{{ $data['title'] ?? 'This Page' }}</a>
     </div>
     <!-- END: Breadcrumb -->
     <!-- BEGIN: Search -->

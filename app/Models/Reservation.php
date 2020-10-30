@@ -12,7 +12,7 @@ class Reservation extends Model
 
     public function booker()
     {
-        return $this->belongsToMany(User::class, 'admin_id');
+        return $this->belongsToMany(User::class, 'booked_by');
     }
 
     public function permitHolder()

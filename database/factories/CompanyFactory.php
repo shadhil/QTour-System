@@ -25,7 +25,6 @@ class CompanyFactory extends Factory
         return [
             'company_name' => $this->faker->firstName,
             'region_id' => $this->faker->numberBetween(1, 31),
-            'owner_id' => $this->faker->numberBetween(1, 100),
             'email' => $this->faker->unique()->safeEmail,
             'phone_number' => $this->faker->e164PhoneNumber,
             'location' => $this->faker->streetName,
