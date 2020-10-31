@@ -1,91 +1,47 @@
-<div class="intro-y col-span-12 overflow-auto lg:overflow-visible">
-    <table class="table table-report -mt-2">
-        <thead>
-            <tr>
-                <th class="whitespace-no-wrap">GROUP NAME</th>
-                <th class="text-center whitespace-no-wrap">VISITORS</th>
-                <th class="text-center whitespace-no-wrap">DATE</th>
-                <th class="whitespace-no-wrap">PERMIT HOLDER</th>
-                <th class="text-center whitespace-no-wrap">ACTIONS</th>
-            </tr>
-        </thead>
-        <tbody>
-
-
-            @foreach (array_slice($fakers, 0, 9) as $faker)
-            <tr class="intro-x border border-gray-500 zoom-in">
-                <td>
-                    <a href="" class="font-medium whitespace-no-wrap truncate">{{ $faker['products'][0]['name'] }}</a>
-                    <div class="text-gray-600 text-xs whitespace-no-wrap">
-                        {{ $faker['products'][0]['category'] }}
-                    </div>
-                </td>
-                <td class="text-center">{{ $faker['stocks'][0] }}</td>
-                <td class="text-center">12/10/2020 - 12/12/2102</td>
-                <td>
-                    <a href="" class="font-normal whitespace-no-wrap">{{ $faker['products'][0]['name'] }}</a>
-                </td>
-                <td class="table-report__action w-56">
-                    <div class="flex justify-center items-center">
-                        <a class="flex items-center mr-3" href="javascript:;">
-                            <i data-feather="check-square" class="w-4 h-4 mr-1"></i> Edit
-                        </a>
-                        <a class="flex items-center text-theme-6" href="javascript:;" data-toggle="modal"
-                            data-target="#delete-confirmation-modal">
-                            <i data-feather="trash-2" class="w-4 h-4 mr-1"></i> Delete
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
+@if (sizeof($reservations) > 0)
+@foreach ($reservations as $reservation)
+@php
+$a = empty($reservation->adults) ? 0 : (int)$reservation->adults;
+$b = empty($reservation->babies) ? 0 : (int)$reservation->babies;
+$c = empty($reservation->children) ? 0 : (int)$reservation->children;
+$sd = date_create($reservation->start_date);
+$ed = date_create($reservation->end_date);
+@endphp
+<tr class="intro-x border border-gray-500 zoom-in">
+    <td>
+        <a href="" class="font-medium whitespace-no-wrap truncate">{{ $reservation->group_name }}</a>
+        <div class="text-gray-600 text-xs whitespace-no-wrap">
+            {{ $reservation->code }}
+        </div>
+    </td>
+    <td class="text-center">{{ ($a + $b + $c) }}</td>
+    <td class="text-center">{{date_format($sd,"m/d/Y").' - '.date_format($ed,"m/d/Y")}}</td>
+    <td>
+        <a href="" class="font-normal whitespace-no-wrap">{{ $reservation->cr_fname.' '.$reservation->cr_lname }}</a>
+    </td>
+    <td class="table-report__action w-56">
+        <div class="flex justify-center items-center">
+            <a class="flex items-center mr-3 text-theme-1"
+                href="{{ route('reservations.activities', $reservation->code)}}">
+                <i data-feather="activity" class="w-4 h-4 mr-1"></i> Activities
+            </a>
+            <a class="flex items-center mr-3" href="{{ route('reservations.edit', $reservation->code)}}">
+                <i data-feather="edit" class="w-4 h-4 mr-1"></i>
+            </a>
+            <a class="flex items-center text-theme-6" href="javascript:;" data-toggle="modal"
+                data-target="#delete-confirmation-modal" data-rsrv-id={{$reservation->id}}>
+                <i data-feather="trash-2" class="w-4 h-4 mr-1"></i>
+            </a>
+        </div>
+    </td>
+</tr>
+@php
+@endphp
+@endforeach
+@else
+<div class="intro-y col-span-12">
+    <div class="w-full">
+        <div class="text-center text-gray-600 font-medium p-4">NO VISITORS' NAMES FOUND</div>
+    </div>
 </div>
-<!-- BEGIN: Pagination -->
-{{-- {{ $users->links('vendor.pagination.tailwind') }} --}}
-<div class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-no-wrap items-center">
-    <ul class="pagination">
-        <li>
-            <a class="pagination__link" href="">
-                <i class="w-4 h-4" data-feather="chevrons-left"></i>
-            </a>
-        </li>
-        <li>
-            <a class="pagination__link" href="">
-                <i class="w-4 h-4" data-feather="chevron-left"></i>
-            </a>
-        </li>
-        <li>
-            <a class="pagination__link" href="">...</a>
-        </li>
-        <li>
-            <a class="pagination__link" href="">1</a>
-        </li>
-        <li>
-            <a class="pagination__link pagination__link--active" href="">2</a>
-        </li>
-        <li>
-            <a class="pagination__link" href="">3</a>
-        </li>
-        <li>
-            <a class="pagination__link" href="">...</a>
-        </li>
-        <li>
-            <a class="pagination__link" href="">
-                <i class="w-4 h-4" data-feather="chevron-right"></i>
-            </a>
-        </li>
-        <li>
-            <a class="pagination__link" href="">
-                <i class="w-4 h-4" data-feather="chevrons-right"></i>
-            </a>
-        </li>
-    </ul>
-    <select class="w-20 input box mt-3 sm:mt-0">
-        <option>10</option>
-        <option>25</option>
-        <option>35</option>
-        <option>50</option>
-    </select>
-</div>
-<!-- END: Pagination -->
+@endif

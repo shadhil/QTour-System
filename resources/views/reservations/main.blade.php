@@ -1,3 +1,6 @@
+@php
+$reservations = $data['reservations'];
+@endphp
 @extends('../layout/main')
 
 @section('content')
@@ -14,9 +17,26 @@
     </div>
 </div>
 <!-- BEGIN: Data List -->
-<div id="table-data" class="grid grid-cols-12 gap-6 mt-5">
-    @include('reservations.main-table')
+<div class="grid grid-cols-12 gap-6 mt-5">
+    <div class="intro-y col-span-12 overflow-auto lg:overflow-visible">
+        <table class="table table-report -mt-2">
+            <thead>
+                <tr>
+                    <th class="whitespace-no-wrap">GROUP NAME</th>
+                    <th class="text-center whitespace-no-wrap">VISITORS</th>
+                    <th class="text-center whitespace-no-wrap">TOUR DATES</th>
+                    <th class="whitespace-no-wrap">PERMIT HOLDER</th>
+                    <th class="text-center whitespace-no-wrap">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="table-rows">
+                @include('reservations.main-table')
+            </tbody>
+        </table>
+    </div>
 </div>
+<div id="table-pagination" class="grid grid-cols-12 gap-6">
+    @include('reservations.main-table-pagination')
 </div>
 
 <!-- BEGIN: Delete Confirmation Modal -->

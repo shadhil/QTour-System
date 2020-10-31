@@ -116,18 +116,21 @@ $names = $data['names'];
             <div class="flex gap-4 intro-y col-span-12 sm:col-span-8">
                 <div class="flex-1 intro-y col-span-12 sm:col-span-4">
                     <div class="mb-2">Adult(s)</div>
-                    <input id="tot_adults" type="number" class="input w-full border flex-1" placeholder="eg. 2">
+                    <input id="tot_adults" type="number" min="0" class="input w-full border flex-1" placeholder="eg. 2">
                 </div>
                 <div class="flex-1 intro-y col-span-12 sm:col-span-4">
                     <div class="mb-2">Children</div>
-                    <input id="tot_children" type="number" class="input w-full border flex-1" placeholder="eg. 2">
+                    <input id="tot_children" type="number" min="0" class="input w-full border flex-1"
+                        placeholder="eg. 2">
                 </div>
                 <div class="flex-1 intro-y col-span-12 sm:col-span-4">
                     <div class="mb-2">Baby</div>
-                    <input id="tot_babies" type="number" class="input w-full border flex-1" placeholder="eg. 2">
+                    <input id="tot_babies" type="number" min="0" class="input w-full border flex-1" placeholder="eg. 2">
                 </div>
             </div>
             <div class="intro-y col-span-12 flex items-center justify-center sm:justify-start mt-5">
+                <div id="show-group-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
+                </div>
                 <button id="save_group" class="button w-24 justify-center block bg-theme-1 text-white ">Submit</button>
                 <button id="hide_group_inputs"
                     class="button w-24 justify-center block bg-gray-200 text-gray-600 dark:bg-dark-1 dark:text-gray-300 ml-2">Close</button>
@@ -154,12 +157,12 @@ $names = $data['names'];
                             <th class="text-center whitespace-no-wrap">Actions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="group-rows">
                         @include('reservations.group-table-row')
                     </tbody>
                 </table>
             </div>
-            <div id="visitor_names" class="intro-y col-span-12 grid grid-cols-12 gap-6 mt-5 hidden">
+            <div id="visitor_names" class="intro-y col-span-12 grid grid-cols-12 gap-6 mt-5">
                 <div class="intro-y col-span-12">
                     <div class="grid grid-cols-12 gap-6 mt-3">
                         <div class="intro-y col-span-12 flex flex-wrap sm:flex-no-wrap items-center mt-2">
@@ -203,31 +206,30 @@ $names = $data['names'];
             <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
                 <div class="col-span-12">
                     <label>Visitor's Name</label>
-                    <input id="fullname" name="fullname" type="text" class="input w-full border mt-2 flex-1"
+                    <input id="full_name" name="full_name" type="text" class="input w-full border mt-2 flex-1"
                         placeholder="Full Name" required>
                 </div>
                 <div class="col-span-12 sm:col-span-6">
                     <label>Gender</label>
                     <select id="gender" name="gender" class="input w-full border mt-2 flex-1" required>
-                        <option>Select a region the park is located</option>
-                        {{-- @foreach ($data['regions'] as $region)
-                                        <option value="{{$region->id}}">{{$region->region}}</option>
-                        @endforeach --}}
+                        <option> -- Visitor's Gender -- </option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
                     </select>
                 </div>
                 <div class="col-span-12 sm:col-span-6">
                     <label>Country</label>
                     <select id="country" name="country" class="input w-full border mt-2 flex-1" required>
                         <option>Select a country he/she is from</option>
-                        {{-- @foreach ($data['regions'] as $region)
-                        <option value="{{$region->id}}">{{$region->region}}</option>
-                        @endforeach --}}
+                        @foreach ($data['countries'] as $country)
+                        <option value="{{$country->id}}">{{$country->name}}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-span-12 sm:col-span-6">
                     <label>Email</label>
                     <input id="email" name="email" type="email" class="input w-full border mt-2 flex-1"
-                        placeholder="company@email.com" required>
+                        placeholder="eample@email.com">
                 </div>
                 <div class="col-span-12 sm:col-span-6">
                     <label>Other Contact</label>
@@ -236,7 +238,8 @@ $names = $data['names'];
                 </div>
             </div>
             <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-                <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5"></div>
+                <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5 hidden">
+                </div>
                 <button type="button" data-dismiss="modal"
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
                 <button id="btn-save-visitor" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
@@ -277,13 +280,13 @@ $names = $data['names'];
 
     cash('#save_group').on('click', event => {
         console.log('clicked');
-        cash('#group_inputs').addClass('hidden')
+        // cash('#group_inputs').addClass('hidden')
         let type = cash('#group_type').val()
-        let adults = cash('#tot_adults').val()
-        let children = cash('#tot_children').val()
-        let babies = cash('#tot_babies').val()
+        let adults = (cash('#tot_adults').val() == "") ? "0" : cash('#tot_adults').val()
+        let children = (cash('#tot_children').val() == "") ? "0" : cash('#tot_children').val()
+        let babies = (cash('#tot_babies').val() == "") ? "0" : cash('#tot_babies').val()
 
-        if (type == '' || (adult == '0' && children == '0' && babies == '0')) {
+        if (type == '' || (adults == '0' && children == '0' && babies == '0')) {
             alert('Select Group and add total visitor count')
         }else{
             addUpdateGroup(type, adults, children, babies)
@@ -303,16 +306,18 @@ $names = $data['names'];
             reservation: reservation,
         }).then(res => {
         cash('#save_group').html('Save')
+        console.log(res.data);
         if (res.data.success == true) {
+            console.log('Is True?!');
             cash('#group_type').val('')
             cash('#tot_adults').val('0')
-            cash('#tot_children').va('0')
+            cash('#tot_children').val('0')
             cash('#tot_babies').val('0')
-            cash('#table-group').html(res.data.updatedGroups);
+            cash('#group-rows').html(res.data.updatedGroups);
         }else {
             console.log(res.data.message)
             let msgs = res.data.message
-            msgs.forEach(element => cash('#show-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
+            msgs.forEach(element => cash('#show-group-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
         }
             feather.replace();
         }).catch(err => {
@@ -321,19 +326,19 @@ $names = $data['names'];
         })
     }
 
-    const visitorForm = cash('#visitor_form')
+    const visitorForm = cash('#visitor_form')[0]
     visitorForm.onsubmit = event =>{
-        if(userForm.checkValidity()) {
+        if(visitorForm.checkValidity()) {
             addUpdateVisitor()
         }else console.log("invalid form");
     }
-
 
     async function addUpdateVisitor() {
         let count = cash('#input-count').val();
 
         let visitorForm = cash('#visitor_form')[0];
         var formData = new FormData(visitorForm);
+        formData.append('reservation', cash('#reservation').val());
         formData.append('count', count);
 
         cash('#btn-save-visitor').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
@@ -346,6 +351,7 @@ $names = $data['names'];
             cash('#add-visitor-name').modal('hide');
             cash('#input-search').val('');
             cash('#input-count').val(count);
+            cash('#visitor_names').removeClass('hidden')
             cash('#visitor-names-table').html(res.data.updatedVisitors);
         }else {
             console.log(res.data.message)

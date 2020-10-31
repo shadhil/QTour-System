@@ -28,8 +28,22 @@ class ReservationController extends Controller
 
     public function index()
     {
+        $data['title'] = 'Reservations';
 
-        return view('reservations.main');
+        $data['reservations'] = DB::connection($this->db_conn)->table($this->comp_db . '.reservations')
+            ->leftJoin($this->comp_db . '.crew_members', $this->comp_db . '.crew_members.id', '=', $this->comp_db . '.reservations.permit_holder')
+            ->join($this->app_db . '.users', $this->app_db . '.users.id', '=', $this->comp_db . '.reservations.booked_by')
+            ->leftJoin($this->comp_db . '.reservation_groups', $this->comp_db . '.reservation_groups.reservation_id', '=', $this->comp_db . '.reservations.id')
+            ->select($this->comp_db . '.reservations.*', $this->app_db . '.users.first_name as u_fname', $this->app_db . '.users.last_name as u_lname', $this->comp_db . '.crew_members.first_name as cr_fname', $this->comp_db . '.crew_members.last_name as cr_lname', DB::raw('sum(' . $this->comp_db . '.reservation_groups.adults) as adults, sum(' . $this->comp_db . '.reservation_groups.children) as children, sum(' . $this->comp_db . '.reservation_groups.babies) as babies'))
+            ->groupBy($this->comp_db . '.reservations.id')
+            ->paginate($this->items);
+
+        // echo "<pre>";
+        // print_r(json_decode(json_encode($data), true));
+        // die;
+        //dd($data);
+
+        return view('reservations.main', compact('data'));
     }
 
     public function new()
@@ -40,7 +54,7 @@ class ReservationController extends Controller
             ['url' => '/reservations', 'title' => 'Reservations']
         ];
 
-        $data['drivers'] = DB::connection($this->db_conn)->table('crew_members')
+        $data['drivers'] = DB::table('crew_members')
             ->leftJoin('crew_on_reservations', function ($join) {
                 $join->on('crew_members.id', '=', 'crew_on_reservations.member_id')
                     ->whereDate('crew_on_reservations.start_date', '<=', date('Y-m-d'))
@@ -53,22 +67,25 @@ class ReservationController extends Controller
 
         $data['bookers'] = User::select('id', 'first_name', 'last_name')->get();
 
-
-        $reservation = Reservation::where('code', 'VM42OR5J')->first();
-        $data['reservation'] = $reservation;
+        $data['groups'] = [];
+        $data['names'] = [];
 
         $data['groups'] = DB::connection($this->db_conn)->table('reservation_groups')
             ->join('visitor_types', 'visitor_types.id', '=', 'reservation_groups.visitor_type_id')
-            ->where('reservation_groups.reservation_id', $reservation['id'])
+            ->where('reservation_groups.reservation_id', '2')
             ->select('reservation_groups.*', 'visitor_types.type')
+            ->orderBy('reservation_groups.id')
             ->get();
-
 
         $data['names'] = DB::table($this->comp_db . '.reservation_names')
             ->join($this->app_db . '.world_countries', $this->app_db . '.world_countries.id', '=', $this->comp_db . '.reservation_names.country_id')
-            ->where($this->comp_db . '.reservation_names.reservation_id', $reservation['id'])
+            ->where($this->comp_db . '.reservation_names.reservation_id', '2')
             ->select($this->comp_db . '.reservation_names.*', $this->app_db . '.world_countries.name')
-            ->get();
+            ->orderByDesc($this->comp_db . '.reservation_names.id')
+            ->paginate($this->items);
+
+        $data['countries'] = DB::table($this->app_db . '.world_countries')
+            ->select('id', 'name')->get();
 
         // echo "<pre>";
         // print_r(json_decode(json_encode($data), true));
@@ -78,9 +95,24 @@ class ReservationController extends Controller
         return view('reservations.new', compact('data'));
     }
 
-    public function activities()
+    public function activities($reservationCode)
     {
-        return view('reservations.profile');
+        $data['title'] = 'Activities';
+        $data['breadcrumbs'] = [
+            ['url' => '/reservations', 'title' => 'Reservations']
+        ];
+
+
+        $data['reservation'] = DB::connection($this->db_conn)->table($this->comp_db . '.reservations')
+            ->leftJoin($this->comp_db . '.crew_members', $this->comp_db . '.crew_members.id', '=', $this->comp_db . '.reservations.permit_holder')
+            ->join($this->app_db . '.users', $this->app_db . '.users.id', '=', $this->comp_db . '.reservations.booked_by')
+            ->leftJoin($this->comp_db . '.reservation_groups', $this->comp_db . '.reservation_groups.reservation_id', '=', $this->comp_db . '.reservations.id')
+            ->select($this->comp_db . '.reservations.*', $this->app_db . '.users.first_name as u_fname', $this->app_db . '.users.last_name as u_lname', $this->comp_db . '.crew_members.first_name as cr_fname', $this->comp_db . '.crew_members.last_name as cr_lname', DB::raw('sum(' . $this->comp_db . '.reservation_groups.adults) as adults, sum(' . $this->comp_db . '.reservation_groups.children) as children, sum(' . $this->comp_db . '.reservation_groups.babies) as babies'))
+            ->where($this->comp_db . '.reservations.code', $reservationCode)
+            ->first();
+
+
+        return view('reservations.profile', compact('data'));
     }
 
 
@@ -198,7 +230,8 @@ class ReservationController extends Controller
             ->join($this->app_db . '.world_countries', $this->app_db . '.world_countries.id', '=', $this->comp_db . '.reservation_names.country_id')
             ->where($this->comp_db . '.reservation_names.reservation_id', $reservation['id'])
             ->select($this->comp_db . '.reservation_names.*', $this->app_db . '.world_countries.name')
-            ->get();
+            ->orderByDesc($this->comp_db . '.reservation_names.id')
+            ->paginate($this->items);
 
         echo "<pre>";
         print_r(json_decode(json_encode($data), true));
@@ -243,8 +276,61 @@ class ReservationController extends Controller
 
             $response = [
                 'success' => true,
-                'message' => 'Park Added successfully.',
-                'updatedParks' => $updatedView
+                'message' => 'Group Added successfully.',
+                'updatedGroups' => $updatedView
+            ];
+            return response()->json(
+                $response,
+                200
+            );
+        }
+
+        $response = [
+            'success' => false,
+            'message' => $validator->errors()->all(),
+        ];
+        return response()->json($response, 200);
+    }
+
+
+    public function addVisitor(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'full_name' => 'required',
+            'gender' => 'required',
+            'country' => 'required',
+        ]);
+
+        if (!$validator->fails()) {
+
+            DB::connection($this->db_conn)->table('reservation_names')->updateOrInsert(
+                [
+                    'id' => $request->visitor_id
+                ],
+                [
+                    'full_name' => $request->full_name,
+                    'country' => $request->country,
+                    'gender' => $request->gender,
+                    'email' => $request->email,
+                    'other_contact' => $request->other_contact,
+                    'reservation_id' => $request->reservation
+                ]
+            );
+
+            $names = DB::table($this->comp_db . '.reservation_names')
+                ->join($this->app_db . '.world_countries', $this->app_db . '.world_countries.id', '=', $this->comp_db . '.reservation_names.country_id')
+                ->where($this->comp_db . '.reservation_names.reservation_id', $request->reservation)
+                ->select($this->comp_db . '.reservation_names.*', $this->app_db . '.world_countries.name')
+                ->orderByDesc($this->comp_db . '.reservation_names.id')
+                ->paginate($this->items);
+
+            $updatedView = view('reservations.visitor-names', compact('names'))->render();
+
+            $response = [
+                'success' => true,
+                'message' => 'Visitor Added successfully.',
+                'updatedVisitors' => $updatedView
             ];
             return response()->json(
                 $response,

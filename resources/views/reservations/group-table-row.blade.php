@@ -1,6 +1,7 @@
 @if (sizeof($groups) > 0)
+@foreach ($groups as $group)
 <tr>
-    <td class="border-b dark:border-dark-5">1</td>
+    <td class="border-b dark:border-dark-5">{{ $group->id}}</td>
     <td class="text-center border-b dark:border-dark-5">{{ $group->type}}</td>
     <td class="text-center border-b dark:border-dark-5">{{ $group->adults}}</td>
     <td class="text-center border-b dark:border-dark-5">{{ $group->children}}</td>
@@ -20,6 +21,7 @@
         </div>
     </td>
 </tr>
+@endforeach
 @else
 <tr>
     <td colspan="6">
@@ -27,5 +29,3 @@
     </td>
 </tr>
 @endif
-@foreach ($groups as $group)
-@endforeach
