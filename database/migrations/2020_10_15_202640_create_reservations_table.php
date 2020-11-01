@@ -26,7 +26,7 @@ class CreateReservationsTable extends Migration
             $table->date('end_date');
             $table->integer('nights');
             $table->unsignedBigInteger('booked_by')->nullable();
-            $table->tinyInteger('accomodation');
+            $table->tinyInteger('accomodation')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

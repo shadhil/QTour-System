@@ -1,11 +1,22 @@
 @php
+$reservations = [];
 $reservation = $data['reservation'];
-$a = empty($reservation->adults) ? 0 : (int)$reservation->adults;
-$b = empty($reservation->babies) ? 0 : (int)$reservation->babies;
-$c = empty($reservation->children) ? 0 : (int)$reservation->children;
+$dayParks = $data['day_parks'];
+$rsrvActivities = $data['rsrv_activities'];
+$visitorTypes = array();
+foreach ($data['visitor_types'] as $type) {
+$visitorTypes[] = $type;
+}
+// if(is_array($data['visitor_types'])){
+// $visitorTypes = $data['visitor_types'];
+// }
+$a = empty($reservation->tot_adults) ? 0 : (int)$reservation->tot_adults;
+$b = empty($reservation->tot_babies) ? 0 : (int)$reservation->tot_babies;
+$c = empty($reservation->tot_children) ? 0 : (int)$reservation->tot_children;
 $sd = date_create($reservation->start_date);
 $ed = date_create($reservation->end_date);
-$diff=date_diff($sd,$ed);
+$touringDays=(date_diff($sd,$ed)->format("%a") + 1);
+
 @endphp
 @extends('../layout/main')
 
@@ -13,7 +24,6 @@ $diff=date_diff($sd,$ed);
 <div class="intro-y box px-5 pt-5 mt-5">
     <div class="flex flex-col lg:flex-row border-b border-gray-200 dark:border-dark-5 pb-5 -mx-5">
         <div class="flex flex-1 px-5 items-center justify-center lg:justify-start">
-
             <div class="ml-5">
                 <div class="w-64 sm:w-40 truncate sm:whitespace-normal font-medium text-lg">
                     {{ $reservation->group_name }}</div>
@@ -38,7 +48,7 @@ $diff=date_diff($sd,$ed);
         <div
             class="mt-6 lg:mt-0 flex-1 flex items-center justify-center px-5 border-t lg:border-0 border-gray-200 dark:border-dark-5 pt-5 lg:pt-0">
             <div class="text-center rounded-md w-20 py-3">
-                <div class="font-semibold text-theme-1 dark:text-theme-10 text-lg">{{($diff->format("%a") + 1)}}</div>
+                <div class="font-semibold text-theme-1 dark:text-theme-10 text-lg">{{ $touringDays }}</div>
                 <div class="text-gray-600">Day(s)</div>
             </div>
             <div class="text-center rounded-md w-20 py-3">
@@ -64,40 +74,14 @@ $diff=date_diff($sd,$ed);
 <!-- BEGIN: HTML Tab Content Data -->
 <div class="tab-content mt-5">
     <div class="tab-content__pane active" id="activities">
-        <div class="grid grid-cols-12 gap-5 mt-5">
-            <div class="col-span-12 sm:col-span-3 xxl:col-span-2 box p-5 cursor-pointer zoom-in">
-                <div class="font-medium text-base">Day 1</div>
-                <div class="text-gray-600">Serengeti National Park</div>
-            </div>
-            <div
-                class="col-span-12 sm:col-span-3 xxl:col-span-2 box bg-theme-1 dark:bg-theme-1 p-5 cursor-pointer zoom-in">
-                <div class="font-medium text-base text-white">Day 2</div>
-                <div class="text-theme-25 dark:text-gray-400">Manyara National Park</div>
-            </div>
-            <div class="col-span-12 sm:col-span-3 xxl:col-span-2 box p-5 cursor-pointer zoom-in">
-                <div class="font-medium text-base">Pasta</div>
-                <div class="text-gray-600">4 Items</div>
-            </div>
-            <div class="col-span-12 sm:col-span-3 xxl:col-span-2 box p-5 cursor-pointer zoom-in">
-                <div class="font-medium text-base">Waffle</div>
-                <div class="text-gray-600">3 Items</div>
-            </div>
-            <div class="col-span-12 sm:col-span-3 xxl:col-span-2 box p-5 cursor-pointer zoom-in">
-                <div class="font-medium text-base">Snacks</div>
-                <div class="text-gray-600">8 Items</div>
-            </div>
-            <div class="col-span-12 sm:col-span-3 xxl:col-span-2 box p-5 cursor-pointer zoom-in">
-                <div class="font-medium text-base">Deserts</div>
-                <div class="text-gray-600">8 Items</div>
-            </div>
-            <div class="col-span-12 sm:col-span-3 xxl:col-span-2 box p-5 cursor-pointer zoom-in">
-                <div class="font-medium text-base">Beverage</div>
-                <div class="text-gray-600">9 Items</div>
-            </div>
+        <div id="day_park_links" class="grid grid-cols-12 gap-5 mt-5">
+            @include('reservations.day-park')
         </div>
-        <div class="grid grid-cols-12 gap-6 mt-5">
+        <div class="grid grid-cols-12 gap-3 mt-5">
             <div class="intro-y col-span-12 flex flex-wrap sm:flex-no-wrap items-center mt-2">
-                <button id="add_activity" class="button text-white bg-theme-1 shadow-md mr-2">Add Activity</button>
+                <div class="w-64 sm:w-40 truncate sm:whitespace-normal font-medium text-lg">List of
+                    Activities
+                </div>
                 <div class="hidden md:block mx-auto text-gray-600"></div>
                 <div class="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto md:ml-0">
                     <div class="w-56 relative text-gray-700 dark:text-gray-300">
@@ -111,113 +95,23 @@ $diff=date_diff($sd,$ed);
                 <table class="table table-report -mt-2">
                     <thead>
                         <tr>
-                            <th class="whitespace-no-wrap">DAY</th>
-                            <th class="whitespace-no-wrap">ACTIVITY - park</th>
-                            <th class="text-center whitespace-no-wrap">PAX - @price</th>
-                            <th class="text-center whitespace-no-wrap">TOTAL</th>
+                            <th class="text-center whitespace-no-wrap">DAY</th>
+                            <th class="whitespace-no-wrap">ACTIVITY</th>
+                            <th class="text-center whitespace-no-wrap">PAX</th>
+                            <th class="text-center whitespace-no-wrap">TOTAL PRICE</th>
                             <th class="text-center whitespace-no-wrap">VAT</th>
                             <th class="text-center whitespace-no-wrap">ACTIONS</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach (array_slice($fakers, 0, 9) as $faker)
-                        <tr class="intro-x">
-                            <td class="w-40">
-                                <div class="flex">
-                                    <div class="w-10 h-10 image-fit zoom-in">
-                                        <img alt="Midone Tailwind HTML Admin Template" class="tooltip rounded-full"
-                                            src="{{ asset('dist/images/' . $faker['images'][0]) }}"
-                                            title="Uploaded at {{ $faker['dates'][0] }}">
-                                    </div>
-                                    <div class="w-10 h-10 image-fit zoom-in -ml-5">
-                                        <img alt="Midone Tailwind HTML Admin Template" class="tooltip rounded-full"
-                                            src="{{ asset('dist/images/' . $faker['images'][1]) }}"
-                                            title="Uploaded at {{ $faker['dates'][0] }}">
-                                    </div>
-                                    <div class="w-10 h-10 image-fit zoom-in -ml-5">
-                                        <img alt="Midone Tailwind HTML Admin Template" class="tooltip rounded-full"
-                                            src="{{ asset('dist/images/' . $faker['images'][2]) }}"
-                                            title="Uploaded at {{ $faker['dates'][0] }}">
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <a href=""
-                                    class="font-medium whitespace-no-wrap">{{ $faker['products'][0]['name'] }}</a>
-                                <div class="text-gray-600 text-xs whitespace-no-wrap">
-                                    {{ $faker['products'][0]['category'] }}
-                                </div>
-                            </td>
-                            <td class="text-center">{{ $faker['stocks'][0] }}</td>
-                            <td class="w-40">
-                                <div
-                                    class="flex items-center justify-center {{ $faker['true_false'][0] ? 'text-theme-9' : 'text-theme-6' }}">
-                                    <i data-feather="check-square" class="w-4 h-4 mr-2"></i>
-                                    {{ $faker['true_false'][0] ? 'Active' : 'Inactive' }}
-                                </div>
-                            </td>
-                            <td class="table-report__action w-56">
-                                <div class="flex justify-center items-center">
-                                    <a class="flex items-center mr-3" href="javascript:;">
-                                        <i data-feather="check-square" class="w-4 h-4 mr-1"></i> Edit
-                                    </a>
-                                    <a class="flex items-center text-theme-6" href="javascript:;" data-toggle="modal"
-                                        data-target="#delete-confirmation-modal">
-                                        <i data-feather="trash-2" class="w-4 h-4 mr-1"></i> Delete
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
+                    <tbody id="activity-rows">
+                        @include('reservations.activity-table')
                     </tbody>
                 </table>
             </div>
             <!-- END: Data List -->
             <!-- BEGIN: Pagination -->
-            <div class="intro-y col-span-12 flex flex-wrap sm:flex-row sm:flex-no-wrap items-center">
-                <ul class="pagination">
-                    <li>
-                        <a class="pagination__link" href="">
-                            <i class="w-4 h-4" data-feather="chevrons-left"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="pagination__link" href="">
-                            <i class="w-4 h-4" data-feather="chevron-left"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="pagination__link" href="">...</a>
-                    </li>
-                    <li>
-                        <a class="pagination__link" href="">1</a>
-                    </li>
-                    <li>
-                        <a class="pagination__link pagination__link--active" href="">2</a>
-                    </li>
-                    <li>
-                        <a class="pagination__link" href="">3</a>
-                    </li>
-                    <li>
-                        <a class="pagination__link" href="">...</a>
-                    </li>
-                    <li>
-                        <a class="pagination__link" href="">
-                            <i class="w-4 h-4" data-feather="chevron-right"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a class="pagination__link" href="">
-                            <i class="w-4 h-4" data-feather="chevrons-right"></i>
-                        </a>
-                    </li>
-                </ul>
-                <select class="w-20 input box mt-3 sm:mt-0">
-                    <option>10</option>
-                    <option>25</option>
-                    <option>35</option>
-                    <option>50</option>
-                </select>
+            <div id="table-pagination" class="grid grid-cols-12 gap-6">
+                @include('reservations.main-table-pagination')
             </div>
             <!-- END: Pagination -->
         </div>
@@ -377,10 +271,10 @@ $diff=date_diff($sd,$ed);
 
 <div class="modal" id="activity-modal">
     <div class="modal__content modal__content--lg">
-        <form id="hotel_form" class="validate-form" enctype="multipart/form-data">
-            <input type="hidden" id="hotel_id" name="hotel_id" value="" />
-            <input type="hidden" id="og_photo_name" name="og_photo_name" value="" />
-            <input type="hidden" id="og_email" name="og_email" value="" />
+        <form id="activity_form" class="validate-form" enctype="multipart/form-data">
+            <input type="hidden" id="activity_id" name="activity_id" value="" />
+            <input type="hidden" id="reservation_id" name="reservation_id" value="" />
+            <input type="hidden" id="park_id" name="park_id" value="1" />
             <input type="hidden" id="og_phones" name="og_phones" value="" />
             <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
                 <h2 class="font-medium text-base mr-auto modal-title">Reservation Activity</h2>
@@ -388,22 +282,38 @@ $diff=date_diff($sd,$ed);
             <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
                 <div class="col-span-12 sm:col-span-6">
                     <label>Day</label>
-                    <input id="location" name="location" type="text" class="input w-full border mt-2 flex-1"
-                        placeholder="Office or Residence" required>
-                </div>
-                <div class="col-span-12 sm:col-span-6">
-                    <label>Parks</label>
-                    <select id="region" name="region" class="input w-full border mt-2 flex-1" required>
-                        <option>Select a region the park is located</option>
-                        {{-- @foreach ($data['regions'] as $region)
-                        <option value="{{$region->id}}">{{$region->region}}</option>
-                        @endforeach --}}
+                    <select id="day" name="day" class="input w-full border mt-2 flex-1" required>
+                        <option>Select a tour day number</option>
+                        @for ($i = 1; $i <= $touringDays; $i++) <option value="{{$i}}">{{$i}}
+                            </option>
+                            @endfor
                     </select>
                 </div>
                 <div class="col-span-12 sm:col-span-6">
+                    <label>Parks</label>
+                    <select id="park" name="park" class="input w-full border mt-2 flex-1" required>
+                        <option>Select a park's name</option>
+                        @foreach ($data['parks'] as $park)
+                        <option value="{{$park->id}}">{{$park->park_name}}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-span-12 flex flex-col justify-end items-center">
+                    <i data-loading-icon="three-dots" class="w-8 h-8"></i>
+                </div>
+                <div class="col-span-12 sm:col-span-6">
                     <label>Activity</label>
-                    <input id="phones" name="phones" type="text" class="input w-full border mt-2 flex-1"
-                        placeholder="0">
+
+
+                    <select id="park" name="park" class="input w-full border mt-2 flex-1" required>
+                        <option>Select a park's name</option>
+                        @foreach ($data['parks'] as $park)
+                        <option value="{{$park->id}}">{{$park->park_name}}</option>
+                        @endforeach
+                    </select>
+
+
+
                 </div>
                 <div class="col-span-12 sm:col-span-6">
                     <label>Category</label>
@@ -411,25 +321,28 @@ $diff=date_diff($sd,$ed);
                         placeholder="company@email.com" required>
                 </div>
                 <div class="col-span-12 sm:col-span-4">
-                    <label>EA</label>
-                    <input id="phones" name="phones" type="text" class="input w-full border mt-2 flex-1"
-                        placeholder="0">
+                    <label>East African(s)</label>
+                    <input id="east-african" name="east-african" type="number" min="0"
+                        class="input w-full border mt-2 flex-1" placeholder="0" value="0"
+                        {{ in_array('1', $visitorTypes) ? 'required' : 'readonly' }}>
                 </div>
                 <div class="col-span-12 sm:col-span-4">
-                    <label>E</label>
-                    <input id="email" name="email" type="email" class="input w-full border mt-2 flex-1"
-                        placeholder="company@email.com" required>
+                    <label>Expatriate</label>
+                    <input id="expatriate" name="expatriate" type="number" min="0"
+                        class="input w-full border mt-2 flex-1" placeholder="company@email.com" value="0"
+                        {{ in_array('2', $visitorTypes) ? 'required' : 'readonly' }}>
                 </div>
                 <div class="col-span-12 sm:col-span-4">
-                    <label>NR</label>
-                    <input id="phones" name="phones" type="text" class="input w-full border mt-2 flex-1"
-                        placeholder="0">
+                    <label>Non Resident</label>
+                    <input id="non-resident" name="non-resident" type="number" min="0"
+                        class="input w-full border mt-2 flex-1" placeholder="0" value="0"
+                        {{ in_array('3', $visitorTypes) ? 'required' : 'readonly' }}>
                 </div>
             </div>
             <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
                 <button type="button" data-dismiss="modal"
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
-                <button id="btn-send" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
+                <button id="btn-save" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
             </div>
         </form>
     </div>
@@ -439,12 +352,110 @@ $diff=date_diff($sd,$ed);
 
 @section('script')
 <script>
+    let parkActivities = "";
     cash("#add_activity").on('click', function(e){
         cash('#activity-modal').modal('show');
         cash('.modal-title').text("Add New Park");
         cash('#btn-send').val("Send");
         //cash('#park_form')[0].reset();
     });
+
+    cash('div').on('click', '.day-activity', event => {
+        cash('#activity-modal').modal('show');
+        cash('.modal-title').text("Add New Park");
+        cash('#btn-send').val("Send");
+
+        loadParkActivities();
+        //cash('#park_form')[0].reset();
+    })
+    const activityForm = cash('#activity_form')[0]
+    activityForm.onsubmit = event =>{
+        if(activityForm.checkValidity()) {
+            addUpdateActivity()
+        }else console.log("invalid form");
+    }
+
+    async function addUpdateActivity() {
+        let count = cash('#input-count').val();
+
+        let activityForm = cash('#activity_form')[0];
+        var formData = new FormData(visiactivityFormtorForm);
+        formData.append('reservation_id', cash('#reservation_id').val());
+        formData.append('count', count);
+
+        cash('#btn-save').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        let config = { headers: { 'Content-Type': 'multipart/form-data' } }
+        axios.post("{{url('/reservations/add-activity')}}", formData, config).then(res => {
+        cash('#btn-save').html('Save')
+        if (res.data.success == true) {
+            //showSuccessToast(res.data.message);
+            cash('#activity-modal').modal('hide');
+            cash('#input-search').val('');
+            cash('#input-count').val(count);
+            //cash('#visitor_names').removeClass('hidden')
+            // cash('#visitor-names-table').html(res.data.updatedVisitors);
+            // cash('#visitor-names-table').html(res.data.updatedVisitors);
+        }else {
+            console.log(res.data.message)
+            let msgs = res.data.message
+            msgs.forEach(element =>
+            cash('#show-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
+        }
+        feather.replace();
+        }).catch(err => {
+            cash('#btn-save').html('Save')
+            console.log(err);
+        })
+    }
+
+    async function loadParkActivities() {
+        let parkId = '1'
+        //cash('park_id').val();
+
+        await helper.delay(500)
+        axios.get("{{url('/reservations/load-park-activities')}}"+ '/' + parkId).then(res => {
+        if (res.data.success == true) {
+            parkActivities = res.data.park_activities;
+            console.log(parkActivities);
+            //getActivities(parkActivities);
+            var arr = [];
+            for(let i = 0, l = parkActivities.length; i < l; i++) {
+                var activity=parkActivities[i];
+
+                if(arr.indexOf(activity.category) == -1){
+                    arr.push(activity.category);
+                }
+                //console.log(arr);
+
+                // arr.push(activity.category);
+                //console.log(person.activity);
+                //console.log(person.category);
+                // `person.id` and `person.name`.
+                // We could also use `data.persons[i].id`.
+            }
+console.log(arr);
+            // var obj = JSON.parse(parkActivities);
+            // const arr1 = parkActivities.filter(d => d.activity_id > 1);
+            // console.log(obj[1].activity + " " + obj[1].category);
+            //cash('#visitor_names').removeClass('hidden')
+            // cash('#visitor-names-table').html(res.data.updatedVisitors);
+            // cash('#visitor-names-table').html(res.data.updatedVisitors);
+        }else {
+            console.log(res.data.message)
+            // let msgs = res.data.message
+            // msgs.forEach(element =>
+            // console.log(element));
+        }
+        feather.replace();
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+    function getActivities(){
+
+    }
 
 </script>
 @endsection

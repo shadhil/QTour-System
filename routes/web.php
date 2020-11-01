@@ -54,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/reservations/filter-visitor', [ReservationController::class, 'filterVisitor']);
     Route::post('/reservations/add-reservation', [ReservationController::class, 'addReservation'])->name('reservations.add');
     Route::post('/reservations/add-group', [ReservationController::class, 'addGroup']);
+    Route::get('/reservations/load-park-activities/{parkId}', [ReservationController::class, 'loadParkActivities']);
 
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
     Route::post('/hotels/filter', [HotelController::class, 'filterHotels']);

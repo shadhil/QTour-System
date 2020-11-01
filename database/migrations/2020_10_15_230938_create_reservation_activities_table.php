@@ -16,9 +16,12 @@ class CreateReservationActivitiesTable extends Migration
         Schema::connection('company_db')->create('reservation_activities', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('reservation_id');
+            $table->tinyInteger('day');
             $table->unsignedBigInteger('park_activity_id');
-            $table->decimal('total_price_tzs')->default(0.00);
-            $table->decimal('total_price_usd')->default(0.00);
+            $table->integer('pax');
+            $table->decimal('price')->default(0.00);
+            $table->decimal('total_price')->default(0.00);
+            $table->string('currency', 5)->default('USD');
             $table->timestamps();
 
             //FOREIGN KEY CONSTRAINTS

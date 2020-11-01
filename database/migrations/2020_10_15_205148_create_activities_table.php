@@ -15,7 +15,7 @@ class CreateActivitiesTable extends Migration
     {
         Schema::connection('company_db')->create('activities', function (Blueprint $table) {
             $table->integerIncrements('id');
-            $table->string('activty', 50);
+            $table->string('activity', 50);
             $table->timestamps();
         });
     }

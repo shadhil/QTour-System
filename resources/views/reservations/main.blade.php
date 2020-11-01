@@ -1,4 +1,5 @@
 @php
+$rsrvActivities = [];
 $reservations = $data['reservations'];
 @endphp
 @extends('../layout/main')

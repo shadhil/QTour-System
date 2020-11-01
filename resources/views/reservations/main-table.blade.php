@@ -35,8 +35,6 @@ $ed = date_create($reservation->end_date);
         </div>
     </td>
 </tr>
-@php
-@endphp
 @endforeach
 @else
 <div class="intro-y col-span-12">

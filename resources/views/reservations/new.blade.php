@@ -9,7 +9,7 @@ $names = $data['names'];
     <h2 class="intro-y text-lg font-medium mr-auto">Wizard Layout</h2>
 </div> --}}
 <!-- BEGIN: Wizard Layout -->
-<div id="general_info" class="intro-y box py-5 sm:py-10 mt-5 hidden">
+<div id="general_info" class="intro-y box py-5 sm:py-10 mt-5">
     <div class="px-5 mt-1">
         <div class="font-medium text-center text-lg">Register New Reservartion</div>
         <div id="step-info" class="text-gray-600 text-center mt-2">To start off, please enter group/family name, email
