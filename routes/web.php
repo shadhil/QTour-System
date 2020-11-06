@@ -50,10 +50,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
     Route::get('/reservations/activities/{code}', [ReservationController::class, 'activities'])->name('reservations.activities');
     Route::post('/reservations/add-visitor', [ReservationController::class, 'addVisitor']);
+    Route::get('/reservations/edit-visitor/{visitorId}', [ReservationController::class, 'editVisitor']);
+    Route::post('/reservations/delete-visitor', [ReservationController::class, 'deleteVisitor']);
     Route::get('/reservations/edit/{code}', [ReservationController::class, 'editReservation'])->name('reservations.edit');
     Route::post('/reservations/filter-visitor', [ReservationController::class, 'filterVisitor']);
     Route::post('/reservations/add-reservation', [ReservationController::class, 'addReservation'])->name('reservations.add');
     Route::post('/reservations/add-group', [ReservationController::class, 'addGroup']);
+    Route::get('/reservations/edit-group/{groupId}', [ReservationController::class, 'editGroup']);
+    Route::post('/reservations/delete-group', [ReservationController::class, 'deleteGroup']);
     Route::get('/reservations/load-park-activities/{parkId}', [ReservationController::class, 'loadParkActivities']);
 
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');

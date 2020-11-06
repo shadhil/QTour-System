@@ -95,7 +95,7 @@ $roles['selected'] = [];
                     <div class="col-span-12 input-form">
                         <label>First Name</label>
                         <input id="first_name" name="first_name" type="text" class="input w-full border mt-2 flex-1"
-                            placeholder="John" required disabled>
+                            placeholder="John" required>
                     </div>
                     <div class="col-span-12 input-form mt-3">
                         <label>Last Name</label>

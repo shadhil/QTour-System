@@ -1,6 +1,23 @@
 @php
 $groups = $data['groups'];
 $names = $data['names'];
+$reservation = $data['reservation'];
+$action = "new";
+$startDate = '';
+$endDate = '';
+$permitHolder = '';
+$bookedBy = Auth::user()->id;
+$touringDays = '';
+if (!empty($data['reservation'])) {
+$action = "edit";
+$permitHolder = $reservation->permit_holder ?? '0';
+$sd = date_create($reservation->start_date);
+$ed = date_create($reservation->end_date);
+$touringDays=(date_diff($sd,$ed)->format("%a") + 1);
+$startDate = date_format($sd,"m/d/Y");
+$endDate = date_format($ed,"m/d/Y");
+$bookedBy = $reservation->booked_by;
+}
 @endphp
 @extends('../layout/main')
 
@@ -11,53 +28,58 @@ $names = $data['names'];
 <!-- BEGIN: Wizard Layout -->
 <div id="general_info" class="intro-y box py-5 sm:py-10 mt-5">
     <div class="px-5 mt-1">
-        <div class="font-medium text-center text-lg">Register New Reservartion</div>
-        <div id="step-info" class="text-gray-600 text-center mt-2">To start off, please enter group/family name, email
-            address and password.</div>
+        <div class="font-medium text-center text-lg">
+            {{ $action == "new" ? 'Register New Reservartion' : 'Edit Reservartion' }}</div>
+        <div id="step-info" class="text-gray-600 text-center mt-2">
+            {{ $action == "new" ? 'To start off, please enter group/family name, pick a permit holder and start date and tottal days of the tour.' : 'You can only change group name and permit holder, dates can only be changed if no activity is added' }}
+        </div>
     </div>
     <form id="reservation_form" class="validate-form" enctype="multipart/form-data">
-        <input type="hidden" id="reservation_id" name="reservation_id" value="" />
-        <input type="hidden" id="og_start_date" name="og_start_date0" value="" />
-        <input type="hidden" id="og_days" name="og_days" value="" />
-        <input type="hidden" id="og_nights" name="og_nights" value="" />
+        <input type="hidden" id="reservation_id" name="reservation_id" value="{{$reservation->id ?? ''}}" />
+        <input type="hidden" id="og_start_date" name="og_start_date" value="{{$startDate}}" />
+        <input type="hidden" id="og_end_date" name="og_end_date" value="{{$endDate}}" />
+        <input type="hidden" id="og_days" name="og_days" value="{{$reservation->days ?? ''}}" />
+        <input type="hidden" id="og_nights" name="og_nights" value="{{$reservation->nights ?? ''}}" />
         <div class="px-5 sm:px-20 mt-5 pt-10 border-t border-gray-200 dark:border-dark-5">
             <div class="font-medium text-base">General Details</div>
             <div class="grid grid-cols-12 gap-4 row-gap-5 mt-5">
-                <div class="intro-y col-span-12 sm:col-span-6">
+                <div class="intro-y col-span-12 sm:col-span-6 input-form">
                     <div class="mb-2">Group/Family Name</div>
                     <input id="group_name" name="group_name" type="text" class="input w-full border flex-1"
-                        placeholder="ie. John Doe Family" required>
+                        value="{{$reservation->group_name ?? ''}}" placeholder="ie. John Doe Family" required>
                 </div>
-                <div class="intro-y col-span-12 sm:col-span-6">
+                <div class="intro-y col-span-12 sm:col-span-6 input-form">
                     <div class="mb-2">Permit Holder</div>
                     <select id="permit_holder" name="permit_holder" class="input w-full border flex-1" required>
                         <option>-- Select a Driver --</option>
                         @foreach ($data['drivers'] as $driver)
                         @if (empty($driver->reservation_id))
-                        <option value="{{$driver->id}}">{{$driver->first_name.' '.$driver->last_name}}</option>
+                        <option value="{{$driver->id}}" {{($permitHolder == $driver->id) ? 'selected' : ''}}>
+                            {{$driver->first_name.' '.$driver->last_name}}</option>
                         @endif
                         @endforeach
                     </select>
                 </div>
-                <div class="intro-y col-span-12 sm:col-span-4">
+                <div class="intro-y col-span-12 sm:col-span-4 input-form">
                     <div class="mb-2">Start Date</div>
                     <div class="relative">
                         <div
                             class="absolute rounded-l w-10 h-full flex items-center justify-center bg-gray-100 border text-gray-600 dark:bg-dark-1 dark:border-dark-4">
                             <i data-feather="calendar" class="w-4 h-4"></i> </div>
                         <input id="start_date" name="start_date" type="text"
-                            class="datepicker input pl-12 w-full border flex-1" data-single-mode="true" required>
+                            class="datepicker input pl-12 w-full border flex-1" data-single-mode="true"
+                            value="{{ $startDate }}" required>
                     </div>
                 </div>
-                <div class="intro-y col-span-12 sm:col-span-2">
+                <div class="intro-y col-span-12 sm:col-span-2 input-form">
                     <div class="mb-2">Day(s)</div>
-                    <input id="days" name="days" type="number" class="input w-24 border flex-1" placeholder="1 ..."
-                        required>
+                    <input id="days" name="days" type="number" value="{{$touringDays}}" class="input w-24 border flex-1"
+                        placeholder="1 ..." min="0" required>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-2">
                     <div class="mb-2">Night(s)</div>
-                    <input id="nights" name="nights" type="number" class="input w-24 border flex-1" placeholder="1...."
-                        value="0">
+                    <input id="nights" name="nights" type="number" value="{{$reservation->nights ?? '0'}}" min="0"
+                        class="input w-24 border flex-1">
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-4">
                     <div class="mb-2">End Date</div>
@@ -67,21 +89,22 @@ $names = $data['names'];
                             <i data-feather="calendar" class="w-4 h-4"></i> </div>
                         <input id="end_date" name="end_date" type="text"
                             class="input pl-12 w-full border flex-1 bg-gray-100 cursor-not-allowed"
-                            data-single-mode="true" readonly>
+                            data-single-mode="true" value="{{ $startDate }}" readonly>
                     </div>
                 </div>
                 <div class="intro-y col-span-12 sm:col-span-6">
                     <div class="mb-2">Reservation Code</div>
                     <input id="code" name="code" type="text"
-                        class="input w-full border flex-1 bg-gray-100 cursor-not-allowed" placeholder="" readonly>
+                        class="input w-full border flex-1 bg-gray-100 cursor-not-allowed" placeholder=""
+                        value="{{$reservation->code ?? ''}}" readonly>
                 </div>
-                <div class="intro-y col-span-12 sm:col-span-6">
+                <div class="intro-y col-span-12 sm:col-span-6 input-form">
                     <div class="mb-2">Booked By</div>
                     <select id="booked_by" name="booked_by"
                         class="input w-full border flex-1 bg-gray-100 cursor-not-allowed" readonly>
                         <option>-- Select a Driver --</option>
                         @foreach ($data['bookers'] as $booker)
-                        <option value="{{$booker->id}}" {{$booker->id == Auth::user()->id ? 'selected' : ''}}>
+                        <option value="{{$booker->id}}" {{$booker->id == $bookedBy ? 'selected' : ''}}>
                             {{$booker->first_name.' '.$booker->last_name}}</option>
                         @endforeach
                     </select>
@@ -94,15 +117,16 @@ $names = $data['names'];
         </div>
     </form>
 </div>
-<div id="visitor_info" class="intro-y box py-5 sm:py-10 mt-5">
+<div id="visitor_info" class="intro-y box py-5 sm:py-10 mt-5 {{ $action == 'new' ? 'hidden' : ''}}">
     <div class="px-5 mt-1">
         <div class="font-medium text-center text-lg">Visitors Information</div>
-        <div id="step-info" class="text-gray-600 text-center mt-2">To start off, please enter group/family name, email
-            address and password.</div>
+        <div id="step-info" class="text-gray-600 text-center mt-2">
+            {{ $action == "new" ? 'Please enter type of visitors in the group, but their names are optional, for your own records.' : 'Now you can edit/add group visitor info including their name and country they come from.' }}
+        </div>
     </div>
     <div class="px-5 sm:px-20 mt-5 border-t border-gray-200 dark:border-dark-5">
         <div id="group_inputs" class="grid grid-cols-12 gap-4 row-gap-5 mt-5 hidden">
-            <input type="hidden" id="reservation" name="reservation" value="2">
+            <input type="hidden" id="reservation" name="reservation" value="{{$reservation->id ?? ''}}">
             <div class="intro-y col-span-12 sm:col-span-4">
                 <div class="mb-2">Group Type</div>
                 <select id="group_type" class="input w-full border flex-1">
@@ -110,7 +134,6 @@ $names = $data['names'];
                     <option value="2">Expatriate</option>
                     <option value="3">Non Resident</option>
                     <option value="1">East Africa Citizen</option>
-                    <option value="4">Local Citizen</option>
                 </select>
             </div>
             <div class="flex gap-4 intro-y col-span-12 sm:col-span-8">
@@ -191,6 +214,11 @@ $names = $data['names'];
                 <!-- BEGIN: Users Layout -->
             </div>
         </div>
+
+        <div class="intro-y col-span-12 flex items-center justify-center sm:justify-end mt-5">
+            <button id="return_main"
+                class="button w-20 justify-center block bg-gray-200 text-gray-600 dark:bg-dark-1 dark:text-gray-300">Return</button>
+        </div>
     </div>
 </div>
 <!-- END: Wizard Layout -->
@@ -240,6 +268,8 @@ $names = $data['names'];
             <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
                 <div id="show-error" class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5 hidden">
                 </div>
+                <button id="btn-delete-visitor" type="button"
+                    class="button w-20 bg-theme-6 text-white hidden">Delete</button>
                 <button type="button" data-dismiss="modal"
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
                 <button id="btn-save-visitor" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
@@ -247,6 +277,25 @@ $names = $data['names'];
         </form>
     </div>
 </div>
+
+<!-- BEGIN: Delete Confirmation Modal -->
+<div class="modal" id="delete-modal">
+    <div class="modal__content">
+        <div class="p-5 text-center">
+            <i data-feather="x-circle" class="w-16 h-16 text-theme-6 mx-auto mt-3"></i>
+            <div class="text-3xl mt-5">Are you sure?</div>
+            <div class="text-gray-600 mt-2">Do you really want to delete these records? This process cannot be undone.
+            </div>
+            <input id="deleting-id" type="hidden">
+            <input id="delete-type" type="hidden">
+        </div>
+        <div class="px-5 pb-8 text-center">
+            <button type="button" data-dismiss="modal" class="button w-24 border text-gray-700 mr-1">Cancel</button>
+            <button id="btn-delete" type="button" class="button w-24 bg-theme-6 text-white">Delete</button>
+        </div>
+    </div>
+</div>
+<!-- END: Delete Confirmation Modal -->
 @endsection
 
 @section('script')
@@ -417,7 +466,7 @@ $names = $data['names'];
     })
 
     cash('#days').on('keyup change paste', event => {
-        let days = cash('#days').val()
+        let days = cash('#days').val() - 1
 
         var start_date = new Date(cash('#start_date').val());
         //console.log(start_date);
@@ -428,19 +477,178 @@ $names = $data['names'];
         //console.log(end_date);
 
         cash('#end_date').val(end_date.toLocaleDateString())
-        // let sd = Date.parse()
-        // // let end_date = cash('#end_date').val()
-        // let new_date = sd + 10;
-        // console.log(new_date);
-        // cash('#end_date').val(new Date())
-        // if(start_date != '' && end_date != ''){
-        //     let days = Date.parse(end_date) - Date.parse(start_date)
-        //     console.log(days);
-        //     cash('#days').val(days)
-        // }
+        //cash('#nights').val(cash('#days').val())
+        cash('#nights').attr({
+            "max" : parseInt(cash('#days').val()) + 1,
+            "min" : 0
+        })
     })
 
 
+
+    function onEditGroup(groupId) {
+        //let groupId = event.target.dataset.groupId;
+        console.log(groupId);
+        editGroup(groupId)
+        cash('#group_inputs').removeClass('hidden')
+        cash('#add_group').addClass('hidden')
+    }
+
+    async function editGroup(groupId) {
+        cash('#save_group').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.get("{{url('/reservations/edit-group')}}"+ '/' + groupId).then(res => {
+        console.log(res.data.group[0].id);
+        if (res.data.group[0].id > 0) {
+            cash('#group_type').val(res.data.group[0].visitor_type_id)
+            cash('#tot_adults').val(res.data.group[0].adults)
+            cash('#tot_children').val(res.data.group[0].children)
+            cash('#tot_babies').val(res.data.group[0].babies)
+            cash('#save_group').html('Update')
+        }else {
+            console.log("Fail to LOAD!");
+            cash('#save_group').html('Save')
+            cash('#group_inputs').addClass('hidden')
+            cash('#add_group').removeClass('hidden')
+            cash('#group_type').val('')
+            cash('#tot_adults').val('')
+            cash('#tot_children').val('')
+            cash('#tot_babies').val('')
+        }
+        feather.replace();
+        }).catch(err => {
+            cash('#save_group').html('Save')
+            cash('#group_inputs').addClass('hidden')
+            cash('#add_group').removeClass('hidden')
+            cash('#group_type').val('')
+            cash('#tot_adults').val('')
+            cash('#tot_children').val('')
+            cash('#tot_babies').val('')
+            console.log(err);
+        })
+    }
+
+    function onDeleteGroup(groupId) {
+        cash('#delete-modal').modal('show');
+        cash('#deleting-id').val(groupId);
+        cash('#delete-type').val('group');
+    }
+
+    cash('#btn-delete').on('click', event => {
+        let id = cash('#deleting-id').val();
+        let type = cash('#delete-type').val();
+        if (type == 'group') {
+            deleteGroup(id)
+        }else{
+            deleteVisitor(id)
+        }
+        //cash('#deleting-id').val(groupId);
+    })
+
+
+    async function deleteGroup(groupId) {
+        cash('#btn-delete').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.post("{{url('/reservations/delete-group')}}", {
+            group_id : groupId,
+            reservation_id : cash('#reservation').val(),
+        }).then(res => {
+        //console.log(res.data.group);
+        //console.log(res.data.updatedGroups);
+        if (res.data.group) {
+            cash('#group-rows').html(res.data.updatedGroups);
+            cash('#delete-modal').modal('hide');
+        }else {
+            console.log("Fail to LOAD!");
+        }
+        cash('#btn-delete').html('Delete')
+        feather.replace();
+        }).catch(err => {
+            cash('#btn-delete').html('Delete')
+            cash('#delete-modal').modal('hide');
+            console.log(err);
+        })
+    }
+
+
+    async function deleteVisitor(visitorId) {
+        cash('#btn-delete').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.post("{{url('/reservations/delete-visitor')}}", {
+            visitor_id : visitorId,
+            reservation_id : cash('#reservation').val(),
+        }).then(res => {
+        console.log(res.data.visitor);
+        //console.log(res.data.updatedGroups);
+        if (res.data.visitor) {
+            cash('#visitor-names-table').html(res.data.updatedVisitors);
+            cash('#delete-modal').modal('hide');
+            cash('#visitor_form')[0].reset()
+            cash('#add-visitor-name').modal('hide');
+        }else {
+            console.log("Fail to LOAD!");
+            cash('#delete-modal').modal('hide');
+        }
+        cash('#btn-delete').html('Delete')
+        feather.replace();
+        }).catch(err => {
+            cash('#btn-delete').html('Delete')
+            cash('#delete-modal').modal('hide');
+            console.log(err);
+        })
+    }
+
+
+    function onAddVisitor(groupId) {
+        if (!cash('#btn-delete-visitor').hasClass('hidden')) {
+            cash('#btn-delete-visitor').addClass('hidden')
+        }
+        cash('#visitor_id').val('')
+        cash('#visitor_form')[0].reset();
+        cash('#add-visitor-name').modal('show');
+    }
+
+    function onEditVisitor(visitorId) {
+        editVisitor(visitorId)
+    }
+
+    async function editVisitor(visitorId) {
+        cash('#add-visitor-name').modal('show');
+        cash('#btn-save-visitor').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.get("{{url('/reservations/edit-visitor')}}"+ '/' + visitorId).then(res => {
+        console.log(res.data.visitor[0]);
+        if (res.data.visitor[0].id > 0) {
+            cash('#visitor_id').val(res.data.visitor[0].id)
+            cash('#full_name').val(res.data.visitor[0].full_name)
+            cash('#gender').val(res.data.visitor[0].gender)
+            cash('#country').val(res.data.visitor[0].country_id)
+            cash('#email').val(res.data.visitor[0].email)
+            cash('#other_contact').val(res.data.visitor[0].other_contact);
+            cash('#btn-delete-visitor').removeClass('hidden')
+        }else {
+            cash('#add-visitor-name').modal('hide');
+            console.log("Fail to LOAD!");
+        }
+        cash('#btn-save-visitor').html('Update')
+        feather.replace();
+        }).catch(err => {
+            cash('#add-visitor-name').modal('hide');
+            cash('#btn-save-visitor').html('Save')
+            console.log(err);
+        })
+    }
+
+
+    cash('#btn-delete-visitor').on('click', event => {
+        cash('#delete-modal').modal('show');
+        cash('#deleting-id').val(cash('#visitor_id').val());
+        cash('#delete-type').val('visitor');
+    })
+
+    cash('#return_main').on('click', event => {
+        location.href = "{{url()->previous()}}"
+    })
 
 
 </script>

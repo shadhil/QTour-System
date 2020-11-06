@@ -69,20 +69,21 @@ class ReservationController extends Controller
 
         $data['groups'] = [];
         $data['names'] = [];
+        $data['reservation'] = [];
 
-        $data['groups'] = DB::connection($this->db_conn)->table('reservation_groups')
-            ->join('visitor_types', 'visitor_types.id', '=', 'reservation_groups.visitor_type_id')
-            ->where('reservation_groups.reservation_id', '2')
-            ->select('reservation_groups.*', 'visitor_types.type')
-            ->orderBy('reservation_groups.id')
-            ->get();
+        // $data['groups'] = DB::connection($this->db_conn)->table('reservation_groups')
+        //     ->join('visitor_types', 'visitor_types.id', '=', 'reservation_groups.visitor_type_id')
+        //     ->where('reservation_groups.reservation_id', '2')
+        //     ->select('reservation_groups.*', 'visitor_types.type')
+        //     ->orderBy('reservation_groups.id')
+        //     ->get();
 
-        $data['names'] = DB::table($this->comp_db . '.reservation_names')
-            ->join($this->app_db . '.world_countries', $this->app_db . '.world_countries.id', '=', $this->comp_db . '.reservation_names.country_id')
-            ->where($this->comp_db . '.reservation_names.reservation_id', '2')
-            ->select($this->comp_db . '.reservation_names.*', $this->app_db . '.world_countries.name')
-            ->orderByDesc($this->comp_db . '.reservation_names.id')
-            ->paginate($this->items);
+        // $data['names'] = DB::table($this->comp_db . '.reservation_names')
+        //     ->join($this->app_db . '.world_countries', $this->app_db . '.world_countries.id', '=', $this->comp_db . '.reservation_names.country_id')
+        //     ->where($this->comp_db . '.reservation_names.reservation_id', '2')
+        //     ->select($this->comp_db . '.reservation_names.*', $this->app_db . '.world_countries.name')
+        //     ->orderByDesc($this->comp_db . '.reservation_names.id')
+        //     ->paginate($this->items);
 
         $data['countries'] = DB::table($this->app_db . '.world_countries')
             ->select('id', 'name')->get();
@@ -299,9 +300,25 @@ class ReservationController extends Controller
             ->orderByDesc($this->comp_db . '.reservation_names.id')
             ->paginate($this->items);
 
-        echo "<pre>";
-        print_r(json_decode(json_encode($data), true));
-        die;
+        $data['drivers'] = DB::connection($this->db_conn)->table('crew_members')
+            ->leftJoin('crew_on_reservations', function ($join) {
+                $join->on('crew_members.id', '=', 'crew_on_reservations.member_id')
+                    ->whereDate('crew_on_reservations.start_date', '<=', date('Y-m-d'))
+                    ->whereDate('crew_on_reservations.end_date', '>=', date('Y-m-d'));
+            })
+            ->where('crew_members.job_title_id', '1')
+            ->select('crew_members.id', 'crew_members.first_name', 'crew_members.last_name', 'crew_on_reservations.reservation_id')
+            ->groupBy('crew_members.id')
+            ->get();
+
+        $data['bookers'] = User::select('id', 'first_name', 'last_name')->get();
+
+        $data['countries'] = DB::table($this->app_db . '.world_countries')
+            ->select('id', 'name')->get();
+
+        // echo "<pre>";
+        // print_r(json_decode(json_encode($data), true));
+        // die;
         //dd($data);
 
         return view('reservations.new', compact('data'));
@@ -359,6 +376,33 @@ class ReservationController extends Controller
     }
 
 
+    public function editGroup($groupId)
+    {
+        $data['group'] = DB::connection($this->db_conn)->table('reservation_groups')
+            ->where('id', $groupId)
+            ->get();
+
+        return response()->json($data);
+    }
+
+
+    public function deleteGroup(Request $request)
+    {
+        $data['group'] = DB::connection($this->db_conn)->table('reservation_groups')
+            ->where('id', $request->group_id)
+            ->delete();
+
+        $groups = DB::connection($this->db_conn)->table('reservation_groups')
+            ->join('visitor_types', 'visitor_types.id', '=', 'reservation_groups.visitor_type_id')
+            ->where('reservation_groups.reservation_id', $request->reservation_id)
+            ->select('reservation_groups.*', 'visitor_types.type')
+            ->get();
+
+
+        $data['updatedGroups'] = view('reservations.group-table-row', compact('groups'))->render();
+        return response()->json($data);
+    }
+
     public function addVisitor(Request $request)
     {
 
@@ -376,7 +420,7 @@ class ReservationController extends Controller
                 ],
                 [
                     'full_name' => $request->full_name,
-                    'country' => $request->country,
+                    'country_id' => $request->country,
                     'gender' => $request->gender,
                     'email' => $request->email,
                     'other_contact' => $request->other_contact,
@@ -409,5 +453,34 @@ class ReservationController extends Controller
             'message' => $validator->errors()->all(),
         ];
         return response()->json($response, 200);
+    }
+
+    public function editVisitor($visitorId)
+    {
+        $data['visitor'] = DB::connection($this->db_conn)->table('reservation_names')
+            ->where('id', $visitorId)
+            ->get();
+
+        return response()->json($data);
+    }
+
+
+    public function deleteVisitor(Request $request)
+    {
+        $data['visitor'] = DB::connection($this->db_conn)->table('reservation_names')
+            ->where('id', $request->visitor_id)
+            ->delete();
+
+
+        $names = DB::table($this->comp_db . '.reservation_names')
+            ->join($this->app_db . '.world_countries', $this->app_db . '.world_countries.id', '=', $this->comp_db . '.reservation_names.country_id')
+            ->where($this->comp_db . '.reservation_names.reservation_id', $request->reservation_id)
+            ->select($this->comp_db . '.reservation_names.*', $this->app_db . '.world_countries.name')
+            ->orderByDesc($this->comp_db . '.reservation_names.id')
+            ->paginate($this->items);
+
+        $data['updatedVisitors'] = view('reservations.visitor-names', compact('names'))->render();
+
+        return response()->json($data);
     }
 }
