@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CrewController;
 use App\Http\Controllers\DashboardController;
@@ -28,7 +29,7 @@ Route::get('/sign-in', [AuthController::class, 'signInView'])->name('sign-view')
 Route::post('/sign-in', [AuthController::class, 'signIn'])->name('sign-in');
 Route::get('/sign-out', [AuthController::class, 'signOut'])->name('sign-out');
 
-Route::get('/', function () {
+Route::get('/test', function () {
 
     //echo auth()->user()->email;
     //$user = Auth::user()->hasRole('developer'); //User::where('email', Auth::user()->id);
@@ -39,6 +40,7 @@ Route::get('/', function () {
 })->name('null');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/', [AuthController::class, 'signInView'])->name('signIn');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [UserController::class, 'load_users'])->name('users');
     Route::post('/users/filter', [UserController::class, 'filter_users']);
@@ -48,7 +50,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/users/profile/{user}', [UserController::class, 'userProfile'])->name('users.profile');
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
-    Route::get('/reservations/activities/{code}', [ReservationController::class, 'activities'])->name('reservations.activities');
     Route::post('/reservations/add-visitor', [ReservationController::class, 'addVisitor']);
     Route::get('/reservations/edit-visitor/{visitorId}', [ReservationController::class, 'editVisitor']);
     Route::post('/reservations/delete-visitor', [ReservationController::class, 'deleteVisitor']);
@@ -58,7 +59,11 @@ Route::middleware('auth')->group(function () {
     Route::post('/reservations/add-group', [ReservationController::class, 'addGroup']);
     Route::get('/reservations/edit-group/{groupId}', [ReservationController::class, 'editGroup']);
     Route::post('/reservations/delete-group', [ReservationController::class, 'deleteGroup']);
-    Route::get('/reservations/load-park-activities/{parkId}', [ReservationController::class, 'loadParkActivities']);
+
+    Route::get('/reservations/activities/{code}', [ActivityController::class, 'activities'])->name('reservations.activities');
+    Route::get('/reservations/load-park-activities/{parkId}', [ActivityController::class, 'loadParkActivities']);
+    Route::post('/reservations/add-activity', [ActivityController::class, 'addActivity']);
+    Route::post('/reservations/load-activity-info', [ActivityController::class, 'loadActivityInfo']);
 
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
     Route::post('/hotels/filter', [HotelController::class, 'filterHotels']);

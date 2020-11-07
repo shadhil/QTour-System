@@ -99,7 +99,7 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
                             <th class="whitespace-no-wrap">ACTIVITY</th>
                             <th class="text-center whitespace-no-wrap">PAX</th>
                             <th class="text-center whitespace-no-wrap">TOTAL PRICE</th>
-                            <th class="text-center whitespace-no-wrap">VAT</th>
+                            <th class="text-center whitespace-no-wrap"> VAT </th>
                             <th class="text-center whitespace-no-wrap">ACTIONS</th>
                         </tr>
                     </thead>
@@ -272,18 +272,20 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
 <div class="modal" id="activity-modal">
     <div class="modal__content modal__content--lg">
         <form id="activity_form" class="validate-form" enctype="multipart/form-data">
-            <input type="hidden" id="activity_id" name="activity_id" value="" />
-            <input type="hidden" id="reservation_id" name="reservation_id" value="" />
-            <input type="hidden" id="park_id" name="park_id" value="1" />
-            <input type="hidden" id="og_phones" name="og_phones" value="" />
+            <input type="hidden" id="reservation_id" name="reservation_id" value="{{ $reservation->id }}" />
+            <input type="hidden" id="action" name="action" value="add-new" />
             <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
                 <h2 class="font-medium text-base mr-auto modal-title">Reservation Activity</h2>
+                <div class="w-full sm:w-auto flex items-center sm:ml-auto mt-3 sm:mt-0">
+                    <div class="mr-3">TZS</div>
+                    <input id="currency" name="currency" class="input input--switch border" type="checkbox">
+                </div>
             </div>
             <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
                 <div class="col-span-12 sm:col-span-6">
                     <label>Day</label>
-                    <select id="day" name="day" class="input w-full border mt-2 flex-1" required>
-                        <option>Select a tour day number</option>
+                    <select id="day" name="day" class="input w-full border mt-2 flex-1 input-form" required>
+                        <option>Select a tour day</option>
                         @for ($i = 1; $i <= $touringDays; $i++) <option value="{{$i}}">{{$i}}
                             </option>
                             @endfor
@@ -291,52 +293,58 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
                 </div>
                 <div class="col-span-12 sm:col-span-6">
                     <label>Parks</label>
-                    <select id="park" name="park" class="input w-full border mt-2 flex-1" required>
+                    <select id="park" name="park" class="input w-full border mt-2 flex-1 input-form" required>
                         <option>Select a park's name</option>
                         @foreach ($data['parks'] as $park)
                         <option value="{{$park->id}}">{{$park->park_name}}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="col-span-12 flex flex-col justify-end items-center">
-                    <i data-loading-icon="three-dots" class="w-8 h-8"></i>
-                </div>
+            </div>
+            <div id="loading" class="col-span-12 flex flex-col justify-end items-center hidden">
+                <i data-loading-icon="three-dots" class="w-8 h-8"></i>
+            </div>
+            <div id="activity_section" class="p-5 grid grid-cols-12 gap-4 row-gap-3">
                 <div class="col-span-12 sm:col-span-6">
                     <label>Activity</label>
-
-
-                    <select id="park" name="park" class="input w-full border mt-2 flex-1" required>
-                        <option>Select a park's name</option>
-                        @foreach ($data['parks'] as $park)
-                        <option value="{{$park->id}}">{{$park->park_name}}</option>
-                        @endforeach
+                    <select id="activity" name="activity" class="input w-full border mt-2 flex-1 input-form" required>
                     </select>
-
-
 
                 </div>
                 <div class="col-span-12 sm:col-span-6">
                     <label>Category</label>
-                    <input id="email" name="email" type="email" class="input w-full border mt-2 flex-1"
-                        placeholder="company@email.com" required>
+                    <select id="category" name="category" class="input w-full border mt-2 flex-1 input-form" required>
+                    </select>
                 </div>
                 <div class="col-span-12 sm:col-span-4">
-                    <label>East African(s)</label>
-                    <input id="east-african" name="east-african" type="number" min="0"
+                    <label>East Africa <span id="ea_currency"
+                            class="text-xs italic text-blue-600 text-right"></span></label>
+                    <input id="east_african" name="east_african" type="number" min="0"
                         class="input w-full border mt-2 flex-1" placeholder="0" value="0"
                         {{ in_array('1', $visitorTypes) ? 'required' : 'readonly' }}>
+                    <input id="ea_park_activity_id" name="ea_park_activity_id" type="hidden">
+                    <input id="ea_activity_id" name="ea_activity_id" type="hidden">
+                    <input id="ea_price" name="ea_price" type="hidden">
                 </div>
                 <div class="col-span-12 sm:col-span-4">
-                    <label>Expatriate</label>
+                    <label>Expatriate<span id="ex_currency"
+                            class="text-xs italic text-blue-600 text-right"></span></label>
                     <input id="expatriate" name="expatriate" type="number" min="0"
                         class="input w-full border mt-2 flex-1" placeholder="company@email.com" value="0"
                         {{ in_array('2', $visitorTypes) ? 'required' : 'readonly' }}>
+                    <input id="ex_park_activity_id" name="ex_park_activity_id" type="hidden">
+                    <input id="ex_activity_id" name="ex_activity_id" type="hidden">
+                    <input id="ex_price" name="ex_price" type="hidden">
                 </div>
                 <div class="col-span-12 sm:col-span-4">
-                    <label>Non Resident</label>
-                    <input id="non-resident" name="non-resident" type="number" min="0"
+                    <label>Non Resident<span id="nr_currency"
+                            class="text-xs italic text-blue-600 text-right"></span></label>
+                    <input id="non_resident" name="non_resident" type="number" min="0"
                         class="input w-full border mt-2 flex-1" placeholder="0" value="0"
                         {{ in_array('3', $visitorTypes) ? 'required' : 'readonly' }}>
+                    <input id="nr_park_activity_id" name="nr_park_activity_id" type="hidden">
+                    <input id="nr_activity_id" name="nr_activity_id" type="hidden">
+                    <input id="nr_price" name="nr_price" type="hidden">
                 </div>
             </div>
             <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
@@ -344,44 +352,253 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
                 <button id="btn-save" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
             </div>
-        </form>
     </div>
+
+    </form>
+</div>
 </div>
 
 @endsection
 
 @section('script')
 <script>
-    let parkActivities = "";
-    cash("#add_activity").on('click', function(e){
-        cash('#activity-modal').modal('show');
-        cash('.modal-title').text("Add New Park");
-        cash('#btn-send').val("Send");
-        //cash('#park_form')[0].reset();
-    });
+    let parkActivities = ""
+    let selectedActivity = ""
+    let selectedCategory = ""
+    let selectedDay = ""
+    let selectedPark = ""
+    let forEditing = false
 
-    cash('div').on('click', '.day-activity', event => {
-        cash('#activity-modal').modal('show');
-        cash('.modal-title').text("Add New Park");
-        cash('#btn-send').val("Send");
+    // cash("#add_activity").on('click', function(e){
+    //     cash('#activity-modal').modal('show');
+    //     cash('.modal-title').text("Add New Park");
+    //     cash('#btn-send').val("Send");
+    //     //cash('#park_form')[0].reset();
+    // });
 
-        loadParkActivities();
-        //cash('#park_form')[0].reset();
+    function onDayActivity(day, parkId) {
+        if (!cash('#activity_section').hasClass('hidden')) {
+            cash('#activity_section').addClass('hidden');
+        }
+        if (!cash('#loading').hasClass('hidden')) {
+            cash('#loading').addClass('hidden');
+        }
+
+        cash('#currency').prop("checked", false);
+        cash('#activity_form')[0].reset()
+        //console.log(cash('#currency').prop('checked'));
+
+        if (day == '0') {
+            cash('#activity-modal').modal('show');
+        }else{
+            cash('#activity-modal').modal('show');
+            cash('#day').val(day);
+            cash('#park').val(parkId);
+            cash('#loading').removeClass('hidden');
+            loadParkActivities(parkId)
+        }
+    }
+
+    cash('#park').on('change', event => {
+        if (cash('#loading').hasClass('hidden')) {
+            cash('#loading').removeClass('hidden');
+        }
+        if (!cash('#activity_section').hasClass('hidden')) {
+            cash('#activity_section').addClass('hidden');
+        }
+        cash('#activity-modal').modal('show');
+        cash('#activity').val('')
+        cash('#category').val('')
+        cash('#east_african').val('0')
+        cash('#expatriate').val('0')
+        cash('#non_resident').val('0')
+        loadParkActivities(cash('#park').val());
     })
+
+
+    cash('#activity').on('change', event => {
+        setCategories(cash('#activity').val())
+    })
+
+    cash('#category').on('change', event => {
+        setVisitorsNumber(cash('#category').val())
+    })
+
+    cash('#currency').on('change', event => {
+        console.log('checked');
+        let catId = cash('#category').val()
+        if (catId != '' && parkActivities != '') {
+            if (event.target.checked) {
+                setVisitorsNumber(catId)
+            } else {
+                setVisitorsNumber(catId)
+            }
+        }
+    })
+
+    async function loadParkActivities(parkId) {
+        await helper.delay(500)
+        axios.get("{{url('/reservations/load-park-activities')}}"+ '/' + parkId).then(res => {
+        if (res.data.success == true) {
+            parkActivities = res.data.park_activities;
+            //console.log(parkActivities);
+            if (forEditing) {
+                setActivities()
+                loadActivityInfo(selectedDay, selectedPark, selectedCategory)
+                console.log('Called - '.selectedActivity);
+            }else{
+                setActivities()
+                cash('#activity_section').removeClass('hidden');
+                cash('#loading').addClass('hidden');
+            }
+        }else {
+            console.log(res.data.message)
+            alert('Fail to Load')
+            cash('#loading').addClass('hidden');
+        }
+        feather.replace();
+        }).catch(err => {
+            console.log(err);
+        })
+    }
+
+
+    function setActivities(){
+        let inputHTML = ""
+        let arr = []
+        let singleValue = ''
+
+        for(let i = 0, l = parkActivities.length; i < l; i++) {
+            let activity=parkActivities[i];
+
+            if(arr.indexOf(activity.activity_id) == -1){
+                inputHTML = inputHTML + '<option value="'+activity.activity_id+'">'+activity.activity+'</option>'
+                arr.push(activity.activity_id);
+                singleValue = activity.activity_id
+            }
+        }
+        cash('#activity').html(inputHTML)
+
+        if (forEditing) {
+            cash('#activity').val(selectedActivity);
+            setCategories(selectedActivity)
+        }else{
+            if (arr.length == 1) {
+                cash('#activity').val(singleValue)
+                console.log('Activity ID: '+singleValue);
+                setCategories(singleValue)
+            }else{
+                cash('#category').html('<option value="">Pick Activity First</option>')
+            }
+        }
+
+    }
+
+    function setCategories(activityId){
+        let inputHTML = ""
+        let arr = []
+        let singleValue = ''
+        // console.log('From Activity -> ID: '+activityId);
+
+        for(let i = 0, l = parkActivities.length; i < l; i++) {
+            let activity=parkActivities[i];
+
+            if (activity.activity_id == activityId) {
+                // console.log('ThersIsActivity '+ i);
+                if(arr.indexOf(activity.category_id) == -1){
+                    inputHTML = inputHTML + '<option value="'+activity.category_id+'">'+activity.category+'</option>'
+                    arr.push(activity.category_id);
+                    // console.log('isCategory '+ activity.category);
+                    singleValue = activity.category_id
+                }
+            }
+        }
+        cash('#category').html(inputHTML)
+
+        if (forEditing) {
+            cash('#category').val(selectedCategory);
+            setVisitorsNumber(selectedCategory)
+            // forEditing = false
+            // selectedCategory = ''
+            // selectedActivity = ''
+            // selectedPark = ''
+            // selectedDay = ''
+        }else{
+            if (arr.length == 1) {
+                cash('#category').val(singleValue)
+                setVisitorsNumber(singleValue)
+            }
+        }
+    }
+
+
+    function setVisitorsNumber(categoryId){
+        let isTZS = cash('#currency').prop('checked')
+        for(let i = 0, l = parkActivities.length; i < l; i++) {
+            let activity=parkActivities[i];
+            console.log('Category ID: '+categoryId);
+            console.log(activity.category_id);
+            if (activity.category_id == categoryId) {
+                if(activity.type_id == '1'){
+                    if (isTZS) {
+                        cash('#ea_currency').text('(@'+activity.price_tzs+' TZS)')
+                        cash('#ea_price').val(activity.price_tzs)
+                    }else{
+                        cash('#ea_currency').text('(@'+activity.price_usd+' USD)')
+                        cash('#ea_price').val(activity.price_usd)
+                    }
+                    console.log(activity.price_tzs);
+                    cash('#ea_park_activity_id').val(activity.id)
+                }else if (activity.type_id == '2') {
+                    if (isTZS) {
+                        cash('#ex_currency').text('(@'+activity.price_tzs+' TZS)')
+                        cash('#ex_price').val(activity.price_tzs)
+                    }else{
+                        cash('#ex_currency').text('(@'+activity.price_usd+' USD)')
+                        cash('#ex_price').val(activity.price_usd)
+                    }
+                    console.log(activity.price_tzs);
+                    cash('#ex_park_activity_id').val(activity.id)
+                }else if (activity.type_id == '3') {
+                    if (isTZS) {
+                        cash('#nr_currency').text('(@'+activity.price_tzs+' TZS)')
+                        cash('#nr_price').val(activity.price_tzs)
+                    }else{
+                        cash('#nr_currency').text('(@'+activity.price_usd+' USD)')
+                        cash('#nr_price').val(activity.price_usd)
+                    }
+                    console.log(activity.price_tzs);
+                    cash('#nr_park_activity_id').val(activity.id)
+                }
+            }
+        }
+    }
+
     const activityForm = cash('#activity_form')[0]
     activityForm.onsubmit = event =>{
+        let ea = cash('#east_african').val() == '' ? '0' : cash('#east_african').val()
+        let ex = cash('#expatriate').val() == '' ? '0' : cash('#expatriate').val()
+        let nr = cash('#non_resident').val() == '' ? '0' : cash('#non_resident').val()
         if(activityForm.checkValidity()) {
-            addUpdateActivity()
+            if (ea == '0' && ex == '0' && nr == '0') {
+                alert('Add Number of Visitor')
+            }else{
+                addUpdateActivity()
+            }
         }else console.log("invalid form");
     }
 
     async function addUpdateActivity() {
         let count = cash('#input-count').val();
+        let currency = 'USD'
+        if (cash('#currency').prop('checked')) {
+            currency = 'TZS'
+        }
 
         let activityForm = cash('#activity_form')[0];
-        var formData = new FormData(visiactivityFormtorForm);
-        formData.append('reservation_id', cash('#reservation_id').val());
+        var formData = new FormData(activityForm);
         formData.append('count', count);
+        formData.append('currency', currency);
 
         cash('#btn-save').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
         await helper.delay(1500)
@@ -395,7 +612,7 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
             cash('#input-count').val(count);
             //cash('#visitor_names').removeClass('hidden')
             // cash('#visitor-names-table').html(res.data.updatedVisitors);
-            // cash('#visitor-names-table').html(res.data.updatedVisitors);
+            //cash('#activity-rows').html(res.data.activityRows);
         }else {
             console.log(res.data.message)
             let msgs = res.data.message
@@ -409,43 +626,61 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
         })
     }
 
-    async function loadParkActivities() {
-        let parkId = '1'
-        //cash('park_id').val();
 
+    function onActivityEdit(day, parkId, activityId, categoryId) {
+        forEditing = true
+        selectedCategory = categoryId
+        selectedActivity = activityId
+        selectedPark = parkId
+        selectedDay = day
+
+        // console.log('cat - '+categoryId);
+        // console.log('sel_cat - '+selectedCategory);
+        // console.log('act - '+activityId);
+        // console.log('sel_act - '+selectedActivity);
+        // console.log('park - '+parkId);
+        // console.log('sel_park - '+selectedPark);
+        // console.log('day - '+day);
+        // console.log('sel_day - '+selectedDay);
+
+        if (!cash('#activity_section').hasClass('hidden')) {
+            cash('#activity_section').addClass('hidden');
+        }
+        if (!cash('#loading').hasClass('hidden')) {
+            cash('#loading').addClass('hidden');
+        }
+
+        cash('#currency').prop("checked", false);
+        cash('#activity_form')[0].reset()
+
+        cash('#activity-modal').modal('show');
+        cash('#loading').removeClass('hidden');
+        cash('#day').val(day);
+        cash('#park').val(parkId);
+        loadParkActivities(parkId)
+        //cash('#activity').val(activityId);
+        //cash('#category').val(categoryId);
+
+        //loadActivityInfo(day, parkId, categoryId)
+    }
+
+    async function loadActivityInfo(day, parkId, categoryId) {
+        console.log(day+' - ' + parkId + ' - ' + categoryId);
         await helper.delay(500)
-        axios.get("{{url('/reservations/load-park-activities')}}"+ '/' + parkId).then(res => {
+        axios.post("{{url('/reservations/load-activity-info')}}", {
+            reservation_id : cash('#reservation_id').val(),
+            day: day,
+            park_id: parkId,
+            category_id: categoryId
+        }).then(res => {
         if (res.data.success == true) {
-            parkActivities = res.data.park_activities;
-            console.log(parkActivities);
-            //getActivities(parkActivities);
-            var arr = [];
-            for(let i = 0, l = parkActivities.length; i < l; i++) {
-                var activity=parkActivities[i];
-
-                if(arr.indexOf(activity.category) == -1){
-                    arr.push(activity.category);
-                }
-                //console.log(arr);
-
-                // arr.push(activity.category);
-                //console.log(person.activity);
-                //console.log(person.category);
-                // `person.id` and `person.name`.
-                // We could also use `data.persons[i].id`.
-            }
-console.log(arr);
-            // var obj = JSON.parse(parkActivities);
-            // const arr1 = parkActivities.filter(d => d.activity_id > 1);
-            // console.log(obj[1].activity + " " + obj[1].category);
-            //cash('#visitor_names').removeClass('hidden')
-            // cash('#visitor-names-table').html(res.data.updatedVisitors);
-            // cash('#visitor-names-table').html(res.data.updatedVisitors);
+            setVisitorsInfo(res.data.activities)
+            cash('#activity_section').removeClass('hidden');
+            cash('#loading').addClass('hidden');
+            cash('#activity-rows').html(res.data.reservationActivities)
+            cash('#day_park_links').html(res.data.dayParkLinks)
         }else {
             console.log(res.data.message)
-            // let msgs = res.data.message
-            // msgs.forEach(element =>
-            // console.log(element));
         }
         feather.replace();
         }).catch(err => {
@@ -453,9 +688,58 @@ console.log(arr);
         })
     }
 
-    function getActivities(){
 
+    function setVisitorsInfo(activities){
+        let isTZS = false
+        if (activities[0].currency == 'TZS') {
+            cash('#currency').prop("checked", true);
+            isTZS = true
+        }
+
+        for(let i = 0, l = activities.length; i < l; i++) {
+            let activity=activities[i];
+            console.log(activity.category_id);
+            if(activity.type_id == '1'){
+                if (isTZS) {
+                    cash('#ea_currency').text('(@'+activity.price_tzs+' TZS)')
+                    cash('#ea_price').val(activity.price_tzs)
+                }else{
+                    cash('#ea_currency').text('(@'+activity.price_usd+' USD)')
+                    cash('#ea_price').val(activity.price_usd)
+                }
+                console.log(activity.price_tzs);
+                cash('#east_african').val(activity.pax)
+                cash('#ea_park_activity_id').val(activity.park_activity_id)
+                cash('#ea_activity_id').val(activity.id)
+            }else if (activity.type_id == '2') {
+                if (isTZS) {
+                    cash('#ex_currency').text('(@'+activity.price_tzs+' TZS)')
+                    cash('#ex_price').val(activity.price_tzs)
+                }else{
+                    cash('#ex_currency').text('(@'+activity.price_usd+' USD)')
+                    cash('#ex_price').val(activity.price_usd)
+                }
+                console.log(activity.price_tzs);
+                cash('#expatriate').val(activity.pax)
+                cash('#ex_park_activity_id').val(activity.park_activity_id)
+                cash('#ex_activity_id').val(activity.id)
+            }else if (activity.type_id == '3') {
+                if (isTZS) {
+                    cash('#nr_currency').text('(@'+activity.price_tzs+' TZS)')
+                    cash('#nr_price').val(activity.price_tzs)
+                }else{
+                    cash('#nr_currency').text('(@'+activity.price_usd+' USD)')
+                    cash('#nr_price').val(activity.price_usd)
+                }
+                console.log(activity.price_tzs);
+                cash('#non_resident').val(activity.pax)
+                cash('#nr_park_activity_id').val(activity.park_activity_id)
+                cash('#nr_activity_id').val(activity.id)
+            }
+        }
     }
+
+
 
 </script>
 @endsection
