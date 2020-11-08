@@ -128,15 +128,43 @@ class ActivityController extends Controller
         ]);
 
         if (!$validator->fails()) {
+
             $eastAfrican = $request->east_african == '' ? '0' : $request->east_african;
             $expatriate = $request->expatriate == '' ? '0' : $request->expatriate;
             $nonResident = $request->non_resident == '' ? '0' : $request->non_resident;
 
-            if ($eastAfrican != '0' || $request->action == 'update') {
+            if ($eastAfrican == '0' && $request->action == 'update') {
+
+                DB::connection($this->db_conn)->table('reservation_activities')
+                    ->where('id', $request->ea_activity_id)
+                    ->delete();
+            } elseif ($eastAfrican != '0' || $request->action == 'update') {
+                $activityId = $request->ea_activity_id;
+
+                $activity = DB::connection($this->db_conn)->table('reservation_activities')
+                    ->join('park_activities', 'park_activities.id', '=', 'reservation_activities.park_activity_id')
+                    ->where([
+                        ['reservation_activities.reservation_id', '=', $request->reservation_id],
+                        ['reservation_activities.day', '=', $request->day],
+                        ['park_activities.park_id', '=', $request->park],
+                        ['park_activities.category_id', '=', $request->category],
+                        ['park_activities.type_id', '=', '1']
+                    ])
+                    ->select('reservation_activities.id', 'reservation_activities.pax')
+                    ->first();
+
+                if ($activity) {
+                    if ((int)$activity->pax > 0) {
+                        $eastAfrican = (int)$eastAfrican + (int)$activity->pax;
+                        $activityId = $activity->id;
+                    }
+                }
+
+
                 $totalPrice = (float)$eastAfrican * (float)$request->ea_price;
                 DB::connection($this->db_conn)->table('reservation_activities')->updateOrInsert(
                     [
-                        'id' => $request->ea_activity_id
+                        'id' => $activityId
                     ],
                     [
                         'park_activity_id' => $request->ea_park_activity_id,
@@ -150,11 +178,36 @@ class ActivityController extends Controller
                 );
             }
 
-            if ($expatriate != '0' || $request->action == 'update') {
+
+            if ($expatriate == '0' && $request->action == 'update') {
+
+                DB::connection($this->db_conn)->table('reservation_activities')
+                    ->where('id', $request->ex_activity_id)
+                    ->delete();
+            } elseif ($expatriate != '0' || $request->action == 'update') {
+                $activityId = $request->ex_activity_id;
+
+                $activity = DB::connection($this->db_conn)->table('reservation_activities')
+                    ->join('park_activities', 'park_activities.id', '=', 'reservation_activities.park_activity_id')
+                    ->where([
+                        ['reservation_activities.reservation_id', '=', $request->reservation_id],
+                        ['reservation_activities.day', '=', $request->day],
+                        ['park_activities.park_id', '=', $request->park],
+                        ['park_activities.category_id', '=', $request->category],
+                        ['park_activities.type_id', '=', '2']
+                    ])
+                    ->select('reservation_activities.id', 'reservation_activities.pax')
+                    ->first();
+
+                if ((int)$activity->pax > 0) {
+                    $expatriate = (int)$expatriate + (int)$activity->pax;
+                    $activityId = $activity->id;
+                }
+
                 $totalPrice = (float)$expatriate * (float)$request->ex_price;
                 DB::connection($this->db_conn)->table('reservation_activities')->updateOrInsert(
                     [
-                        'id' => $request->ex_activity_id
+                        'id' => $activityId
                     ],
                     [
                         'park_activity_id' => $request->ex_park_activity_id,
@@ -169,11 +222,35 @@ class ActivityController extends Controller
             }
 
 
-            if ($nonResident != '0' || $request->action == 'update') {
+
+            if ($nonResident == '0' && $request->action == 'update') {
+
+                DB::connection($this->db_conn)->table('reservation_activities')
+                    ->where('id', $request->nr_activity_id)
+                    ->delete();
+            } elseif ($nonResident != '0' || $request->action == 'update') {
+                $activityId = $request->nr_activity_id;
+
+                $activity = DB::connection($this->db_conn)->table('reservation_activities')
+                    ->join('park_activities', 'park_activities.id', '=', 'reservation_activities.park_activity_id')
+                    ->where([
+                        ['reservation_activities.reservation_id', '=', $request->reservation_id],
+                        ['reservation_activities.day', '=', $request->day],
+                        ['park_activities.park_id', '=', $request->park],
+                        ['park_activities.category_id', '=', $request->category],
+                        ['park_activities.type_id', '=', '3']
+                    ])
+                    ->select('reservation_activities.id', 'reservation_activities.pax')
+                    ->first();
+
+                if ((int)$activity->pax > 0) {
+                    $nonResident = (int)$nonResident + (int)$activity->pax;
+                    $activityId = $activity->id;
+                }
                 $totalPrice = (float)$nonResident * (float)$request->nr_price;
                 DB::connection($this->db_conn)->table('reservation_activities')->updateOrInsert(
                     [
-                        'id' => $request->nr_activity_id
+                        'id' => $activityId
                     ],
                     [
                         'park_activity_id' => $request->nr_park_activity_id,
@@ -263,5 +340,40 @@ class ActivityController extends Controller
             $response,
             200
         );
+    }
+
+
+    public function deleteActivity(Request $request)
+    {
+        $data['activity'] = DB::connection($this->db_conn)->table('reservation_activities')
+            ->join('park_activities', 'park_activities.id', '=', 'reservation_activities.park_activity_id')
+            ->where([
+                ['reservation_activities.reservation_id', '=', $request->reservation_id],
+                ['reservation_activities.day', '=', $request->day],
+                ['park_activities.park_id', '=', $request->park_id],
+                ['park_activities.category_id', '=', $request->category_id]
+            ])
+            ->delete();
+
+        $rsrvActivities = DB::connection($this->db_conn)->table('reservation_activities')
+            ->join('park_activities', 'park_activities.id', '=', 'reservation_activities.park_activity_id')
+            ->join('activities', 'activities.id', '=', 'park_activities.activity_id')
+            ->join('parks', 'parks.id', '=', 'park_activities.park_id')
+            ->join('visitor_types', 'visitor_types.id', '=', 'park_activities.type_id')
+            ->leftJoin('activity_categories', 'activity_categories.id', '=', 'park_activities.category_id')
+            ->where('reservation_activities.reservation_id', $request->reservation_id)
+            ->select('reservation_activities.*', 'park_activities.activity_id', 'park_activities.category_id', 'park_activities.type_id', 'park_activities.park_id', 'visitor_types.type', 'activities.activity', 'activity_categories.category', 'parks.park_name')
+            ->paginate($this->items);
+        $data['rsrv_activities'] = view('reservations.activity-table', compact('rsrvActivities'))->render();
+
+        $dayParks = DB::connection($this->db_conn)->table('reservation_activities')
+            ->join('park_activities', 'park_activities.id', '=', 'reservation_activities.park_activity_id')
+            ->join('parks', 'park_activities.park_id', '=', 'parks.id')
+            ->where('reservation_activities.reservation_id', $request->reservation_id)
+            ->select(DB::raw('DISTINCT reservation_activities.day, park_activities.park_id'), 'parks.park_name')
+            ->get();
+        $data['day_park_links'] = view('reservations.day-park', compact('dayParks'))->render();
+
+        return response()->json($data);
     }
 }

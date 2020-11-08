@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/reservations/load-park-activities/{parkId}', [ActivityController::class, 'loadParkActivities']);
     Route::post('/reservations/add-activity', [ActivityController::class, 'addActivity']);
     Route::post('/reservations/load-activity-info', [ActivityController::class, 'loadActivityInfo']);
+    Route::post('/reservations/delete-activity', [ActivityController::class, 'deleteActivity']);
 
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
     Route::post('/hotels/filter', [HotelController::class, 'filterHotels']);
@@ -77,6 +78,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/drivers-crew/navigate', [CrewController::class, 'navigate_users']);
     Route::post('/drivers-crew/new', [CrewController::class, 'newMember'])->name('drivers-crew.new');
     Route::get('/drivers-crew/edit/{memberId}', [CrewController::class, 'editMember'])->name('drivers-crew.edit');
+    Route::get('/drivers-crew/delete/{memberId}', [CrewController::class, 'deleteMember']);
+
     Route::get('/parks', [ParkController::class, 'index'])->name('parks');
     Route::post('/parks/filter', [ParkController::class, 'filterParks']);
     Route::post('/parks/new', [ParkController::class, 'newPark'])->name('parks.new');

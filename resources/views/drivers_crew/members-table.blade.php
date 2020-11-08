@@ -20,7 +20,8 @@
                 @endif
                 <button
                     class="button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300 view__profile"
-                    data-member-id={{ $member->id }}>Profile</button>
+                    data-member-id={{ $member->id }}
+                    onclick="memberProfile(this.getAttribute('data-member-id'))">Profile</button>
             </div>
         </div>
     </div>

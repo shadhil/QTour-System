@@ -31,10 +31,10 @@ $totalPrice = 0.00;
         $totalPrice = (float)$totalPrice + (float)$tempActivity->total_price;
         @endphp
         @endif
-        @endforeach;
+        @endforeach
     </td>
     <td class="text-center">{{ $totalPrice.' '.$rsrvActivity->currency }}</td>
-    <td class="text-center">{{ ($totalPrice * 0.30).' '.$rsrvActivity->currency }}</td>
+    <td class="text-center">{{ ($totalPrice * 0.18).' '.$rsrvActivity->currency }}</td>
     <td class="table-report__action w-56">
         <div class="flex justify-center items-center">
             <a class="flex items-center mr-3" href="javascript:;" data-day={{$tourDay}}

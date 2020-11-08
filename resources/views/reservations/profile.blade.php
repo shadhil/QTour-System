@@ -33,12 +33,12 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
         <div
             class="flex mt-6 lg:mt-0 items-center lg:items-start flex-1 flex-col justify-center text-gray-600 dark:text-gray-300 px-5 border-l border-r border-gray-200 dark:border-dark-5 border-t lg:border-t-0 pt-5 lg:pt-0">
             <div class="truncate sm:whitespace-normal flex items-center">
-                <i data-feather="users" class="w-4 h-4 mr-2 tooltip" title="Total Visitors"></i>
-                {{ ($a + $b + $c).' Visitor(s)' }}
+                <i data-feather="truck" class="w-4 h-4 mr-2 tooltip" title="Driver/Permit Holder"></i>
+                {{ $reservation->cr_fname.' '.$reservation->cr_lname }}
             </div>
             <div class="truncate sm:whitespace-normal flex items-center mt-3">
-                <i data-feather="briefcase" class="w-4 h-4 mr-2 tooltip" title="Permit Holder"></i>
-                {{ $reservation->cr_fname.' '.$reservation->cr_lname }}
+                <i data-feather="briefcase" class="w-4 h-4 mr-2 tooltip" title="Booked By"></i>
+                {{ $reservation->u_fname.' '.$reservation->u_lname }}
             </div>
             <div class="truncate sm:whitespace-normal flex items-center mt-3">
                 <i data-feather="calendar" class="w-4 h-4 mr-2 tooltip" title="Tour Dates"></i>
@@ -56,8 +56,8 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
                 <div class="text-gray-600">Night(s)</div>
             </div>
             <div class="text-center rounded-md w-20 py-3">
-                <div class="font-semibold text-theme-1 dark:text-theme-10 text-lg">12</div>
-                <div class="text-gray-600">Activities</div>
+                <div class="font-semibold text-theme-1 dark:text-theme-10 text-lg">{{ ($a + $b + $c) }}</div>
+                <div class="text-gray-600">Visitor(s)</div>
             </div>
         </div>
     </div>
@@ -273,7 +273,6 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
     <div class="modal__content modal__content--lg">
         <form id="activity_form" class="validate-form" enctype="multipart/form-data">
             <input type="hidden" id="reservation_id" name="reservation_id" value="{{ $reservation->id }}" />
-            <input type="hidden" id="action" name="action" value="add-new" />
             <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
                 <h2 class="font-medium text-base mr-auto modal-title">Reservation Activity</h2>
                 <div class="w-full sm:w-auto flex items-center sm:ml-auto mt-3 sm:mt-0">
@@ -352,11 +351,29 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
                 <button id="btn-save" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
             </div>
+        </form>
     </div>
+</div>
 
-    </form>
+<!-- BEGIN: Delete Confirmation Modal -->
+<div class="modal" id="delete-modal">
+    <div class="modal__content">
+        <div class="p-5 text-center">
+            <i data-feather="x-circle" class="w-16 h-16 text-theme-6 mx-auto mt-3"></i>
+            <div class="text-3xl mt-5">Are you sure?</div>
+            <div class="text-gray-600 mt-2">Do you really want to delete these records? This process cannot be undone.
+            </div>
+            <input id="deleting-park" name="deleting-park" type="hidden">
+            <input id="deleting-category" name="deleting-category" type="hidden">
+            <input id="deleting-day" name="deleting-day" type="hidden">
+        </div>
+        <div class="px-5 pb-8 text-center">
+            <button type="button" data-dismiss="modal" class="button w-24 border text-gray-700 mr-1">Cancel</button>
+            <button id="btn-delete" type="button" class="button w-24 bg-theme-6 text-white">Delete</button>
+        </div>
+    </div>
 </div>
-</div>
+<!-- END: Delete Confirmation Modal -->
 
 @endsection
 
@@ -386,6 +403,7 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
 
         cash('#currency').prop("checked", false);
         cash('#activity_form')[0].reset()
+        forEditing = false
         //console.log(cash('#currency').prop('checked'));
 
         if (day == '0') {
@@ -464,7 +482,7 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
 
 
     function setActivities(){
-        let inputHTML = ""
+        let inputHTML = '<option value="">Select the Activity</option>'
         let arr = []
         let singleValue = ''
 
@@ -495,7 +513,7 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
     }
 
     function setCategories(activityId){
-        let inputHTML = ""
+        let inputHTML = '<option value="">Select Category of the Activity</option>'
         let arr = []
         let singleValue = ''
         // console.log('From Activity -> ID: '+activityId);
@@ -518,11 +536,6 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
         if (forEditing) {
             cash('#category').val(selectedCategory);
             setVisitorsNumber(selectedCategory)
-            // forEditing = false
-            // selectedCategory = ''
-            // selectedActivity = ''
-            // selectedPark = ''
-            // selectedDay = ''
         }else{
             if (arr.length == 1) {
                 cash('#category').val(singleValue)
@@ -576,15 +589,11 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
 
     const activityForm = cash('#activity_form')[0]
     activityForm.onsubmit = event =>{
-        let ea = cash('#east_african').val() == '' ? '0' : cash('#east_african').val()
-        let ex = cash('#expatriate').val() == '' ? '0' : cash('#expatriate').val()
-        let nr = cash('#non_resident').val() == '' ? '0' : cash('#non_resident').val()
+        // let ea = cash('#east_african').val() == '' ? '0' : cash('#east_african').val()
+        // let ex = cash('#expatriate').val() == '' ? '0' : cash('#expatriate').val()
+        // let nr = cash('#non_resident').val() == '' ? '0' : cash('#non_resident').val()
         if(activityForm.checkValidity()) {
-            if (ea == '0' && ex == '0' && nr == '0') {
-                alert('Add Number of Visitor')
-            }else{
-                addUpdateActivity()
-            }
+            addUpdateActivity()
         }else console.log("invalid form");
     }
 
@@ -594,11 +603,16 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
         if (cash('#currency').prop('checked')) {
             currency = 'TZS'
         }
+        let action = 'add-new'
+        if (forEditing) {
+            action = 'update'
+        }
 
         let activityForm = cash('#activity_form')[0];
         var formData = new FormData(activityForm);
         formData.append('count', count);
         formData.append('currency', currency);
+        formData.append('action', action);
 
         cash('#btn-save').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
         await helper.delay(1500)
@@ -606,15 +620,14 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
         axios.post("{{url('/reservations/add-activity')}}", formData, config).then(res => {
         cash('#btn-save').html('Save')
         if (res.data.success == true) {
-            //showSuccessToast(res.data.message);
             cash('#activity-modal').modal('hide');
             cash('#input-search').val('');
             cash('#input-count').val(count);
-            //cash('#visitor_names').removeClass('hidden')
-            // cash('#visitor-names-table').html(res.data.updatedVisitors);
-            //cash('#activity-rows').html(res.data.activityRows);
+            cash('#activity-rows').html(res.data.reservationActivities)
+            cash('#day_park_links').html(res.data.dayParkLinks)
         }else {
             console.log(res.data.message)
+            //alert()
             let msgs = res.data.message
             msgs.forEach(element =>
             cash('#show-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
@@ -739,6 +752,48 @@ $touringDays=(date_diff($sd,$ed)->format("%a") + 1);
         }
     }
 
+    function onActivityDelete(day, parkId, categoryId) {
+        cash('#deleting-day').val(day)
+        cash('#deleting-park').val(parkId)
+        cash('#deleting-category').val(categoryId)
+        cash('#delete-modal').modal('show');
+    }
+
+
+    cash('#btn-delete').on('click', event => {
+        let day = cash('#deleting-day').val();
+        let park = cash('#deleting-park').val();
+        let category = cash('#deleting-category').val();
+        console.log(day+' - ' + park + ' - ' + category);
+        deleteActivity(day, park, category)
+    })
+
+
+    async function deleteActivity(day, parkId, categoryId) {
+        cash('#btn-delete').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        console.log(day+' - ' + parkId + ' - ' + categoryId);
+        await helper.delay(500)
+        axios.post("{{url('/reservations/delete-activity')}}", {
+            reservation_id : cash('#reservation_id').val(),
+            day: day,
+            park_id: parkId,
+            category_id: categoryId
+        }).then(res => {
+        if (res.data.activity) {
+            cash('#activity-rows').html(res.data.rsrv_activities)
+            cash('#day_park_links').html(res.data.day_park_links)
+            cash('#delete-modal').modal('hide');
+        }else {
+            alert('Fail to Delete')
+            console.log(res.data.message)
+        }
+        cash('#btn-delete').html('Delete')
+        feather.replace();
+        }).catch(err => {
+            console.log(err);
+            cash('#btn-delete').html('Delete')
+        })
+    }
 
 
 </script>

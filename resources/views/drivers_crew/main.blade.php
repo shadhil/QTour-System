@@ -42,13 +42,6 @@ $members = $data['members'];
                 <a class="dropdown-toggle w-5 h-5 block" href="javascript:;"> <i data-feather="more-horizontal"
                         class="w-5 h-5 text-gray-700 dark:text-gray-600"></i>
                 </a>
-                <div class="dropdown-box w-40">
-                    <div class="dropdown-box__content box dark:bg-dark-1 p-2">
-                        <a href="javascript:;" id="btn-edit2"
-                            class="flex items-center p-2 transition duration-300 ease-in-out bg-white dark:bg-dark-1 hover:bg-gray-200 dark:hover:bg-dark-2 rounded-md">
-                            <i data-feather="edit" class="w-4 h-4 mr-2"></i> Edit </a>
-                    </div>
-                </div>
             </div>
         </div>
         <form id="member_form" class="validate-form" enctype="multipart/form-data">
@@ -136,6 +129,43 @@ $members = $data['members'];
         </form>
     </div>
 </div>
+
+<!-- BEGIN: Delete Confirmation Modal -->
+<div class="modal" id="profile-modal">
+    <div class="modal__content">
+        <div class="pl-5 pt-5 pr-5 pb-2 text-center">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 image-fit mx-auto mt-2">
+                <img id="pr-photo" alt="Crew member Photo" class="rounded-full" src="dist/images/profile-13.jpg">
+            </div>
+            <div id="pr-name" class="text-black font-medium mt-2">Shadhil Othman</div>
+            <div id="pr-role-gender" class="text-gray-600 text-sm italic">Driver Cook - male</div>
+            <input id="deleting-id" type="hidden">
+            <input id="delete-type" type="hidden">
+        </div>
+        <div class="pl-5 pr-5 grid grid-cols-12 gap-4 row-gap-3 text-center">
+            <div class="col-span-12 xl:col-span-6 flex items-center truncate mt-2">
+                <i data-feather="map-pin" class="w-4 h-4 mr-2 text-blue-400"></i> <span id="pr-location"></span>
+            </div>
+            <div class="col-span-12 xl:col-span-6 flex items-center truncate text-dark mt-2">
+                <i data-feather="phone" class="w-4 h-4 mr-2 text-blue-400"></i> <span id="pr-phone"></span>
+            </div>
+            <div class="col-span-12 xl:col-span-6 flex items-center truncate mt-2">
+                <i data-feather="mail" class="w-4 h-4 mr-2 text-blue-400"></i> <span id="pr-mail"></span>
+            </div>
+            <div id="pr-other-contact" class="col-span-12 xl:col-span-6 flex items-center truncate mt-2">
+                <i data-feather="message-circle" class="w-4 h-4 mr-2 text-blue-400"></i> -
+            </div>
+        </div>
+
+        <div class="px-5 pb-8 text-center mt-5">
+            <button id="btn-pr-cancel" type="button" data-dismiss="modal"
+                class="button w-24 border text-gray-700 mr-1">Cancel</button>
+            <button id="btn-pr-edit" type="button" class="button w-24 bg-theme-1 text-white hidden">Edit</button>
+            <button id="btn-pr-delete" type="button" class="button w-24 bg-theme-6 text-white hidden">Delete</button>
+        </div>
+    </div>
+</div>
+<!-- END: Delete Confirmation Modal -->
 @endsection
 
 @section('script')
@@ -297,21 +327,36 @@ $members = $data['members'];
         }
     }
 
-    cash('button').on ( 'click', '.view__profile', event => {
-        let memberId = event.target.dataset.memberId;
-        //location.href = '/users/profile/'+userId
+    function memberProfile(memberId) {
+        cash('#pr-photo').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+        cash('#pr-name').text('')
+        cash('#pr-mail').text('');
+        cash('#pr-phone').text('');
+        cash('#pr-location').text('');
+        cash('#pr-role-gender').text('');
+        cash('#profile-modal').modal('show');
         editUser(memberId)
+    }
+
+    cash('#btn-pr-edit').on('click', function (e) {
+        cash('#profile-modal').modal('hide');
+        cash('#member-modal').modal('show');
     })
 
+    cash('#btn-pr-delete').on('click', function (e) {
+        deleteUser()
+    })
+
+
     async function editUser(memberId) {
-        cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        cash('#btn-pr-cancel').html('<i data-loading-icon="oval" data-color="blue" class="w-5 h-5 mx-auto"></i>').svgLoader()
         await helper.delay(1500)
         axios.get("{{url('/drivers-crew/edit')}}"+ '/' + memberId).then(res => {
         //console.log(res.data);
         //console.log(res.data.member);
-        console.log(res.data.member.id);
+        console.log('IS THIS -> ' + res.data.member.id);
         if (res.data.member.id > 0) {
-            cash('#member-modal').modal('show');
+            //cash('#member-modal').modal('show');
             cash('.modal-title').text("Edit Member");
             cash('#btn-send').html('Update')
             cash('#operation').val("editUser");
@@ -320,55 +365,79 @@ $members = $data['members'];
             cash('#member_id').val(res.data.member.id);
             cash('#first_name').val(res.data.member.first_name);
             cash('#last_name').val(res.data.member.last_name);
+            cash('#pr-name').text(res.data.member.first_name+' '+res.data.member.last_name)
             cash('#email').val(res.data.member.email);
+            cash('#pr-mail').text(res.data.member.email);
             cash('#phone_number').val(res.data.member.phone_number);
+            cash('#pr-phone').text(res.data.member.phone_number);
             cash('#og_email').val(res.data.member.email);
             cash('#og_phone').val(res.data.member.phone_number);
             cash('#gender').val(res.data.member.gender);
             cash('#job_title').val(res.data.member.job_title_id);
+            cash('#pr-role-gender').text(res.data.member.job_title+' - '+res.data.member.gender);
             //cash('#gender').trigger('change');
             cash('#location').val(res.data.member.location);
+            cash('#pr-location').text(res.data.member.location);
             if(res.data.member.photo != null){
                 cash('#og_photo_name').val(res.data.member.photo);
                 if (res.data.member.photo.includes("/images/")) {
                     cash('#photo_view').attr('src', res.data.member.photo);
+                    cash('#pr-photo').attr('src', res.data.member.photo);
                 }else{
                     cash('#photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+                    cash('#pr-photo').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
                 }
             }else{
                 cash('#og_photo_name').val('');
                 cash('#photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+                cash('#pr-photo').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
             }
-            cash('#btn-edit1').show();
-            cash('#btn-edit2').show();
+            //cash('#btn-edit1').show();
+            //cash('#btn-edit2').show();
         }else {
+            cash('#profile-modal').modal('hide');
+            alert('Fail to load Crew Member Details')
             console.log("Fail to LOAD!");
         }
+        cash('#btn-pr-cancel').html('Cancel')
+        cash('#btn-pr-delete').removeClass('hidden')
+        cash('#btn-pr-edit').removeClass('hidden')
         feather.replace();
         }).catch(err => {
-            cash('#btn-send').html('Update')
+            cash('#btn-pr-cancel').html('Cancel')
+            cash('#profile-modal').modal('hide');
             console.log(err);
         })
     }
 
-    function toggleFormElements(bDisabled) {
-        cash('#first_name').disabled = bDisabled
-        cash('#last_name').disabled = bDisabled
-        cash('#location').disabled = bDisabled
-        cash('#gender').disabled = bDisabled
-        cash('#phone_number').disabled = bDisabled
-        cash('#email').disabled = bDisabled
-        cash('#btnSend').disabled = bDisabled
-        cash('#member_photo').disabled = bDisabled
+
+    async function deleteUser() {
+        cash('#btn-pr-delete').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        cash('#btn-pr-edit').addClass('hidden')
+        cash('#btn-pr-cancel').addClass('hidden')
+        await helper.delay(1500)
+        axios.get("{{url('/drivers-crew/delete')}}"+ '/' + cash('#member_id').val()).then(res => {
+        //console.log(res.data);
+        //console.log(res.data.member);
+        if (res.data.deleted_member) {
+            cash('#table-data').html(res.data.members);
+            cash('#profile-modal').modal('hide');
+        }else {
+            alert('Fail to Delete Crew Member')
+            console.log("Fail to LOAD!");
+        }
+        cash('#btn-pr-delete').html('Delete')
+        cash('#btn-pr-edit').removeClass('hidden')
+        cash('#btn-pr-cancel').removeClass('hidden')
+        feather.replace();
+        }).catch(err => {
+            cash('#btn-pr-cancel').html('Cancel')
+            cash('#btn-pr-delete').html('Delete')
+            cash('#btn-pr-edit').removeClass('hidden')
+            cash('#btn-pr-cancel').removeClass('hidden')
+            console.log(err);
+        })
     }
-
-    cash('#btn-edit1').on('click', function (e) {
-        toggleFormElements(false)
-    })
-
-    cash('#btn-edit2').on('click', function (e) {
-        toggleFormElements(false)
-    })
 
     function form_reset() {
         cash('#member_form').trigger("reset");

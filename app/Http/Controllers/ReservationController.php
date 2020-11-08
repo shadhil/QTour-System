@@ -296,7 +296,6 @@ class ReservationController extends Controller
         return response()->json($data);
     }
 
-
     public function deleteGroup(Request $request)
     {
         $data['group'] = DB::connection($this->db_conn)->table('reservation_groups')

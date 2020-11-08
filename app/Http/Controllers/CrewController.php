@@ -17,7 +17,7 @@ class CrewController extends Controller
 
     public function __construct()
     {
-        $this->items = 20;
+        $this->items = 10;
         $this->db_conn = 'company_db';
     }
 
@@ -218,12 +218,42 @@ class CrewController extends Controller
 
     public function editMember($memberId)
     {
-        $data['member'] = CrewMember::find($memberId);
+        $data['member'] = DB::connection($this->db_conn)->table('crew_members')
+            ->join('crew_job_titles', 'crew_members.job_title_id', 'crew_job_titles.id')
+            ->where('crew_members.id', $memberId)
+            ->select('crew_members.*', 'crew_job_titles.job_title')
+            ->first();
+
         return response()->json($data);
 
         //dd($data);
-        //echo $data;
-        //print_r(json_decode(json_encode($permissions), true));
-        //die;
+        // echo $data;
+        // print_r(json_decode(json_encode($data), true));
+        // die;
+    }
+
+
+    public function deleteMember($memberId)
+    {
+        $data['deleted_member'] = DB::connection($this->db_conn)->table('crew_members')
+            ->where('id', $memberId)
+            ->delete();
+
+
+        $members = DB::connection($this->db_conn)->table('crew_members')
+            ->join('crew_job_titles', 'crew_members.job_title_id', 'crew_job_titles.id')
+            ->leftJoin('crew_on_reservations', function ($join) {
+                $join->on('crew_members.id', '=', 'crew_on_reservations.member_id')
+                    ->whereDate('crew_on_reservations.start_date', '<=', date('Y-m-d'))
+                    ->whereDate('crew_on_reservations.end_date', '>=', date('Y-m-d'));
+            })
+            ->select('crew_members.*', 'crew_job_titles.job_title', 'crew_on_reservations.reservation_id')
+            ->groupBy('crew_members.id')
+            ->orderByDesc('crew_members.id')
+            ->paginate($this->items);
+
+        $data['members'] = view('drivers_crew.members-table', compact('members'))->render();
+
+        return response()->json($data);
     }
 }
