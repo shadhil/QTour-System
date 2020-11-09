@@ -125,4 +125,22 @@ class ParkController extends Controller
         ];
         return response()->json($response, 200);
     }
+
+
+    public function deletePark($parkId)
+    {
+        $data['deleted_park'] = DB::connection($this->db_conn)->table('parks')
+            ->where('id', $parkId)
+            ->delete();
+
+        $parks = DB::table($this->comp_db . '.parks')
+            ->join($this->app_db . '.tz_regions', $this->comp_db . '.parks.region_id', $this->app_db . '.tz_regions.id')
+            ->select($this->comp_db . '.parks.*', $this->app_db . '.tz_regions.region')
+            ->orderByDesc('parks.id')
+            ->get();
+
+        $data['parks'] = view('parks.parks-table', compact('parks'))->render();
+
+        return response()->json($data);
+    }
 }

@@ -21,7 +21,7 @@ $roles['selected'] = [];
 <div class="grid grid-cols-12 gap-6 mt-5">
     <div class="intro-y col-span-12 flex flex-wrap sm:flex-no-wrap items-center mt-2">
         <div class="text-center">
-            <a href="javascript:void(0);" class="button inline-block bg-theme-1 text-white" id="add-user">Add
+            <a href="{{ route('users.new') }}" class="button inline-block bg-theme-1 text-white">Add
                 New User</a>
         </div>
 
@@ -65,7 +65,6 @@ $roles['selected'] = [];
             </div>
         </div>
         <form id="user_form" class="validate-form" enctype="multipart/form-data">
-            <input type="hidden" id="user_id" name="user_id" value="" />
             <input type="hidden" id="og_roles" name="og_roles[]" value="" />
             <input type="hidden" id="og_permissions" name="og_permissions[]" value="" />
             <input type="hidden" id="og_photo_name" name="og_photo_name" value="" />
@@ -161,14 +160,52 @@ $roles['selected'] = [];
             </div>
         </form>
     </div>
-    <!-- END: Header & Footer Modal -->
-    @endsection
+</div>
+<!-- END: Header & Footer Modal -->
 
-    @section('script')
+<!-- BEGIN: Profile Modal -->
+<div class="modal" id="profile-modal">
+    <div class="modal__content">
+        <div class="pl-5 pt-5 pr-5 pb-2 text-center">
+            <div class="w-20 h-20 sm:w-24 sm:h-24 lg:w-32 lg:h-32 image-fit mx-auto mt-2">
+                <img id="pr-photo" alt="Crew member Photo" class="rounded-full" src="dist/images/profile-13.jpg">
+            </div>
+            <div id="pr-name" class="text-black font-medium mt-2">Shadhil Othman</div>
+            <div id="pr-role-gender" class="text-gray-600 text-sm italic">Driver Cook - male</div>
+            <input id="url_string" name="url_string" type="hidden">
+            <input type="hidden" id="user_id" name="user_id" />
+        </div>
+        <div class="pl-5 pr-5 grid grid-cols-12 gap-4 row-gap-3 text-center">
+            <div class="col-span-12 xl:col-span-6 flex items-center truncate mt-2">
+                <i data-feather="map-pin" class="w-4 h-4 mr-2 text-blue-400"></i> <span id="pr-location"></span>
+            </div>
+            <div class="col-span-12 xl:col-span-6 flex items-center truncate text-dark mt-2">
+                <i data-feather="phone" class="w-4 h-4 mr-2 text-blue-400"></i> <span id="pr-phone"></span>
+            </div>
+            <div class="col-span-12 xl:col-span-6 flex items-center truncate mt-2">
+                <i data-feather="mail" class="w-4 h-4 mr-2 text-blue-400"></i> <span id="pr-mail"></span>
+            </div>
+            <div id="pr-other-contact" class="col-span-12 xl:col-span-6 flex items-center mt-2">
+                <i data-feather="message-circle" class="w-4 h-4 mr-2 text-blue-400"></i> -
+            </div>
+        </div>
 
-    <script>
-        //** Page Navgation & Filter JS **//
-    cash('#input-count').val('20');
+        <div class="px-5 pb-8 text-center mt-5">
+            <button id="btn-pr-cancel" type="button" data-dismiss="modal"
+                class="button w-24 border text-gray-700 mr-1">Cancel</button>
+            <button id="btn-pr-edit" type="button" class="button w-24 bg-theme-1 text-white hidden">Edit</button>
+            <button id="btn-pr-delete" type="button" class="button w-24 bg-theme-6 text-white hidden">Delete</button>
+        </div>
+    </div>
+</div>
+<!-- END: Profile Modal -->
+@endsection
+
+@section('script')
+
+<script>
+    //** Page Navgation & Filter JS **//
+    cash('#input-count').val('10');
     async function renderUsers(isNav = false, page = '1') {
         // Filter Details
         let count = cash('#input-count').val();
@@ -207,12 +244,6 @@ $roles['selected'] = [];
         };
     }
 
-    // function filterName() {
-    //     var search = document.getElementById("input-search");
-    //     //console.log(search.value);
-    //     //renderUsers();
-    // }
-
     cash('#input-search').on('keyup', delay(function (e) {
         let search = cash('#input-search').val()
         if (e.keyCode === 13) {
@@ -233,301 +264,121 @@ $roles['selected'] = [];
         console.log(page);
         renderUsers(true, page)
     }
-    // (END) Page Navgation & Filter JS //
 
-    // Modal manipulation JS //
-    const btnNewUser = document.getElementById("add-user");
-    const btnEdit1 = document.getElementById("btn-edit1");
-    const btnEdit2 = document.getElementById("btn-edit2");
-    const btnCancel = document.getElementById("btn-cancel");
-    const btnSend = document.getElementById("btn-send");
 
-    const first_name = document.getElementById("first_name")
-    const last_name = document.getElementById("last_name")
-    const user_location = document.getElementById("location")
-    const gender = document.getElementById("gender")
-    const phone = document.getElementById("phone_number")
-    const email = document.getElementById("email")
-    const passowrd = document.getElementById("password")
-    const roles = document.getElementById("roles")
-    const permissions = document.getElementById("permissions")
-    const user_photo = document.getElementById("user_photo")
-    const userForm = document.getElementById("user_form")
+    function userProfile(userId) {
+        cash('#pr-photo').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+        cash('#pr-name').text('')
+        cash('#pr-mail').text('');
+        cash('#pr-phone').text('');
+        cash('#pr-location').text('');
+        cash('#pr-role-gender').text('');
+        if (!cash('#btn-pr-edit').hasClass('hidden')) {
+            cash('#btn-pr-edit').addClass('hidden')
+        }
+        if (!cash('#btn-pr-cancel').hasClass('hidden')) {
+            cash('#btn-pr-cancel').addClass('hidden')
+        }
+        cash('#profile-modal').modal('show');
+        loadUser(userId)
+    }
 
-    // // Non sticky version
-    // cash("#add-user").on("click", function() {
-    //     Toastify({ text: "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Hic, consequuntur doloremque eveniet eius eaque dict", duration: 3000, newWindow: true, close: true, gravity: "bottom", position: "left", backgroundColor: "#0e2c88" stopOnFocus: true }).showToast();
+
+    cash('#btn-pr-edit').on('click', function (e) {
+        cash('#profile-modal').modal('hide');
+        let urlString = cash('#url_string').val()
+        location.href = "{{url('/users/edit')}}"+ '/' + urlString
+    })
+
+    cash('#btn-pr-delete').on('click', function (e) {
+        deleteUser()
+    })
+
+    // cash('button').on ( 'click', '.view__profile****', event => {
+    //     //event.preventDefault();
+    //     //console.log(event.target);
+    //     //cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').
+    //     let userId = event.target.dataset.userId;
+    //     location.href = '/users/profile/'+userId
+    //     //editUser(userId);
     // })
 
-
-    btnNewUser.onclick = event => {
-    cash('select #permissions').html("")
-            cash('select #roles').html("")
-        //let mySelects = tail.select('#permissions');
-        //tail.select('#permissions').options.handle("select", 4, "#");
-        //cash('#permissions').val([3,5,7,8]).trigger('change')
-        //tail.select('roles', {}).trigger('change', [3,5,8,9])
-        //let instance = tail.select("permissions", { /* Your Options */ });
-        //instance.options.add("New Option", 'Value', false, false, false, 'Description', true);
-        //cash('#roles').on('change', [1])
-        //e.preventDefault();
-        cash('#user-modal').modal('show');
-        cash('.modal-title').text("Add New User");
-        cash('#btn-send').val("Send");
-        cash('#operation').val("addUser");
-        cash('#btn-edit1').hide();
-        cash('#btn-edit2').hide();
-        cash(toggleFormElements(false ));
-        cash('#user_form')[0].reset();
-        //cash('#permissions').trigger('change', selectedValues([]))
-        //cash('#roles').trigger('change', selectedValues([]))
-        //cash('#og_permissions').val(selectedValues([]));
-       // cash('#og_roles').val(selectedValues([]));
-    }
-
-    async function addUpdateUser() {
-        let count = cash('#input-count').val();
-
-        let userForm = cash('#user_form')[0];
-        var formData = new FormData(userForm);
-        formData.append('count', count);
-
-        cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+    async function loadUser(userId) {
+        cash('#btn-pr-cancel').html('<i data-loading-icon="oval" data-color="blue" class="w-5 h-5 mx-auto"></i>').svgLoader()
         await helper.delay(1500)
-        let config = { headers: { 'Content-Type': 'multipart/form-data' } }
-        axios.post("{{url('/users/new')}}", formData, config).then(res => {
-            cash('#btn-send').html('Send')
-            if (res.data.success == true) {
-                //showSuccessToast(res.data.message);
-                cash('#user-modal').modal('hide');
-                cash('#input-search').val('');
-                cash('#input-count').val(count);
-                cash('#table-data').html(res.data.updatedUsers);
-            }else {
-                console.log(res.data.message)
-                let msgs = res.data.message
-                msgs.forEach(element =>
-                    cash('#show-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
-            }
-            feather.replace();
-        }).catch(err => {
-            cash('#btn-send').html('Send')
-            console.log(err);
-        })
-    }
-    //var form = document.querySelector("form");
-
-    // userForm.addEventListener("submit", function (event) {
-    //     // This WILL run because the submit event IS cancelable
-    //     if (userForm.checkValidity()) {
-    //         event.preventDefault();
-    //         console.log('SUBMITED!');
-    //     }
-    // });
-
-    userForm.onsubmit = event =>{
-        if(userForm.checkValidity()) {
-            let pwd = cash('#operation').val()
-            let ogpwd = cash('#og_pwd').val()
-            if (cash('#operation').val() == 'editUser' && (pwd != 'PASSWORD' || pwd != ogpwd)) {
-                var r = confirm("You are about to change this user's password, Are you sure?");
-                if (r == true) {
-                    addUpdateUser()
-                } else {
-                    cash('#password').val('PASSWORD')
-                }
-            }else{
-                addUpdateUser()
-            }
-            //console.log('SUBMITED!');
-        }else console.log("invalid form");
-    }
-
-    cash("#user_photo").on('change', function(e){
-        readURL(this);
-    });
-
-    cash('#remove-photo').on('click', function (e) {
-        if ((cash('#og_photo_name').val()).includes("/images/")) {
-            let img_url = cash('#og_photo_name').val();
-            cash('#user_photo_view').attr('src', img_url);
-        }else{
-            cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
-        }
-        cash('#user_photo_name').val(cash('#og_photo_name').val());
-        cash('#user_photo').val('');
-        cash('#remove-photo').removeClass('tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2')
-        cash('#remove-photo').addClass('xl:hidden')
-    })
-
-    function readURL(input) {
-        if (input.files && input.files[0]){
-            if (input.files[0].size < 2000000){
-                var reader=new FileReader();
-                reader.onload=function (e){
-                //$('#img_area').prepend($(' <img>',{id:'cat_img',src: e.target.result}))
-                    cash('#user_photo_view').attr('src', e.target.result);
-                    cash('#user_photo_name').val(e.target.result);
-                    cash('#remove-photo').removeClass('xl:hidden')
-                    cash('#remove-photo').addClass('tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2')
-                }
-            }
-            reader.readAsDataURL(input.files[0]);
-        }else{
-            //showToast('error', 'File Too Large');
-            cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
-            cash('#user_photo_name').val('');
-            //cash('#user_photo_view').val('');
-        }
-    }
-
-    function showSuccessToast(msg) {
-        Toastify({ text: msg, duration: 3000, newWindow: true, close: true, gravity: "bottom", position: "left", backgroundColor: "#91C714", stopOnFocus: true}).showToast();
-    }
-
-
-    btnCancel.onclick = event => {
-        console.log('Cancel!');
-        //alert('Clicked');
-    }
-
-    cash('button').on ( 'click', '.view__profile', event => {
-        //event.preventDefault();
-        //console.log(event.target);
-        //cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').
-        let userId = event.target.dataset.userId;
-        location.href = '/users/profile/'+userId
-        //editUser(userId);
-    })
-
-    async function editUser(userId) {
-        cash('#btn-send').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
-        await helper.delay(1500)
-        axios.get("{{url('/users/edit')}}"+ '/' + userId).then(res => {
-        //console.log(res.data);
-        //console.log(res.data.user);
-        console.log(res.data.userPermissions);
-        console.log(res.data.user.id);
+        axios.get("{{url('/users/profile')}}"+ '/' + userId).then(res => {
+        console.log('USER: '+res.data.user.first_name);
         if (res.data.user.id > 0) {
-            cash('#user-modal').modal('show');
-            cash('.modal-title').text("Edit User");
-            cash('#btn-send').html('Update')
-            cash('#operation').val("editUser");
-            cash('#btn-edit1').show();
-            //toggleFormElements(true)
+            cash('#url_string').val(res.data.user.url_string);
             cash('#user_id').val(res.data.user.id);
-            cash('#first_name').val(res.data.user.first_name);
-            cash('#last_name').val(res.data.user.last_name);
-            cash('#email').val(res.data.user.email);
-            cash('#phone_number').val(res.data.user.phone_number);
-            cash('#og_pwd').val(res.data.user.password);
-            cash('#password').val('PASSWORD');
-            cash('#gender').val(res.data.user.gender);
-            //cash('#gender').trigger('change');
-            cash('#location').val(res.data.user.location);
+            cash('#pr-name').text(res.data.user.first_name+' '+res.data.user.last_name);
+            cash('#pr-mail').text(res.data.user.email);
+            cash('#pr-phone').text(res.data.user.phone_number);
+            cash('#pr-location').text(res.data.user.location);
+            // let perm_array = res.data.user.permissions;
+            // let permissions = '';
+            // perm_array.forEach(element => {
+            //     permissions = permissions + element.name + ', '
+            // });
+            //cash('#pr-other-contact').text(permissions);
+            let roles_array = res.data.user.roles;
+            let roles = '';
+            roles_array.forEach(element => {
+                roles = ((roles == '') ? '' : roles+'/') + element.name
+            });
+            cash('#pr-role-gender').text(roles+' - '+res.data.user.gender);
             if(res.data.user.photo != null){
-                cash('#og_photo_name').val(res.data.user.photo);
                 if (res.data.user.photo.includes("/images/")) {
-                    cash('#user_photo_view').attr('src', res.data.user.photo);
+                    cash('#pr-photo').attr('src', res.data.user.photo);
                 }else{
-                    cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+                    cash('#pr-photo').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
                 }
             }else{
-                cash('#og_photo_name').val('');
-                cash('#user_photo_view').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
+                cash('#pr-photo').attr('src', "{{ asset('dist/images/profile-6.jpg')}}");
             }
-            cash('#permissions').html(res.data.userPermissions)
-            cash('#roles').html(res.data.userRoles)
-            cash('#og_permissions').val(res.data.ogPermissions);
-            cash('#og_roles').val(res.data.ogRoles);
-            cash('#btn-edit1').show();
-            cash('#btn-edit2').show();
         }else {
+            cash('#profile-modal').modal('hide');
+            alert('Fail to load Crew Member Details')
             console.log("Fail to LOAD!");
         }
         feather.replace();
+        cash('#btn-pr-cancel').html('Cancel')
+        cash('#btn-pr-delete').removeClass('hidden')
+        cash('#btn-pr-edit').removeClass('hidden')
         }).catch(err => {
-            cash('#btn-send').html('Update')
+            cash('#btn-pr-cancel').html('Cancel')
+            cash('#profile-modal').modal('hide');
             console.log(err);
         })
     }
 
-    function selectedValues(jsonObj){
-        var selectValues = new Array();
 
-        for(var i in jsonObj){
-            //console.log(JSON.stringify(jsonObj[i]['id']));
-            selectValues.push(jsonObj[i]['id'])
+    async function deleteUser() {
+        cash('#btn-pr-delete').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        cash('#btn-pr-edit').addClass('hidden')
+        cash('#btn-pr-cancel').addClass('hidden')
+        await helper.delay(1500)
+        axios.get("{{url('/users/delete')}}"+ '/' + cash('#user_id').val()).then(res => {
+        //console.log(res.data);
+        //console.log(res.data.member);
+        if (res.data.deleted_member) {
+            cash('#table-data').html(res.data.users);
+            cash('#profile-modal').modal('hide');
+        }else {
+            alert('Fail to Delete Crew Member')
+            console.log("Fail to LOAD!");
         }
-        console.log("Items: ", selectValues);
-        return selectValues;
+        cash('#btn-pr-delete').html('Delete')
+        cash('#btn-pr-edit').removeClass('hidden')
+        cash('#btn-pr-cancel').removeClass('hidden')
+        feather.replace();
+        }).catch(err => {
+            cash('#btn-pr-cancel').html('Cancel')
+            cash('#btn-pr-delete').html('Delete')
+            cash('#btn-pr-edit').removeClass('hidden')
+            cash('#btn-pr-cancel').removeClass('hidden')
+            console.log(err);
+        })
     }
-    /* code from qodo.co.uk */
-    function toggleFormElements(bDisabled) {
-        first_name.disabled = bDisabled
-        last_name.disabled = bDisabled
-        user_location.disabled = bDisabled
-        gender.disabled = bDisabled
-        phone.disabled = bDisabled
-        passowrd.disabled = bDisabled
-        email.disabled = bDisabled
-        roles.disabled = bDisabled
-        permissions.disabled = bDisabled
-        roles.disabled = bDisabled
-        roles.disabled = bDisabled
-        btnSend.disabled = bDisabled
-        user_photo.disabled = bDisabled
-    // var inputs = document.getElementsByTagName("input");
-    //     for (var i = 0; i < inputs.length; i++) {
-    //         inputs[i].disabled=bDisabled;
-    //     }
-    //     var selects=document.getElementsByTagName("select");
-    //     for (var i=0; i < selects.length; i++) {
-    //         selects[i].disabled=bDisabled;
-    //     }
-    //     var textareas=document.getElementsByTagName("textarea");
-    //     for (var i=0; i<textareas.length; i++) {
-    //         textareas[i].disabled=bDisabled;
-    //     }
-    //     var buttons=document.getElementsByTagName("button");
-    //     for(var i=0; i < buttons.length; i++) {
-    //         buttons[i].disabled=bDisabled;
-    //     }
-    }
-
-    cash('#btn-edit1').on('click', function (e) {
-        toggleFormElements(false)
-    })
-
-    cash('#btn-edit2').on('click', function (e) {
-        toggleFormElements(false)
-    })
-
-
-    // btnSend.onclick = event => {
-    //     //addNewUser();
-    // }
-
-    //document.querySelectorAll('.my #awesome selector');
-    // cash('a').on ( 'click', '.pagination__link', event => {
-    //     //event.preventDefault();
-    //     let page = event.target.dataset.pageNum;
-    //     console.log(page);
-    //     renderUsers(true, page);
-    // })
-    function form_reset() {
-        cash('#user-form').trigger("reset");
-        $('#img_area').removeClass('m-3');
-        $('#img_area').hide();
-        $('#categories').val(null).trigger('change');
-        $('#tags').val(null).trigger('change');
-        $('#post').val('');
-        $('#title').val('');
-        $('#meta_description').val('');
-        $('#show_slug').text('');
-        $('#slug').val('');
-        $('#featured_image_name').val('');
-        $('#post_img').attr('src', "{{ asset('/images/web-img/placeholder.png')}}");
-    }
-    </script>
-    @endsection
+</script>
+@endsection

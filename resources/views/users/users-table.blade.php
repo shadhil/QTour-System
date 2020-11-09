@@ -48,7 +48,8 @@ $roles = (empty($roles) ? '' : $roles.', ').$role['name'];
             <button id="send-msg" class="button button--sm text-white bg-theme-1 mr-2">Message</button>
             <button
                 class="view__profile button button--sm text-gray-700 border border-gray-300 dark:border-dark-5 dark:text-gray-300"
-                data-user-id={{ $user['url_string'] }}>Profile</button>
+                data-user-id={{ $user['url_string'] }}
+                onclick="userProfile(this.getAttribute('data-user-id'))">Profile</button>
         </div>
     </div>
 </div>

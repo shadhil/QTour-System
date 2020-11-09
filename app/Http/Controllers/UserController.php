@@ -9,17 +9,21 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
 use Intervention\Image\Facades\Image as Image;
 
 class UserController extends Controller
 {
+
     private $items;
+    private $db_conn;
 
     public function __construct()
     {
-        $this->items = 20;
+        $this->items = 10;
+        $this->db_conn = 'app_db';
     }
 
     /**
@@ -85,26 +89,14 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function newUser(Request $request)
+    function addUser(Request $request)
     {
-        //echo "<pre>";
-        //echo $request->first_name;
-        //die;
-        // first_name: first_name,
-        //     last_name: last_name,
-        //     location: user_location,
-        //     gender: gender,
-        //     phone: phone,
-        //     email: email,
-        //     passowrd: passowrd,
-        //     roles: roles,
-        //     permissions: permissions,
-
+        $og_permissions = [];
+        $og_roles = [];
+        if (User::find($request->user_id)->count() > 0) {
+            $og_permissions = User::find($request->user_id)->permissions()->pluck('id')->toArray();
+            $og_roles = User::find($request->user_id)->roles()->pluck('id')->toArray();
+        }
         $validator = FacadesValidator::make($request->all(), [
             'first_name' => 'required',
             'last_name' => 'required',
@@ -112,7 +104,7 @@ class UserController extends Controller
             'email' => 'required',
             'phone_number' => 'required',
             'user_photo' => 'image|mimes:jpeg,png,jpg|max:2048',
-            'password' => 'required',
+            'password' =>  $request->operation == 'edit' ? '' : 'required',
             'roles' => 'required'
         ]);
 
@@ -158,24 +150,20 @@ class UserController extends Controller
                 'location' => $request->location,
             ]);
 
-            if ($request->roles != $request->og_roles) {
+            if ($request->roles != $og_roles) {
                 $user->roles()->detach();
                 $user->roles()->attach($request->roles);
             }
 
-            if ($request->permissions != $request->og_permissions) {
+            if ($request->permissions != $og_permissions) {
                 $user->permissions()->detach();
                 $user->permissions()->attach($request->permissions);
             }
 
-            $users = User::with('permissions')->with('roles')->withCount('reservations')->orderBy('id', 'desc')->paginate($request->count);
-            $updatedView = view('users.users-table', compact('users'))->render();
-
             // return response
             $response = [
                 'success' => true,
-                'message' => 'User Added successfully.',
-                'updatedUsers' => $updatedView
+                'message' => 'User Added successfully.'
             ];
             return response()->json(
                 $response,
@@ -190,48 +178,84 @@ class UserController extends Controller
         return response()->json($response, 200);
     }
 
-
-
-    public function editUser($userId)
+    public function newUser()
     {
-        $data['user'] = User::find($userId);
+        $data['title'] = 'New User';
+        $data['breadcrumbs'] = [
+            ['url' => '/users', 'title' => 'Users']
+        ];
 
-        $permissions['selected'] = User::find($userId)->permissions()->pluck('id')->toArray();
-        $permissions['all'] = Permission::all();
-        $data['ogPermissions'] = $permissions['selected'];
+        $data['roles'] = Role::all();
+        $data['permissions'] = Permission::all();
 
-        $roles['selected'] = User::find($userId)->roles()->pluck('id')->toArray();
-        $roles['all'] = Role::all();
-        $data['ogRoles'] = $roles['selected'];
+        $data['user_permissions'] = [];
+        $data['user_roles'] = [];
+        $data['user'] = [];
 
-        // $data['user'] = User::with('permissions')->with('roles')
-        //     ->where('users.id', $userId)
-        //     ->get();
-        // $tags = DB::table('blog_post_tags')
-        //     ->join('blog_tags', function ($join) {
-        //         $join->on('blog_post_tags.tag_id', '=', 'blog_tags.id')
-        //             ->whereNull('deleted_at');
-        //     })
-        //     ->where('blog_post_tags.post_id', $postId)
-        //     ->pluck('blog_tags.id')
-        //     ->toArray();
+        //echo "<pre>";
+        //print_r(json_decode(json_encode($data), true));
+        //die;
+        //dd($data);
 
-        $data['userPermissions'] = view('layout.components.multi-selector', compact('permissions'))->render();
-        $data['userRoles'] = view('layout.components.multi-roles-selector', compact('roles'))->render();
-        return response()->json($data);
+        return view('users.user-add', compact('data'));
+    }
+
+
+
+    public function editUser($userUrl)
+    {
+        $data['title'] = 'Edit User';
+        $data['breadcrumbs'] = [
+            ['url' => '/users', 'title' => 'Users']
+        ];
+
+        $user = User::with('permissions')->with('roles')->where('users.url_string', $userUrl)->first();
+        $data['user'] = $user;
+
+        $data['user_permissions'] = User::find($user['id'])->permissions()->pluck('id')->toArray();
+        $data['permissions'] = Permission::all();
+
+        $data['user_roles'] = User::find($user['id'])->roles()->pluck('id')->toArray();
+        $data['roles'] = Role::all();
 
         //dd($data);
-        //echo $data;
-        //print_r(json_decode(json_encode($permissions), true));
-        //die;
+        // echo '<pre>';
+        // print_r(json_decode(json_encode($data), true));
+        // die;
+
+        return view('users.user-add', compact('data'));
     }
 
-    public function userProfile(User $user)
+    public function userProfile($userUrl)
     {
+        $user = User::with('permissions')->with('roles')->where('users.url_string', $userUrl)->first();
+        $data['user'] = $user;
 
-        return view('users.user-profile');
+        $data['user_permissions'] = User::find($user['id'])->permissions()->pluck('id')->toArray();
+
+        $data['user_roles'] = User::find($user['id'])->roles()->pluck('id')->toArray();
+
+        // echo '<pre>';
+        // print_r(json_decode(json_encode($data), true));
+        // die;
+
+        return response()->json($data);
     }
 
+
+
+    public function deleteUser($userId)
+    {
+        $data['deleted_member'] = DB::connection($this->db_conn)->table('users')
+            ->where('id', $userId)
+            ->delete();
+
+        $users = User::with('permissions')->with('roles')->withCount('reservations')->orderBy('id', 'desc')->paginate($this->items);
+
+        $data['users'] = view('users.users-table', compact('users'))->render();
+
+        return response()->json($data);
+    }
     /**
      * Store a newly created resource in storage.
      *

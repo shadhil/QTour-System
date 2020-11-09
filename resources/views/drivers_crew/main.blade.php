@@ -130,7 +130,7 @@ $members = $data['members'];
     </div>
 </div>
 
-<!-- BEGIN: Delete Confirmation Modal -->
+<!-- BEGIN: Profile Modal -->
 <div class="modal" id="profile-modal">
     <div class="modal__content">
         <div class="pl-5 pt-5 pr-5 pb-2 text-center">
@@ -165,7 +165,7 @@ $members = $data['members'];
         </div>
     </div>
 </div>
-<!-- END: Delete Confirmation Modal -->
+<!-- END: Profile Modal -->
 @endsection
 
 @section('script')

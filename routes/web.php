@@ -42,12 +42,16 @@ Route::get('/test', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/', [AuthController::class, 'signInView'])->name('signIn');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::get('/users', [UserController::class, 'load_users'])->name('users');
     Route::post('/users/filter', [UserController::class, 'filter_users']);
     Route::post('/users/navigate', [UserController::class, 'navigate_users']);
-    Route::post('/users/new', [UserController::class, 'newUser'])->name('users.new');
+    Route::get('/users/add-user', [UserController::class, 'newUser'])->name('users.new');
+    Route::post('/users/save-user', [UserController::class, 'addUser'])->name('users.save');
     Route::get('/users/edit/{userId}', [UserController::class, 'editUser'])->name('users.edit');
-    Route::get('/users/profile/{user}', [UserController::class, 'userProfile'])->name('users.profile');
+    Route::get('/users/profile/{userId}', [UserController::class, 'userProfile'])->name('users.profile');
+    Route::get('/users/delete/{userId}', [UserController::class, 'deleteUser']);
+
     Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations');
     Route::get('/reservations/new', [ReservationController::class, 'new'])->name('reservations.new');
     Route::post('/reservations/add-visitor', [ReservationController::class, 'addVisitor']);
@@ -83,6 +87,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/parks', [ParkController::class, 'index'])->name('parks');
     Route::post('/parks/filter', [ParkController::class, 'filterParks']);
     Route::post('/parks/new', [ParkController::class, 'newPark'])->name('parks.new');
+    Route::get('/parks/delete/{parkId}', [ParkController::class, 'deletePark']);
+
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
     //Route::resource('/users', UserController::class);
     Route::get('/test', function () {
