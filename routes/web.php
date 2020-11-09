@@ -88,6 +88,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/parks/filter', [ParkController::class, 'filterParks']);
     Route::post('/parks/new', [ParkController::class, 'newPark'])->name('parks.new');
     Route::get('/parks/delete/{parkId}', [ParkController::class, 'deletePark']);
+    Route::get('/parks/load-park-activities/{parkId}', [ParkController::class, 'loadParkActivities']);
+    Route::get('/parks/load-all-activities', [ParkController::class, 'loadAllActivities']);
+    Route::post('/parks/add-park-activity', [ParkController::class, 'addParkActivity']);
+
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');
     //Route::resource('/users', UserController::class);

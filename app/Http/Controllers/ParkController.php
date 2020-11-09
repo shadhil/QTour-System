@@ -129,10 +129,6 @@ class ParkController extends Controller
 
     public function deletePark($parkId)
     {
-        $data['deleted_park'] = DB::connection($this->db_conn)->table('parks')
-            ->where('id', $parkId)
-            ->delete();
-
         $parks = DB::table($this->comp_db . '.parks')
             ->join($this->app_db . '.tz_regions', $this->comp_db . '.parks.region_id', $this->app_db . '.tz_regions.id')
             ->select($this->comp_db . '.parks.*', $this->app_db . '.tz_regions.region')
@@ -142,5 +138,144 @@ class ParkController extends Controller
         $data['parks'] = view('parks.parks-table', compact('parks'))->render();
 
         return response()->json($data);
+    }
+
+    public function loadParkActivities($parkId)
+    {
+        $parkActivities = DB::connection($this->db_conn)->table('park_activities')
+            ->join('activities', 'activities.id', 'park_activities.activity_id')
+            ->leftJoin('activity_categories', 'activity_categories.id', 'park_activities.category_id')
+            ->where('park_activities.park_id', $parkId)
+            ->select('park_activities.*', 'activities.activity', 'activity_categories.category')
+            ->get();
+
+        $data['activities'] = view('parks.park-activities-list', compact('parkActivities'))->render();
+
+        if (sizeof($parkActivities) > 0) {
+            $data['success'] = true;
+        } else {
+            $data['success'] = false;
+        }
+
+        return response()->json($data);
+    }
+
+
+    public function loadAllActivities()
+    {
+        $activities = DB::connection($this->db_conn)->table('activities')->get();
+        $categories = DB::connection($this->db_conn)->table('activity_categories')->get();
+
+        if (sizeof($activities) > 0) {
+            $response = [
+                'success' => true,
+                'message' => 'Activities Loaded Successfully.',
+                'activities' => $activities,
+                'categories' => $categories
+            ];
+            return response()->json(
+                $response,
+                200
+            );
+        }
+
+        $response = [
+            'success' => false,
+            'message' => 'No Activity Found.',
+            'activities' => [],
+            'categories' => []
+        ];
+        return response()->json(
+            $response,
+            200
+        );
+    }
+
+
+    public function addParkActivity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'activity' => 'required',
+            'category' => 'required',
+            'ea_price_usd' => 'required',
+            'ea_price_tzs' => 'required',
+            'ex_price_usd' => 'required',
+            'ex_price_tzs' => 'required',
+            'nr_price_usd' => 'required',
+            'nr_price_tzs' => 'required',
+        ]);
+
+        if (!$validator->fails()) {
+
+            DB::connection($this->db_conn)->table('park_activities')->updateOrInsert(
+                [
+                    'id' => $request->ea_activity_id,
+                    'park_id' => $request->activity_park_id,
+                    'category_id' => $request->category,
+                ],
+                [
+                    'activity_id' => $request->activity,
+                    'type_id' => '1',
+                    'price_tzs' => $request->ea_price_tzs,
+                    'price_usd' => $request->ea_price_usd
+                ]
+            );
+
+            DB::connection($this->db_conn)->table('park_activities')->updateOrInsert(
+                [
+                    'id' => $request->ex_activity_id,
+                    'park_id' => $request->activity_park_id,
+                    'category_id' => $request->category,
+                ],
+                [
+                    'activity_id' => $request->activity,
+                    'type_id' => '2',
+                    'price_tzs' => $request->ea_price_tzs,
+                    'price_usd' => $request->ea_price_usd
+                ]
+            );
+
+
+            DB::connection($this->db_conn)->table('park_activities')->updateOrInsert(
+                [
+                    'id' => $request->nr_activity_id,
+                    'park_id' => $request->activity_park_id,
+                    'category_id' => $request->category,
+                ],
+                [
+                    'activity_id' => $request->activity,
+                    'type_id' => '3',
+                    'price_tzs' => $request->ea_price_tzs,
+                    'price_usd' => $request->ea_price_usd
+                ]
+            );
+
+            $parkActivities = DB::connection($this->db_conn)->table('park_activities')
+                ->join('activities', 'activities.id', 'park_activities.activity_id')
+                ->leftJoin('activity_categories', 'activity_categories.id', 'park_activities.category_id')
+                ->where('park_activities.park_id', $request->activity_park_id)
+                ->select('park_activities.*', 'activities.activity', 'activity_categories.category')
+                ->get();
+
+            $updatedView1 = view('parks.park-activities-list', compact('parkActivities'))->render();
+
+            // return response
+            $response = [
+                'success' => true,
+                'message' => 'Activities Added successfully.',
+                'updatedActivities' => $updatedView1,
+                //'reservationCode' => $code,
+            ];
+            return response()->json(
+                $response,
+                200
+            );
+        }
+
+        $response = [
+            'success' => false,
+            'message' => $validator->errors()->all(),
+        ];
+        return response()->json($response, 200);
     }
 }
