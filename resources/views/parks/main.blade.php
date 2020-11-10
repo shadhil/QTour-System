@@ -268,15 +268,20 @@ $parkActivities = [];
                     <input type="hidden" id="nr_activity_id" name="nr_activity_id">
                 </div>
             </div>
-            <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
+            <div class="px-5 py-3 text-right ">
                 <div id="show-error-activity"
                     class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5 hidden">
                 </div>
                 <button type="button" data-dismiss="modal"
                     class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
+                <button id="btn-delete-activity" type="button" class="button w-20 bg-theme-6 text-white">Delete</button>
                 <button id="btn-save-activity" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
             </div>
         </form>
+        <div class="px-5 py-3 text-right ">
+            <button id="btn-activity-loading" class="button w-full bg-theme-1 text-white hidden"><i
+                    data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i></button>
+        </div>
     </div>
 </div>
 @endsection
@@ -440,7 +445,20 @@ $parkActivities = [];
     });
 
     cash("#new_park_activity").on('click', function(e){
-        cash('#park_id')
+        if (!cash('#btn-delete-activity').hasClass('hidden')) {
+            cash('#btn-delete-activity').addClass('hidden')
+        }
+        cash('#ea_price_tzs').val('')
+        cash('#ex_price_tzs').val('')
+        cash('#nr_price_tzs').val('')
+        cash('#ea_price_usd').val('')
+        cash('#ex_price_usd').val('')
+        cash('#nr_price_usd').val('')
+        cash('#ea_activity_id').val('')
+        cash('#ex_activity_id').val('')
+        cash('#nr_activity_id').val('')
+        cash('#activity').val('')
+        cash('#category').val('')
         cash('#activity-modal').modal('show');
     });
 
@@ -449,7 +467,6 @@ $parkActivities = [];
         cash('#btn-save').addClass('hidden')
         cash('#btn-cancel').addClass('hidden')
     });
-
 
     async function deletePark(parkId) {
         cash('#btn-delete').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
@@ -475,15 +492,9 @@ $parkActivities = [];
         })
     }
 
-
     cash('#activity').on('change', event => {
         setCategories(cash('#activity').val())
     })
-
-    cash('#category').on('change', event => {
-        setVisitorsNumber(cash('#category').val())
-    })
-
 
     async function loadActivities() {
         await helper.delay(500)
@@ -596,8 +607,92 @@ $parkActivities = [];
     }
 
 
-    async function editParkActivity(activityId) {
+    async function editParkActivity(parkId,categoryId) {
+        console.log(parkId+' -> '+categoryId);
+        cash('#park_activity_form').addClass('hidden')
+        cash('#btn-activity-loading').removeClass('hidden')
+        cash('#activity-modal').modal('show');
+        await helper.delay(1500)
+        axios.post("{{url('/parks/edit-park-activity')}}",{
+            park_id: parkId,
+            category_id: categoryId
+        }).then(res => {
+            if (res.data.success == true) {
+                cash('#activity_park_id').val(parkId)
+                setParkActivity(res.data.activities);
+            }else{
+                cash('#activity-modal').modal('hide');
+            }
+            cash('#park_activity_form').removeClass('hidden')
+            cash('#btn-activity-loading').addClass('hidden')
+            feather.replace();
+        }).catch(err => {
+            cash('#activity-modal').modal('hide');
+            cash('#park_activity_form').removeClass('hidden')
+            cash('#btn-activity-loading').addClass('hidden')
+            console.log('Error!!!');
+        })
+    }
 
+
+    function setParkActivity(activities){
+        cash('#activity').val(activities[0].activity_id)
+        setCategories(activities[0].activity_id)
+        cash('#category').val(activities[0].category_id)
+
+        cash('#btn-delete-activity').removeClass('hidden')
+
+        for(let i = 0, l = activities.length; i < l; i++) {
+            let activity=activities[i];
+            console.log(activity.category_id);
+            if(activity.type_id == '1'){
+                cash('#ea_price_tzs').val(activity.price_tzs)
+                cash('#ea_price_usd').val(activity.price_usd)
+                cash('#ea_activity_id').val(activity.id)
+            }else if (activity.type_id == '2') {
+                cash('#ex_price_tzs').val(activity.price_tzs)
+                cash('#ex_price_usd').val(activity.price_usd)
+                cash('#ex_activity_id').val(activity.id)
+            }else if (activity.type_id == '3') {
+                cash('#nr_price_tzs').val(activity.price_tzs)
+                cash('#nr_price_usd').val(activity.price_usd)
+                cash('#nr_activity_id').val(activity.id)
+            }
+        }
+    }
+
+    cash("#btn-delete-activity").on('click', function(e){
+        deleteActivity(cash('#activity_park_id').val(), cash('#category').val())
+        cash('#btn-save-activity').addClass('hidden')
+        cash('#btn-cancel-activity').addClass('hidden')
+    });
+
+    async function deleteActivity(parkId, categoryId) {
+        console.log(parkId+' -> -> '+categoryId);
+        cash('#btn-delete-activity').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.post("{{url('/parks/delete-activity')}}",{
+            park_id: parkId,
+            category_id: categoryId
+        }).then(res => {
+            cash('#btn-save-activity').html('Save')
+            if (res.data.deleted_activities) {
+                cash('#park_activities_list').html(res.data.activities);
+                cash('#activity-modal').modal('hide');
+            }else {
+                alert('Fail to Delete Activities')
+                console.log("Fail to LOAD!");
+            }
+            cash('#btn-delete-activity').html('Delete')
+            cash('#btn-save-activity').removeClass('hidden')
+            cash('#btn-cancel-activity').removeClass('hidden')
+            feather.replace();
+        }).catch(err => {
+            cash('#btn-delete-activity').html('Delete')
+            cash('#btn-save-activity').removeClass('hidden')
+            cash('#btn-cancel-activity').removeClass('hidden')
+            console.log(err);
+        })
     }
 
 </script>

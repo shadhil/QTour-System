@@ -91,6 +91,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/parks/load-park-activities/{parkId}', [ParkController::class, 'loadParkActivities']);
     Route::get('/parks/load-all-activities', [ParkController::class, 'loadAllActivities']);
     Route::post('/parks/add-park-activity', [ParkController::class, 'addParkActivity']);
+    Route::post('/parks/edit-park-activity', [ParkController::class, 'editParkActivity']);
+    Route::post('/parks/delete-activity', [ParkController::class, 'deleteParkActivity']);
 
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');

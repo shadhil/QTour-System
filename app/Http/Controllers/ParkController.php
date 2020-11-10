@@ -129,6 +129,11 @@ class ParkController extends Controller
 
     public function deletePark($parkId)
     {
+
+        $data['deleted_park'] = DB::connection($this->db_conn)->table('parks')
+            ->where('id', '=', $parkId)
+            ->delete();
+
         $parks = DB::table($this->comp_db . '.parks')
             ->join($this->app_db . '.tz_regions', $this->comp_db . '.parks.region_id', $this->app_db . '.tz_regions.id')
             ->select($this->comp_db . '.parks.*', $this->app_db . '.tz_regions.region')
@@ -230,8 +235,8 @@ class ParkController extends Controller
                 [
                     'activity_id' => $request->activity,
                     'type_id' => '2',
-                    'price_tzs' => $request->ea_price_tzs,
-                    'price_usd' => $request->ea_price_usd
+                    'price_tzs' => $request->ex_price_tzs,
+                    'price_usd' => $request->ex_price_usd
                 ]
             );
 
@@ -245,8 +250,8 @@ class ParkController extends Controller
                 [
                     'activity_id' => $request->activity,
                     'type_id' => '3',
-                    'price_tzs' => $request->ea_price_tzs,
-                    'price_usd' => $request->ea_price_usd
+                    'price_tzs' => $request->nr_price_tzs,
+                    'price_usd' => $request->nr_price_usd
                 ]
             );
 
@@ -277,5 +282,47 @@ class ParkController extends Controller
             'message' => $validator->errors()->all(),
         ];
         return response()->json($response, 200);
+    }
+
+    public function editParkActivity(Request $request)
+    {
+        $data['activities'] = DB::connection($this->db_conn)->table('park_activities')
+            ->where([
+                ['park_id', '=', $request->park_id],
+                ['category_id', '=', $request->category_id]
+            ])
+            ->get();
+
+
+        if (sizeof($data['activities']) > 0) {
+            $data['success'] = true;
+        } else {
+            $data['success'] = false;
+        }
+
+        return response()->json($data);
+    }
+
+
+    public function deleteParkActivity(Request $request)
+    {
+        $data['deleted_activities'] = DB::connection($this->db_conn)->table('park_activities')
+            ->where([
+                ['park_id', '=', $request->park_id],
+                ['category_id', '=', $request->category_id]
+            ])
+            ->delete();
+
+
+        $parkActivities = DB::connection($this->db_conn)->table('park_activities')
+            ->join('activities', 'activities.id', 'park_activities.activity_id')
+            ->leftJoin('activity_categories', 'activity_categories.id', 'park_activities.category_id')
+            ->where('park_activities.park_id', $request->activity_park_id)
+            ->select('park_activities.*', 'activities.activity', 'activity_categories.category')
+            ->get();
+
+        $data['activities'] = view('parks.park-activities-list', compact('parkActivities'))->render();
+
+        return response()->json($data);
     }
 }
