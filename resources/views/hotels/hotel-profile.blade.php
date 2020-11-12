@@ -1,262 +1,39 @@
 @php
-$title = $data['title'];
-// $hotels = $data['hotels'];
+$hotel = $data['hotel'];
+$hotelRates = $data['hotel_rates'];
+$roomCategories = $data['room_categories'];
+$roomTypes = $data['room_types'];
+$mealPlans = $data['meal_plans'];
 @endphp
 
 @extends('../layout/main')
 
 @section('content')
-<div class="flex items-center mt-8">
-    <h2 class="intro-y text-lg font-medium mr-auto">Wizard Layout</h2>
-</div>
 <!-- BEGIN: Wizard Layout -->
 <div class="intro-y box py-10 sm:py-20 mt-5">
     <div class="flex justify-center">
-        <button class="intro-y w-10 h-10 rounded-full button text-white bg-theme-1 mx-2">1</button>
-        <button class="intro-y w-10 h-10 rounded-full button bg-gray-200 dark:bg-dark-1 text-gray-600 mx-2"><i
-                data-feather="edit-3" class="w-4 h-4 text-gray-600"></i></button>
-        <button class="intro-y w-10 h-10 rounded-full button bg-gray-200 dark:bg-dark-1 text-gray-600 mx-2">3</button>
+        <button class="intro-y w-10 h-10 rounded-full button dark:bg-dark-1 text-white bg-theme-1 mx-2"
+            data-hotel-id={{$hotel->id}} onclick="goEdit(cash(this).attr('data-hotel-id'))"><i data-feather="edit-3"
+                class="w-4 h-4 text-white"></i></button>
     </div>
     <div class="px-5 mt-8">
         <div class="w-40 h-40 relative image-fit cursor-pointer zoom-in mx-auto align-content-center">
             <img class="rounded-md" alt="Midone Tailwind HTML Admin Template"
-                src="{{ asset('dist/images/' . $fakers[0]['photos'][0]) }}">
+                src="{{ asset(($hotel->photo ?? 'dist/images/profile-6.jpg')) }}">
         </div>
-        <div class="font-medium text-center text-lg mt-3">Setup Your Account</div>
-        <div class="text-gray-600 text-center mt-2">To start off, please enter your username, email address and
-            password.</div>
+        <div class="font-medium text-center text-lg mt-3">{{ $hotel->name ?? '' }}</div>
+        <div class="text-gray-600 text-center mt-2"> {{ ($hotel->location ?? '') . ', '. ($hotel->region ?? '') }}</div>
     </div>
-    <div class="px-5 sm:px-20 mt-10 pt-10 border-t border-gray-200 dark:border-dark-5">
-        <div class="font-medium text-base">General Information</div>
-        <form id="member_form" class="validate-form" enctype="multipart/form-data">
-            <div class="grid grid-cols-12 gap-4 row-gap-5 mt-5">
-                <div class="col-span-12 xl:col-span-3">
-                    <div class="border border-gray-200 dark:border-dark-5 rounded-md p-5">
-                        <div class="w-40 h-40 relative image-fit cursor-pointer zoom-in mx-auto">
-                            <img class="rounded-md" alt="Midone Tailwind HTML Admin Template"
-                                src="{{ asset('dist/images/' . $fakers[0]['photos'][0]) }}">
-                            <div title="Remove this profile photo?"
-                                class="tooltip w-5 h-5 flex items-center justify-center absolute rounded-full text-white bg-theme-6 right-0 top-0 -mr-2 -mt-2">
-                                <i data-feather="x" class="w-4 h-4"></i>
-                            </div>
-                        </div>
-                        <div class="w-40 mx-auto cursor-pointer relative mt-5">
-                            <button type="button" class="button w-full bg-theme-1 text-white">Change Photo</button>
-                            <input type="file" class="w-full h-full top-0 left-0 absolute opacity-0">
-                        </div>
-                        <div class="w-40 mx-auto cursor-pointer relative mt-8 content-center cursor-pointer">
-                            <a href="javascript:;"
-                                class="w-full text-theme-1 block font-normal cursor-pointer flex align-content-center ml-2"><i
-                                    data-feather="file-text" class="w-4 h-4 mr-1"></i> <u class="cursor-pointer"> Upload
-                                    Hotel Rates</u> </a>
-                            <input id="hotel_doc" name="hotel_doc" type="file"
-                                class="w-full h-full top-0 left-0 absolute opacity-0 cursor-pointer">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-span-12 lg:col-span-9 xxl:col-span-9 pl-5 pr-5 pb-5 grid grid-cols-12 gap-4 row-gap-3">
-                    <div class="col-span-12">
-                        <label>Hotel Name</label>
-                        <input id="name" name="name" type="text" class="input w-full border mt-2 flex-1"
-                            placeholder="Full Name" required>
-                    </div>
-                    <div class="col-span-12 sm:col-span-6 mt-3">
-                        <label>Location</label>
-                        <input id="location" name="location" type="text" class="input w-full border mt-2 flex-1"
-                            placeholder="Office or Residence" required>
-                    </div>
-                    <div class="col-span-12 sm:col-span-6 mt-3">
-                        <label>Region</label>
-                        <select id="region" name="region" class="input w-full border mt-2 flex-1" required>
-                            <option>Select a region the park is located</option>
-                            @foreach ($data['regions'] as $region)
-                            <option value="{{$region->id}}">{{$region->region}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-span-12 sm:col-span-6 mt-3">
-                        <label>Phone Number(s)</label>
-                        <input id="phones" name="phones" type="text" class="input w-full border mt-2 flex-1"
-                            placeholder="0729 ...., 0635 ....">
-                    </div>
-                    <div class="col-span-12 sm:col-span-6 mt-3">
-                        <label>Email</label>
-                        <input id="email" name="email" type="email" class="input w-full border mt-2 flex-1"
-                            placeholder="company@email.com" required>
-                    </div>
-                    <div class="col-span-12 sm:col-span-6 mt-3">
-                        <label>Inside a Park?</label>
-                        <select id="inside_park" name="inside_park" class="input w-full border mt-2 flex-1">
-                            <option>Select a park the hotel is inside</option>
-                            @foreach ($data['parks'] as $park)
-                            <option value="{{$park->id}}">{{$park->park_name}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-span-12 sm:col-span-6 mt-3">
-                        <label>Near Park</label>
-                        <select id="near_park" name="near_park" class="input w-full border mt-2 flex-1">
-                            <option>Select a park the hotel is near</option>
-                            @foreach ($data['parks'] as $park)
-                            <option value="{{$park->id}}">{{$park->park_name}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="intro-y col-span-12 flex items-center justify-center sm:justify-end mt-5">
-                        <button
-                            class="button w-24 justify-center block bg-gray-200 text-gray-600 dark:bg-dark-1 dark:text-gray-300">Previous</button>
-                        <button class="button w-24 justify-center block bg-theme-1 text-white ml-2">Next</button>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <div class="px-5 sm:px-20 mt-10 pt-10 border-t border-gray-200 dark:border-dark-5">
-        {{-- <div class="text-lg font-medium text-base">Room Details</div> --}}
-        <div class="grid grid-cols-12 gap-6">
-            <div class="col-span-12 xxl:col-span-3 xxl:border-l border-theme-5 -mb-10 pb-10">
-                <div class="xxl:pl-6 grid grid-cols-12 gap-6">
-                    <!-- BEGIN: Categories -->
-                    <div class="col-span-12 md:col-span-6 mt-3">
-                        <div class="intro-x flex items-center h-10">
-                            <h2 class="text-lg font-medium truncate mr-5">Categories</h2>
-                            <a href="javascript:;" data-toggle="modal" data-target="#new-category-modal"
-                                class="ml-auto text-theme-1 dark:text-theme-10 truncate flex items-center">
-                                <i data-feather="plus" class="w-4 h-4 mr-1"></i> New Category
-                            </a>
-                        </div>
-                        <div class="mt-5">
-                            @foreach (array_slice($fakers, 0, 5) as $faker)
-                            <div class="intro-x">
-                                <div class="box px-5 py-3 mb-3 flex items-center zoom-in">
-                                    <div class="w-full ml-10 mr-4">
-                                        <div class="font-bold text-center capitalize">{{ $faker['users'][0]['name'] }}
-                                        </div>
-                                    </div>
-                                    <div class=" flex">
-                                        <i data-feather="edit" class="w-4 h-4 text-theme-9 mr-2"></i>
-                                        <i data-feather="trash" class="w-4 h-4 text-theme-6"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <!-- END: Categories -->
-                    <!-- BEGIN: Room Types -->
-                    <div class="col-span-12 md:col-span-6 mt-3">
-                        <div class="intro-x flex items-center h-10">
-                            <h2 class="text-lg font-medium truncate mr-5">Room Types</h2>
-                            <a href="javascript:;" data-toggle="modal" data-target="#new-type-modal"
-                                class="ml-auto text-theme-1 dark:text-theme-10 truncate flex items-center">
-                                <i data-feather="plus" class="w-4 h-4 mr-1"></i> New Room
-                            </a>
-                        </div>
-                        <div class="mt-5">
-                            @foreach (array_slice($fakers, 0, 5) as $faker)
-                            <div class="intro-x">
-                                <div class="box px-5 py-3 mb-3 flex items-center zoom-in">
-                                    <div class="w-full ml-10 mr-4">
-                                        <div class="font-bold text-center capitalize">{{ $faker['users'][0]['name'] }}
-                                        </div>
-                                    </div>
-                                    <div class=" flex">
-                                        <i data-feather="edit" class="w-4 h-4 text-theme-9 mr-2"></i>
-                                        <i data-feather="trash" class="w-4 h-4 text-theme-6"></i>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <!-- END: Room Types -->
-
-                    <!-- BEGIN: Important Notes -->
-                    <div
-                        class="col-span-12 md:col-span-6 xl:col-span-12 xxl:col-span-12 xl:col-start-1 xl:row-start-1 xxl:col-start-auto xxl:row-start-auto mt-3">
-                        <div class="intro-x flex items-center h-10">
-                            <h2 class="text-lg font-medium truncate mr-auto">Important Notes</h2>
-                            <button data-carousel="important-notes" data-target="prev"
-                                class="tiny-slider-navigator button px-2 border border-gray-400 dark:border-dark-5 flex items-center text-gray-700 dark:text-gray-600 mr-2">
-                                <i data-feather="chevron-left" class="w-4 h-4"></i>
-                            </button>
-                            <button data-carousel="important-notes" data-target="next"
-                                class="tiny-slider-navigator button px-2 border border-gray-400 dark:border-dark-5 flex items-center text-gray-700 dark:text-gray-600">
-                                <i data-feather="chevron-right" class="w-4 h-4"></i>
-                            </button>
-                        </div>
-                        <div class="mt-5 intro-x">
-                            <div class="box zoom-in">
-                                <div class="tiny-slider" id="important-notes">
-                                    <div class="p-5">
-                                        <div class="text-base font-medium truncate">What are Categories
-                                        </div>
-                                        <div class="text-gray-600 text-justify mt-1">Lorem Ipsum is simply dummy text of
-                                            the printing and
-                                            typesetting industry. Lorem Ipsum has been the industry's standard dummy
-                                            text ever since the
-                                            1500s.</div>
-                                        <div class="font-medium flex mt-5">
-                                            <button type="button"
-                                                class="button button--sm bg-gray-200 dark:bg-dark-5 text-gray-600 dark:text-gray-300">View
-                                                Notes</button>
-                                            <button type="button"
-                                                class="button button--sm border border-gray-300 dark:border-dark-5 text-gray-600 ml-auto">Dismiss</button>
-                                        </div>
-                                    </div>
-                                    <div class="p-5">
-                                        <div class="font-medium truncate">Types of Room</div>
-                                        <div class="text-gray-600 text-justify mt-1">Lorem Ipsum is simply dummy text of
-                                            the printing and
-                                            typesetting industry. Lorem Ipsum has been the industry's standard dummy
-                                            text ever since the
-                                            1500s.</div>
-                                        <div class="font-medium flex mt-5">
-                                            <button type="button"
-                                                class="button button--sm bg-gray-200 dark:bg-dark-5 text-gray-600 dark:text-gray-300">View
-                                                Notes</button>
-                                            <button type="button"
-                                                class="button button--sm border border-gray-300 dark:border-dark-5 text-gray-600 ml-auto">Dismiss</button>
-                                        </div>
-                                    </div>
-                                    <div class="p-5">
-                                        <div class="font-medium truncate">About Meal Plans &amp; Seasons</div>
-                                        <div class="text-gray-600 text-justify mt-1">Lorem Ipsum is simply dummy text of
-                                            the printing and
-                                            typesetting industry. Lorem Ipsum has been the industry's standard dummy
-                                            text ever since the
-                                            1500s.</div>
-                                        <div class="font-medium flex mt-5">
-                                            <button type="button"
-                                                class="button button--sm bg-gray-200 dark:bg-dark-5 text-gray-600 dark:text-gray-300">View
-                                                Notes</button>
-                                            <button type="button"
-                                                class="button button--sm border border-gray-300 dark:border-dark-5 text-gray-600 ml-auto">Dismiss</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- END: Important Notes -->
-
-                </div>
-            </div>
-        </div>
-    </div>
-
 
     <div class="px-5 sm:px-20 mt-10 pt-10 border-t border-gray-200 dark:border-dark-5">
         <div class="intro-y col-span-12 flex flex-wrap sm:flex-no-wrap items-center mt-2">
-            <button class="button text-white bg-theme-1 shadow-md mr-2">Add New Rate</button>
+            <button id="new-rates" class="button text-white bg-theme-1 shadow-md mr-2">New Room Rates</button>
 
             <div class="hidden md:block mx-auto text-gray-600"></div>
             <div class="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto md:ml-0">
-                <div class="w-56 relative text-gray-700 dark:text-gray-300">
-                    <input type="text" class="input w-56 box pr-10 placeholder-theme-13" placeholder="Search...">
-                    <i class="w-4 h-4 absolute my-auto inset-y-0 mr-3 right-0" data-feather="search"></i>
-                </div>
+                <button id="download_rates"
+                    class="button w-32 border border-gray-400 dark:border-dark-5 text-gray-600 dark:text-gray-300">Download
+                    Rates</button>
             </div>
         </div>
         <div class="intro-y col-span-12 overflow-auto lg:overflow-visible mt-5">
@@ -264,83 +41,14 @@ $title = $data['title'];
                 <thead>
                     <tr>
                         <th class="whitespace-no-wrap">ROOM TYPE </th>
-                        <th class="text-center whitespace-no-wrap">MEAL PLAN</th>
+                        <th class="text-center whitespace-no-wrap">SEASONS</th>
                         <th class="text-center whitespace-no-wrap">STO RATE</th>
                         <th class="text-center whitespace-no-wrap">RACK RATE</th>
                         <th class="text-center whitespace-no-wrap">ACTIONS</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr class="w-full bg-theme-1">
-                        <th class="w-full text-center text-white font-medium whitespace-no-wrap" colspan="5">
-                            CATEGORY 1
-                        </th>
-                    </tr>
-                    @foreach (array_slice($fakers, 0, 9) as $faker)
-                    <tr class="intro-x">
-                        <td>
-                            <a href="" class="font-medium whitespace-no-wrap">{{ $faker['products'][0]['name'] }}</a>
-                            <div class="text-gray-600 text-xs whitespace-no-wrap">
-                                {{ $faker['products'][0]['category'] }}</div>
-                        </td>
-                        <td class="w-40">
-                            <div
-                                class="flex items-center justify-center {{ $faker['true_false'][0] ? 'text-theme-9' : 'text-theme-6' }}">
-                                <i data-feather="check-square" class="w-4 h-4 mr-2"></i>
-                                {{ $faker['true_false'][0] ? 'Active' : 'Inactive' }}
-                            </div>
-                        </td>
-                        <td class="text-center">{{ $faker['stocks'][0] }}</td>
-                        <td class="text-center">{{ $faker['stocks'][0] }}</td>
-
-                        <td class="table-report__action w-56">
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3" href="javascript:;">
-                                    <i data-feather="check-square" class="w-4 h-4 mr-1"></i> Edit
-                                </a>
-                                <a class="flex items-center text-theme-6" href="javascript:;" data-toggle="modal"
-                                    data-target="#delete-confirmation-modal">
-                                    <i data-feather="trash-2" class="w-4 h-4 mr-1"></i> Delete
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                    <tr class="w-full bg-theme-1">
-                        <th class="w-full text-center text-white font-medium whitespace-no-wrap" colspan="5">
-                            CATEGORY 1
-                        </th>
-                    </tr>
-                    @foreach (array_slice($fakers, 0, 9) as $faker)
-                    <tr class="intro-x">
-                        <td>
-                            <a href="" class="font-medium whitespace-no-wrap">{{ $faker['products'][0]['name'] }}</a>
-                            <div class="text-gray-600 text-xs whitespace-no-wrap">
-                                {{ $faker['products'][0]['category'] }}</div>
-                        </td>
-                        <td class="w-40">
-                            <div
-                                class="flex items-center justify-center {{ $faker['true_false'][0] ? 'text-theme-9' : 'text-theme-6' }}">
-                                <i data-feather="check-square" class="w-4 h-4 mr-2"></i>
-                                {{ $faker['true_false'][0] ? 'Active' : 'Inactive' }}
-                            </div>
-                        </td>
-                        <td class="text-center">{{ $faker['stocks'][0] }}</td>
-                        <td class="text-center">{{ $faker['stocks'][0] }}</td>
-
-                        <td class="table-report__action w-56">
-                            <div class="flex justify-center items-center">
-                                <a class="flex items-center mr-3" href="javascript:;">
-                                    <i data-feather="check-square" class="w-4 h-4 mr-1"></i> Edit
-                                </a>
-                                <a class="flex items-center text-theme-6" href="javascript:;" data-toggle="modal"
-                                    data-target="#delete-confirmation-modal">
-                                    <i data-feather="trash-2" class="w-4 h-4 mr-1"></i> Delete
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
+                <tbody id="rates-rows">
+                    @include('hotels.room-rates-table')
                 </tbody>
             </table>
         </div>
@@ -348,43 +56,276 @@ $title = $data['title'];
 </div>
 <!-- END: Wizard Layout -->
 
-<div class="modal" id="new-type-modal">
-    <div class="modal__content">
-        <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
-            <h2 class="font-medium text-base mr-auto">New Room Type</h2>
-        </div>
-        <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
-            <div class="col-span-12">
-                <label>Room Type</label>
-                <input id="room_type" name="room_type" type="text" class="input w-full border mt-2 flex-1"
-                    placeholder="Type of room in this hotel">
+<div class="modal" id="rates-modal">
+    <div class="modal__content modal__content--lg">
+        <form id="hotel_rates_form" class="validate-form" enctype="multipart/form-data">
+            <input type="hidden" id="hotel_id" name="hotel_id" value="{{$hotel->id}}" />
+            <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
+                <h2 class="font-medium text-base mr-auto modal-title">Hotel's Room Rates</h2>
             </div>
-        </div>
-        <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-            <button type="button" data-dismiss="modal"
-                class="button w-32 border dark:border-dark-5 text-gray-700 dark:text-gray-300 mr-1">Cancel</button>
-            <button id="btn-save" type="button" class="button w-32 bg-theme-1 text-white">Save Now</button>
-        </div>
-    </div>
-</div>
+            <div id="activity_section" class="p-5 grid grid-cols-12 gap-4 row-gap-3">
+                <div class="col-span-12 sm:col-span-6 input-form">
+                    <label>Category</label>
+                    <select id="category" name="category" class="input w-full border mt-2 flex-1 input-form" required>
+                        <option value="">Select room category</option>
+                        @foreach ($roomCategories as $category)
+                        <option value="{{$category->id}}">
+                            {{$category->room_category}}
+                        </option>
+                        @endforeach
+                    </select>
 
-<div class="modal" id="new-category-modal">
-    <div class="modal__content">
-        <div class="flex items-center px-5 py-5 sm:py-3 border-b border-gray-200 dark:border-dark-5">
-            <h2 class="font-medium text-base mr-auto">New Room Category</h2>
-        </div>
-        <div class="p-5 grid grid-cols-12 gap-4 row-gap-3">
-            <div class="col-span-12">
-                <label>Room Category</label>
-                <input id="room_category" name="room_category" type="text" class="input w-full border mt-2 flex-1"
-                    placeholder="Category of rooms in this hotel">
+                </div>
+                <div class="col-span-12 sm:col-span-6 input-form">
+                    <label>Room Type</label>
+                    <select id="room_type" name="room_type" class="input w-full border mt-2 flex-1 input-form" required>
+                        <option value="">Select room type</option>
+                        @foreach ($roomTypes as $type)
+                        <option value="{{$type->id}}">
+                            {{$type->room_type}}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-span-12 input-form">
+                    <label>Meal Plan</label>
+                    <select id="meal_plan" name="meal_plan" class="input w-full border mt-2 flex-1 input-form" required>
+                        <option value="">Select a meal plan</option>
+                        @foreach ($mealPlans as $plan)
+                        <option value="{{$plan->id}}">
+                            {{$plan->meal_plan}}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-span-12 sm:col-span-4">
+                    <label>High Seson <span id="ea_currency"
+                            class="text-xs italic text-blue-600 text-right"></span></label>
+                    <div class="relative mt-2 input-form">
+                        <div
+                            class="absolute rounded-l w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            $
+                        </div>
+                        <input id="hs_sto_rate" name="hs_sto_rate" type="text"
+                            class="input px-12 w-full border col-span-4" placeholder="Price">
+                        <div
+                            class="absolute top-0 right-0 rounded-r w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            STO
+                        </div>
+                    </div>
+                    <div class="relative mt-2 input-form">
+                        <div
+                            class="absolute rounded-l w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            $
+                        </div>
+                        <input id="hs_rack_rate" name="hs_rack_rate" type="text"
+                            class="input px-12 w-full border col-span-4" placeholder="Price">
+                        <div
+                            class="absolute top-0 right-0 rounded-r w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            RCK
+                        </div>
+                    </div>
+                    <input type="hidden" id="hs_rate_id" name="hs_rate_id">
+                </div>
+                <div class="col-span-12 sm:col-span-4">
+                    <label>Mid Season<span id="ex_currency"
+                            class="text-xs italic text-blue-600 text-right"></span></label>
+                    <div class="relative mt-2 input-form">
+                        <div
+                            class="absolute rounded-l w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            $
+                        </div>
+                        <input id="ms_sto_rate" name="ms_sto_rate" type="text"
+                            class="input px-12 w-full border col-span-4 input-form" placeholder="Price">
+                        <div
+                            class="absolute top-0 right-0 rounded-r w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            STO
+                        </div>
+                    </div>
+                    <div class="relative mt-2">
+                        <div
+                            class="absolute rounded-l w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            $
+                        </div>
+                        <input id="ms_rack_rate" name="ms_rack_rate" type="text"
+                            class="input px-12 w-full border col-span-4 input-form" placeholder="Price">
+                        <div
+                            class="absolute top-0 right-0 rounded-r w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            RCK
+                        </div>
+                    </div>
+                    <input type="hidden" id="ms_rate_id" name="ms_rate_id">
+                </div>
+                <div class="col-span-12 sm:col-span-4">
+                    <label>Low Season<span id="nr_currency"
+                            class="text-xs italic text-blue-600 text-right"></span></label>
+                    <div class="relative mt-2">
+                        <div
+                            class="absolute rounded-l w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            $
+                        </div>
+                        <input id="ls_sto_rate" name="ls_sto_rate" type="text"
+                            class="input px-12 w-full border col-span-4" placeholder="Price">
+                        <div
+                            class="absolute top-0 right-0 rounded-r w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            STO
+                        </div>
+                    </div>
+                    <div class="relative mt-2">
+                        <div
+                            class="absolute rounded-l w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            $
+                        </div>
+                        <input id="ls_rack_rate" name="ls_rack_rate" type="text"
+                            class="input px-12 w-full border col-span-4" placeholder="Price">
+                        <div
+                            class="absolute top-0 right-0 rounded-r w-10 h-full flex items-center justify-center bg-gray-100 dark:bg-dark-1 dark:border-dark-4 border text-gray-600">
+                            RCK
+                        </div>
+                    </div>
+                    <input type="hidden" id="ls_rate_id" name="ls_rate_id">
+                </div>
             </div>
-        </div>
-        <div class="px-5 py-3 text-right border-t border-gray-200 dark:border-dark-5">
-            <button type="button" data-dismiss="modal"
-                class="button w-32 border dark:border-dark-5 text-gray-700 dark:text-gray-300 mr-1">Cancel</button>
-            <button id="btn-save" type="button" class="button w-32 bg-theme-1 text-white">Save Now</button>
+            <div class="px-5 py-3 text-right ">
+                <div id="show-error" class="px-5 py-3 text-right hidden">
+                </div>
+                <button id="btn-cancel" type="button" data-dismiss="modal"
+                    class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 mr-1">Cancel</button>
+                <button id="btn-delete" type="button" class="button w-20 bg-theme-6 text-white">Delete</button>
+                <button id="btn-save" type="submit" class="button w-20 bg-theme-1 text-white">Save</button>
+            </div>
+        </form>
+        <div class="px-5 py-3 text-right ">
+            <button id="btn-activity-loading" class="button w-full bg-theme-1 text-white hidden"><i
+                    data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i></button>
         </div>
     </div>
 </div>
+@endsection
+
+@section('script')
+<script>
+    function goEdit(hotelId){
+        location.href = '/hotels/edit/'+hotelId
+    }
+
+    cash('#new-rates').on('click', e=>{
+        cash('#btn-delete').addClass('hidden')
+        cash('#category').val('');
+        cash('#room_type').val('');
+        cash('#meal_plan').val('');
+        cash('#hs_sto_rate').val('');
+        cash('#hs_rack_rate').val('');
+        cash('#ms_sto_rate').val('');
+        cash('#ms_rack_rate').val('');
+        cash('#ls_sto_rate').val('');
+        cash('#ls_rack_rate').val('');
+        cash('#hs_rate_id').val('');
+        cash('#ms_rate_id').val('');
+        cash('#ls_rate_id').val('');
+        cash('#rates-modal').modal('show')
+        cash('#hotel_rates_form')[0].reset();
+    })
+
+
+    const ratesForm = cash('#hotel_rates_form')[0];
+    ratesForm.onsubmit = event =>{
+        console.log("IS IT!");
+        if(ratesForm.checkValidity()) {
+            addUpdateRates()
+            //console.log('SUBMITED!');
+        }else console.log("invalid form");
+    }
+
+
+    async function addUpdateRates() {
+
+        let parkForm = cash('#hotel_rates_form')[0];
+        var formData = new FormData(parkForm);
+
+        cash('#btn-save').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        cash('#show-error').html('');
+        await helper.delay(1500)
+        let config = { headers: { 'Content-Type': 'multipart/form-data' } }
+        axios.post("{{url('/hotels/save-hotel-rates')}}", formData, config).then(res => {
+            cash('#btn-save').html('Save')
+            if (res.data.success == true) {
+                //showSuccessToast(res.data.message);
+                cash('#rates-modal').modal('hide');
+                cash('#rates-rows').html(res.data.updatedRates);
+            }else {
+                console.log(res.data.message)
+                let msgs = res.data.message
+                msgs.forEach(element =>
+                cash('#show-error').html('<div class="rounded-md flex items-center px-5 py-4 mb-2 bg-theme-31 text-theme-6"> <i data-feather="alert-octagon" class="w-6 h-6 mr-2"></i> ' + element + ' </div>'));
+                cash('#show-error').removeClass('hidden');
+            }
+            feather.replace();
+        }).catch(err => {
+            cash('#btn-save').html('Save')
+            console.log(err);
+        })
+    }
+
+
+    function editRates(cat, type, meal, hSto, hRack, mSto, mRack, lSto, lRack,hRateId, mRateId, lRateId){
+        cash('#category').val(cat);
+        cash('#room_type').val(type);
+        cash('#meal_plan').val(meal);
+        cash('#hs_sto_rate').val(hSto);
+        cash('#hs_rack_rate').val(hRack);
+        cash('#ms_sto_rate').val(mSto);
+        cash('#ms_rack_rate').val(mRack);
+        cash('#ls_sto_rate').val(lSto);
+        cash('#ls_rack_rate').val(lRack);
+        cash('#hs_rate_id').val(hRateId);
+        cash('#ms_rate_id').val(mRateId);
+        cash('#ls_rate_id').val(lRateId);
+
+        cash('#btn-delete').removeClass('hidden')
+
+        cash('#rates-modal').modal('show');
+        cash('.modal-title').text("Edit Hotel Rates");
+        cash('#btn-save').html('Update')
+        //toggleFormElements(true)
+    }
+
+
+    cash("#btn-delete").on('click', function(e){
+        deleteRates(cash('#hotel_id').val(), cash('#category').val(), cash('#room_type').val(), cash('#meal_plan').val())
+        cash('#btn-save').addClass('hidden')
+        cash('#btn-cancel').addClass('hidden')
+    });
+
+    async function deleteRates(hotelId, categoryId, typeId, mealId) {
+        //console.log(parkId+' -> -> '+categoryId);
+        cash('#btn-delete').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.post("{{url('/hotels/delete-hotel-rates')}}",{
+            hotel_id: hotelId,
+            category_id: categoryId,
+            type_id: typeId,
+            meal_id: mealId
+        }).then(res => {
+            cash('#btn-save').html('Save')
+            if (res.data.deleted_rates) {
+                cash('#rates-rows').html(res.data.updated_rates);
+                cash('#rates-modal').modal('hide');
+            }else {
+                alert('Fail to Delete Activities')
+                console.log("Fail to LOAD!");
+            }
+            cash('#btn-delete').html('Delete')
+            cash('#btn-save').removeClass('hidden')
+            cash('#btn-cancel').removeClass('hidden')
+            feather.replace();
+        }).catch(err => {
+            cash('#btn-delete').html('Delete')
+            cash('#btn-save').removeClass('hidden')
+            cash('#btn-cancel').removeClass('hidden')
+            console.log(err);
+        })
+    }
+
+</script>
 @endsection

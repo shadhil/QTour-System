@@ -35,6 +35,9 @@ class ParkController extends Controller
             ->orderByDesc('parks.id')
             ->get();
 
+        $data['activities'] = DB::table($this->comp_db . '.activities')->get();
+        $data['categories'] = [];
+
         // echo "<pre>";
         // print_r(json_decode(json_encode($data), true));
         // die;
@@ -154,7 +157,7 @@ class ParkController extends Controller
             ->select('park_activities.*', 'activities.activity', 'activity_categories.category')
             ->get();
 
-        $data['activities'] = view('parks.park-activities-list', compact('parkActivities'))->render();
+        $data['activities'] = view('parks.park-activities', compact('parkActivities'))->render();
 
         if (sizeof($parkActivities) > 0) {
             $data['success'] = true;
@@ -262,7 +265,7 @@ class ParkController extends Controller
                 ->select('park_activities.*', 'activities.activity', 'activity_categories.category')
                 ->get();
 
-            $updatedView1 = view('parks.park-activities-list', compact('parkActivities'))->render();
+            $updatedView1 = view('parks.park-activities', compact('parkActivities'))->render();
 
             // return response
             $response = [
@@ -321,7 +324,109 @@ class ParkController extends Controller
             ->select('park_activities.*', 'activities.activity', 'activity_categories.category')
             ->get();
 
-        $data['activities'] = view('parks.park-activities-list', compact('parkActivities'))->render();
+        $data['activities'] = view('parks.park-activities', compact('parkActivities'))->render();
+
+        return response()->json($data);
+    }
+
+    public function addUpdateActivity(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'activity' => 'required',
+        ]);
+
+        if (!$validator->fails()) {
+
+            DB::connection($this->db_conn)->table('activities')->updateOrInsert(
+                [
+                    'id' => $request->id
+                ],
+                [
+                    'activity' => $request->activity
+                ]
+            );
+
+            $activities = DB::connection($this->db_conn)->table('activities')->get();
+
+            $updatedView = view('parks.activities-list', compact('activities'))->render();
+            // return response
+
+            $response = [
+                'success' => true,
+                'message' => 'Activity Added successfully.',
+                'updated_activities' => $updatedView
+            ];
+            return response()->json(
+                $response,
+                200
+            );
+        }
+
+        $response = [
+            'success' => false,
+            'message' => $validator->errors()->all(),
+        ];
+        return response()->json($response, 200);
+    }
+
+    public function addUpdateCategory(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'category' => 'required',
+        ]);
+
+        if (!$validator->fails()) {
+
+            DB::connection($this->db_conn)->table('activity_categories')->updateOrInsert(
+                [
+                    'id' => $request->id
+                ],
+                [
+                    'category' => $request->category,
+                    'activity_id' => $request->activity_id
+                ]
+            );
+
+            $categories = DB::connection($this->db_conn)->table('activity_categories')
+                ->where('activity_id', $request->activity_id)
+                ->get();
+
+            $updatedView = view('parks.categories-list', compact('categories'))->render();
+            // return response
+
+            $response = [
+                'success' => true,
+                'message' => 'Activity Added successfully.',
+                'updated_categories' => $updatedView
+            ];
+            return response()->json(
+                $response,
+                200
+            );
+        }
+
+        $response = [
+            'success' => false,
+            'message' => $validator->errors()->all(),
+        ];
+        return response()->json($response, 200);
+    }
+
+
+    public function loadCategories($activityId)
+    {
+        $categories = DB::connection($this->db_conn)->table('activity_categories')
+            ->where('activity_id', '=', $activityId)
+            ->get();
+
+        $updatedView = view('parks.categories-list', compact('categories'))->render();
+
+        if (sizeof($categories) > 0) {
+            $data['success'] = true;
+        } else {
+            $data['success'] = false;
+        }
+        $data['categories'] = $updatedView;
 
         return response()->json($data);
     }

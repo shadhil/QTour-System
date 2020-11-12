@@ -73,9 +73,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/hotels', [HotelController::class, 'index'])->name('hotels');
     Route::post('/hotels/filter', [HotelController::class, 'filterHotels']);
     Route::post('/hotels/navigate', [HotelController::class, 'navigateHotels']);
-    Route::post('/hotels/new', [HotelController::class, 'newHotel'])->name('hotels.new');
+    Route::get('/hotels/add-hotel', [HotelController::class, 'newHotel'])->name('hotels.new');
     Route::get('/hotels/edit/{hotelId}', [HotelController::class, 'editHotel'])->name('hotels.edit');
     Route::get('/hotels/{hotel}/profile', [HotelController::class, 'hotelProfile'])->name('hotels.profile');
+    Route::post('/hotels/save-hotel', [HotelController::class, 'saveHotel'])->name('hotels.save');
+    Route::post('/hotels/save-hotel-category', [HotelController::class, 'saveHotelCategory'])->name('hotels.save.category');
+    Route::post('/hotels/save-hotel-type', [HotelController::class, 'saveHotelType'])->name('hotels.save.type');
+    Route::post('/hotels/save-hotel-rates', [HotelController::class, 'saveHotelRates'])->name('hotels.save.rates');
+    Route::post('/hotels/delete-hotel-rates', [HotelController::class, 'deleteHotelRates']);
 
     Route::get('/drivers-crew', [CrewController::class, 'index'])->name('drivers-crew');
     Route::post('/drivers-crew/filter', [CrewController::class, 'filter_users']);
@@ -93,6 +98,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/parks/add-park-activity', [ParkController::class, 'addParkActivity']);
     Route::post('/parks/edit-park-activity', [ParkController::class, 'editParkActivity']);
     Route::post('/parks/delete-activity', [ParkController::class, 'deleteParkActivity']);
+    Route::post('/parks/add-activity', [ParkController::class, 'addUpdateActivity']);
+    Route::post('/parks/add-category', [ParkController::class, 'addUpdateCategory']);
+    Route::get('/parks/load-categories/{activityId}', [ParkController::class, 'loadCategories']);
 
 
     Route::get('/reports', [ReportController::class, 'index'])->name('reports');

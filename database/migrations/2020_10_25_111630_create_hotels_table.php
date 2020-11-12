@@ -27,6 +27,7 @@ class CreateHotelsTable extends Migration
             $table->unsignedTinyInteger('region_id')->nullable();
             $table->unsignedInteger('inside_park_id')->nullable();
             $table->unsignedInteger('near_park_id')->nullable();
+            $table->string('rate_doc')->nullable();
             $table->softDeletes();
             $table->timestamps();
 

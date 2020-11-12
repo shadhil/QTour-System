@@ -1,6 +1,8 @@
 @php
 $title = $data['title'];
 $parks = $data['parks'];
+$activities = $data['activities'];
+$categories = $data['categories'];
 $parkActivities = [];
 
 @endphp
@@ -58,7 +60,7 @@ $parkActivities = [];
                             Activity</button>
                     </div>
                     <div id="park_activities_list" class="pos__ticket box p-2 mt-5">
-                        @include('parks.park-activities-list')
+                        @include('parks.park-activities')
                     </div>
                     <div class="flex mt-5">
                         <button id="view_all_parks" class="button w-32 text-white bg-theme-1 shadow-md ml-auto">View
@@ -70,48 +72,49 @@ $parkActivities = [];
                 <div id="activities_list" class="pos intro-y">
                     <div class="box flex p-5 mt-5">
                         <div class="w-full relative text-gray-700">
-                            <input type="text" class="input input--lg w-full bg-gray-200 pr-10 placeholder-theme-13"
-                                placeholder="Use coupon code...">
+                            <input id="activity_entry" name="activity_entry" type="text"
+                                class="input input--lg w-full bg-gray-200 pr-10 placeholder-theme-13"
+                                placeholder="New activity name...">
+                            <input id="activity_entry_id" name="activity_entry_id" type="hidden">
                             <i class="w-4 h-4 hidden sm:absolute my-auto inset-y-0 mr-3 right-0"
                                 data-feather="search"></i>
                         </div>
-                        <button class="button text-white bg-theme-1 ml-2">Apply</button>
+                        <button id="clear-activity"
+                            class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 ml-2 hidden">Clear</button>
+                        <button id="add-activity" class="w-20 button text-white bg-theme-1 ml-2">Save</button>
                     </div>
-                    <div class="pos__ticket box p-2 mt-5">
-                        @foreach (array_slice($fakers, 0, 5) as $key => $faker)
-                        <a href="javascript:;"
-                            class="flex items-center p-3 cursor-pointer transition duration-300 ease-in-out bg-white dark:bg-dark-3 hover:bg-gray-200 dark:hover:bg-dark-1 rounded-md">
-                            <div class="pos__ticket__item-name truncate mr-1">{{ $faker['foods'][0]['name'] }}</div>
-                            <div class="ml-auto"><i data-feather="trash"
-                                    class="w-4 h-4 text-gray-600 ml-2 text-theme-1"></i></div>
-                        </a>
-                        @endforeach
+                    <div id="main_activities" class="pos__ticket box p-2 mt-5">
+                        @include('parks.activities-list')
                     </div>
                 </div>
-                <div id="categories_list" class="pos intro-y">
+                <div id="categories_list" class="pos intro-y hidden">
                     <div class="box flex p-2 mt-5 text-center bg-theme-1">
-                        <div class="w-full relative bg-theme-1 text-white text-lg capitalize text-center">
+                        <div id="updated_activity"
+                            class="w-full relative bg-theme-1 text-white text-lg capitalize text-center">
                             Activity
                         </div>
+                        <input id="updated_activity_id" id="updated_activity_id" type="hidden">
                     </div>
                     <div class="box flex p-5 mt-5">
                         <div class="w-full relative text-gray-700">
-                            <input type="text" class="input input--lg w-full bg-gray-200 pr-10 placeholder-theme-13"
-                                placeholder="Use coupon code...">
+                            <input id="category_entry" name="category_entry" type="text"
+                                class="input input--lg w-full bg-gray-200 pr-10 placeholder-theme-13"
+                                placeholder="Activity's categories...">
+                            <input id="category_entry_id" name="category_entry_id" type="hidden">
                             <i class="w-4 h-4 hidden sm:absolute my-auto inset-y-0 mr-3 right-0"
                                 data-feather="search"></i>
                         </div>
-                        <button class="w-48 button text-white bg-theme-1 ml-2">Save Category</button>
+                        <button id="clear-category"
+                            class="button w-20 border text-gray-700 dark:border-dark-5 dark:text-gray-300 ml-2 hidden">Clear</button>
+                        <button id="add-category" class="w-20 button text-white bg-theme-1 ml-2">Save</button>
                     </div>
-                    <div class="pos__ticket box p-2 mt-5">
-                        @foreach (array_slice($fakers, 0, 5) as $key => $faker)
-                        <a href="javascript:;" data-toggle="modal"
-                            class="flex items-center p-3 cursor-pointer transition duration-300 ease-in-out bg-white dark:bg-dark-3 hover:bg-gray-200 dark:hover:bg-dark-1 rounded-md">
-                            <div class="pos__ticket__item-name truncate mr-1">{{ $faker['foods'][0]['name'] }}</div>
-                            <div class="ml-auto"><i data-feather="trash"
-                                    class="w-4 h-4 text-gray-600 ml-2 text-theme-1"></i></div>
-                        </a>
-                        @endforeach
+                    <div id="main_categories" class="pos__ticket box p-2 mt-5">
+                        @include('parks.categories-list')
+                    </div>
+                    <div class="flex mt-5">
+                        <button id="view_all_activities"
+                            class="button w-32 text-white bg-theme-1 shadow-md ml-auto">View
+                            Activities</button>
                     </div>
                 </div>
             </div>
@@ -694,6 +697,153 @@ $parkActivities = [];
             console.log(err);
         })
     }
+
+</script>
+
+<script>
+    cash('#add-activity').on('click', e => {
+        addUpdateActivity()
+    })
+
+    async function addUpdateActivity() {
+        cash('#add-activity').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.post("{{url('/parks/add-activity')}}", {
+            id : cash('#activity_entry_id').val(),
+            activity : cash('#activity_entry').val(),
+        }).then(res => {
+        cash('#add-activity').html('Save')
+        if (res.data.success == true) {
+            cash('#activity_entry').val('')
+            cash('#activity_entry_id').val('')
+            cash('#main_activities').html(res.data.updated_activities);
+            if (!cash('#clear-activity').hasClass('hidden')) {
+                cash('#clear-activity').addClass('hidden')
+            }
+        }else {
+            console.log(res.data.message)
+            let msgs = res.data.message
+            msgs.forEach(element =>
+            alert(element));
+        }
+        feather.replace();
+        }).catch(err => {
+            cash('#add-activity').html('Save')
+            console.log(err);
+        })
+    }
+
+    function updateActivity(id, activity) {
+        cash('#activity_entry').val(activity)
+        cash('#activity_entry_id').val(id)
+        if (cash('#clear-activity').hasClass('hidden')) {
+            cash('#clear-activity').removeClass('hidden')
+        }
+        cash('#add-activity').html('Update')
+    }
+
+    cash('#clear-activity').on('click', e => {
+        cash('#activity_entry').val('')
+        cash('#activity_entry_id').val('')
+        if (!cash('#clear-activity').hasClass('hidden')) {
+            cash('#clear-activity').addClass('hidden')
+        }
+        cash('#add-activity').html('Save')
+    })
+
+
+    function viewCategories(id, activity) {
+        cash('#updated_activity').text(activity)
+        cash('#updated_activity_id').val(id)
+        cash('#category_entry_id').val('')
+        cash('#category_entry').val('')
+        if (cash('#categories_list').hasClass('hidden')) {
+            cash('#categories_list').removeClass('hidden')
+        }
+        if (!cash('#activities_list').hasClass('hidden')) {
+            cash('#activities_list').addClass('hidden')
+        }
+        loadCategories(id,activity)
+    }
+
+
+    cash('#view_all_activities').on('click', e => {
+        if (!cash('#categories_list').hasClass('hidden')) {
+            cash('#categories_list').addClass('hidden')
+        }
+        if (cash('#activities_list').hasClass('hidden')) {
+            cash('#activities_list').removeClass('hidden')
+        }
+    })
+
+    async function loadCategories(activityId, activityName) {
+
+        cash('#updated_activity').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.get("{{url('/parks/load-categories')}}"+ '/'+ activityId).then(res => {
+        cash('#updated_activity').html(activityName)
+        if (res.data.success == true) {
+            cash('#main_categories').html(res.data.categories);
+        }else {
+            cash('#main_categories').html('NO CATEGORIES FOUND');
+        }
+        feather.replace();
+        }).catch(err => {
+            cash('#updated_activity').html(activityName)
+            console.log(err);
+        })
+    }
+
+    cash('#add-category').on('click', e => {
+        addUpdateCategory()
+    })
+
+    async function addUpdateCategory() {
+        cash('#add-category').html('<i data-loading-icon="oval" data-color="white" class="w-5 h-5 mx-auto"></i>').svgLoader()
+        await helper.delay(1500)
+        axios.post("{{url('/parks/add-category')}}", {
+            id : cash('#category_entry_id').val(),
+            category : cash('#category_entry').val(),
+            activity_id : cash('#updated_activity_id').val(),
+        }).then(res => {
+        cash('#add-category').html('Save')
+        if (res.data.success == true) {
+            cash('#category_entry').val('')
+            cash('#category_entry_id').val('')
+            cash('#main_categories').html(res.data.updated_categories);
+            if (!cash('#clear-category').hasClass('hidden')) {
+                cash('#clear-category').addClass('hidden')
+            }
+        }else {
+            console.log(res.data.message)
+            let msgs = res.data.message
+            msgs.forEach(element =>
+            alert(element));
+        }
+        feather.replace();
+        }).catch(err => {
+            cash('#add-category').html('Save')
+            console.log(err);
+        })
+    }
+
+    function updateCategory(id, activity) {
+        cash('#category_entry').val(activity)
+        cash('#category_entry_id').val(id)
+        if (cash('#clear-category').hasClass('hidden')) {
+            cash('#clear-category').removeClass('hidden')
+        }
+        cash('#add-category').html('Update')
+    }
+
+    cash('#clear-category').on('click', e => {
+        cash('#category_entry_id').val('')
+        cash('#category_entry').val('')
+        if (!cash('#clear-category').hasClass('hidden')) {
+            cash('#clear-category').addClass('hidden')
+        }
+        cash('#add-category').html('Save')
+    })
 
 </script>
 @endsection

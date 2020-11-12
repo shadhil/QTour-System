@@ -9,8 +9,7 @@ $hotels = $data['hotels'];
 <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
     <h2 class="text-lg font-medium mr-auto">List of Hotels</h2>
     <div class="w-full sm:w-auto flex mt-4 sm:mt-0">
-        <a href="javascript:;" data-toggle="modal" id="add-hotel"
-            class="button text-white bg-theme-1 shadow-md mr-2">New Hotel</a>
+        <a href="{{route('hotels.new')}}" class="button text-white bg-theme-1 shadow-md mr-2">New Hotel</a>
     </div>
 </div>
 <div class="pos intro-y grid grid-cols-12 gap-5 mt-5">

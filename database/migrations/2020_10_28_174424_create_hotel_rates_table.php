@@ -19,8 +19,9 @@ class CreateHotelRatesTable extends Migration
             $table->unsignedTinyInteger('room_type_id');
             $table->unsignedTinyInteger('meal_plan_id')->nullable();
             $table->unsignedTinyInteger('season_id')->nullable();
-            $table->double('standard_rate');
-            $table->double('rack_rate');
+            $table->decimal('sto_rate')->nullable()->default(0.00);
+            $table->decimal('rack_rate')->nullable()->default(0.00);
+            $table->unsignedBigInteger('hotel_id');
             $table->timestamps();
 
 
@@ -29,6 +30,7 @@ class CreateHotelRatesTable extends Migration
             $table->foreign('room_type_id')->references('id')->on('room_types')->onUpdate('cascade')->onDelete('cascade');
             $table->foreign('meal_plan_id')->references('id')->on('hotel_meal_plans')->onUpdate('cascade')->onDelete('set null');
             $table->foreign('season_id')->references('id')->on('hotel_seasons')->onUpdate('cascade')->onDelete('set null');
+            $table->foreign('hotel_id')->references('id')->on('hotels')->onUpdate('cascade')->onDelete('cascade');
         });
     }
 
